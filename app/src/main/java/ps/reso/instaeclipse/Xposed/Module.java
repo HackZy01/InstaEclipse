@@ -284,7 +284,7 @@ public class Module implements IXposedHookLoadPackage, IXposedHookZygoteInit {
 
                     // Comment Copy
                     try {
-                        new CommentCopyHook().install(lpparam.classLoader);
+                        new CommentCopyHook().install(dexKitBridge, lpparam.classLoader);
                     } catch (Throwable ignored) {
                         XposedBridge.log("(InstaEclipse | CopyComment): ❌ Failed to hook");
                     }
