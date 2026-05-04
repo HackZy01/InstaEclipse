@@ -25,8 +25,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.luckypray.dexkit.DexKitBridge;
+import org.luckypray.dexkit.query.FindClass;
 import org.luckypray.dexkit.query.FindMethod;
+import org.luckypray.dexkit.query.matchers.ClassMatcher;
 import org.luckypray.dexkit.query.matchers.MethodMatcher;
+import org.luckypray.dexkit.result.ClassData;
 import org.luckypray.dexkit.result.MethodData;
 
 import java.lang.reflect.Field;
@@ -42,14 +45,6 @@ import ps.reso.instaeclipse.utils.feature.FeatureFlags;
 import ps.reso.instaeclipse.utils.feature.FeatureStatusTracker;
 import ps.reso.instaeclipse.utils.i18n.I18n;
 
-/**
- * Hooks Instagram's GestureDetector.onLongPress on comment rows (found via the
- * "fb_comment_long_press" analytics string) and shows a copy popup when the user
- * long-presses a text comment.  Comment text is extracted directly from the comment
- * data object via type-based reflection — no view hierarchy traversal.
- *
- * Object graph: GestureListener → contextHolder → commentItem (has User field) → A0R String
- */
 public class CommentCopyHook {
 
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
@@ -107,6 +102,31 @@ public class CommentCopyHook {
         );
 
         if (found.isEmpty()) {
+            found = bridge.findMethod(FindMethod.create()
+                    .matcher(MethodMatcher.create()
+                            .name("onLongPress")
+                            .usingStrings("comment_row_component")
+                    )
+            );
+        }
+
+        if (found.isEmpty()) {
+            List<ClassData> classes = bridge.findClass(FindClass.create()
+                    .matcher(ClassMatcher.create()
+                            .usingStrings("fb_comment_long_press")
+                    )
+            );
+            for (ClassData cd : classes) {
+                found.addAll(bridge.findMethod(FindMethod.create()
+                        .matcher(MethodMatcher.create()
+                                .declaredClass(cd.getName())
+                                .name("onLongPress")
+                        )
+                ));
+            }
+        }
+
+        if (found.isEmpty()) {
             XposedBridge.log("(InstaEclipse | CopyComment): ❌ onLongPress not found via DexKit");
             return;
         }
@@ -130,8 +150,6 @@ public class CommentCopyHook {
         }
     }
 
-    // ── Long-press hook ───────────────────────────────────────────────────────
-
     private static final XC_MethodHook LONG_PRESS_HOOK = new XC_MethodHook() {
         @Override
         protected void beforeHookedMethod(MethodHookParam param) {
@@ -150,25 +168,10 @@ public class CommentCopyHook {
         }
     };
 
-    // ── Comment text extraction ───────────────────────────────────────────────
-
     private static final String CACHE_ITEM_CLASS = "CommentCopy_ItemClass";
     private static final String CACHE_TEXT_FIELD = "CommentCopy_TextField";
 
-    /**
-     * Two-phase extraction:
-     *
-     * Fast path (cache hit): the comment-item class name and text field name were
-     * resolved on a previous long-press for this IG version.  Locate the item by
-     * class name and read the field directly — no heuristic needed.
-     *
-     * Discovery path (cache miss / first run): walk the object graph two hops,
-     * find the comment item by its User field, pick the text field by elimination,
-     * then cache both names for all subsequent calls this session and on the next
-     * launch of the same IG version.
-     */
     private static String extractCommentText(Object gestureListener) {
-        // ── Fast path ────────────────────────────────────────────────────────
         if (DexKitCache.isCacheValid()) {
             String itemClass = DexKitCache.loadString(CACHE_ITEM_CLASS);
             String textField = DexKitCache.loadString(CACHE_TEXT_FIELD);
@@ -181,19 +184,13 @@ public class CommentCopyHook {
                     String val = (String) tf.get(item);
                     return (val != null && !val.isEmpty()) ? val : null;
                 } catch (Throwable ignored) {
-                    // Field disappeared (shouldn't happen within a version) — fall through
                 }
             }
         }
 
-        // ── Discovery path ───────────────────────────────────────────────────
         return discoverAndCache(gestureListener);
     }
 
-    /**
-     * Walks {@code gestureListener}'s two-hop object graph looking for an object
-     * whose runtime class name equals {@code targetClassName}.
-     */
     private static Object findItemByClass(Object gestureListener, String targetClassName) {
         try {
             for (Field f1 : gestureListener.getClass().getDeclaredFields()) {
@@ -213,10 +210,6 @@ public class CommentCopyHook {
         return null;
     }
 
-    /**
-     * Finds the comment item via the User-field heuristic, picks the text field
-     * by elimination of known ID patterns, then caches both names.
-     */
     private static String discoverAndCache(Object gestureListener) {
         try {
             ClassLoader cl = gestureListener.getClass().getClassLoader();
@@ -236,17 +229,15 @@ public class CommentCopyHook {
                     if (item == null) continue;
                     if (!hasFieldOfType(item.getClass(), userClass)) continue;
 
-                    // Found the comment item; pick the text field
                     String[] found = findTextField(item);
                     if (found != null) {
-                        // Cache: class name + field name survive until next IG update
                         DexKitCache.saveString(CACHE_ITEM_CLASS, item.getClass().getName());
                         DexKitCache.saveString(CACHE_TEXT_FIELD, found[0]);
                         XposedBridge.log("(InstaEclipse | CopyComment): cached "
                                 + item.getClass().getName() + "." + found[0]);
                         return found[1];
                     }
-                    return null; // GIF/sticker — no text field
+                    return null;
                 }
             }
         } catch (Throwable t) {
@@ -255,11 +246,6 @@ public class CommentCopyHook {
         return null;
     }
 
-    /**
-     * Scans all String fields of {@code item}, filters known ID patterns, and
-     * returns {fieldName, value} for the longest remaining candidate, or null
-     * if no comment text is present (GIF / sticker comment).
-     */
     private static String[] findTextField(Object item) {
         String bestName = null;
         String bestVal  = null;
@@ -269,9 +255,9 @@ public class CommentCopyHook {
                 f.setAccessible(true);
                 String val = (String) f.get(item);
                 if (val == null || val.isEmpty()) continue;
-                if (val.matches("\\d+")) continue;         // pure numeric ID
-                if (val.matches("\\d+_\\d+")) continue;    // compound ID (mediaId_userId)
-                if (val.startsWith("http")) continue;      // URL
+                if (val.matches("\\d+")) continue;
+                if (val.matches("\\d+_\\d+")) continue;
+                if (val.startsWith("http")) continue;
                 if (bestVal == null || val.length() > bestVal.length()) {
                     bestName = f.getName();
                     bestVal  = val;
@@ -281,7 +267,6 @@ public class CommentCopyHook {
         return (bestName != null) ? new String[]{bestName, bestVal} : null;
     }
 
-    /** True when the field is an obfuscated reference type (not a framework class). */
     private static boolean isObfuscatedObject(Field f) {
         Class<?> t = f.getType();
         if (t.isPrimitive() || t == String.class) return false;
@@ -290,15 +275,12 @@ public class CommentCopyHook {
                 && !n.startsWith("kotlin.") && !n.startsWith("androidx.");
     }
 
-    /** True when {@code clazz} has at least one field assignable to {@code target}. */
     private static boolean hasFieldOfType(Class<?> clazz, Class<?> target) {
         for (Field f : clazz.getDeclaredFields()) {
             if (target.isAssignableFrom(f.getType())) return true;
         }
         return false;
     }
-
-    // ── Theme helpers ─────────────────────────────────────────────────────────
 
     private static boolean isDarkTheme(Context ctx) {
         return (ctx.getResources().getConfiguration().uiMode
