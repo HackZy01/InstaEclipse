@@ -27,6 +27,9 @@
 
 It uses [DexKit](https://github.com/LuckyPray/DexKit) for dynamic class/method detection, keeping it compatible with new Instagram releases automatically.
 
+> [!IMPORTANT]
+> **Version 0.5.2 is the final release of InstaEclipse.** This project is being merged into the [Purrfect](https://t.me/purrfect_tg) project — follow the Telegram channel for future updates.
+
 ---
 
 ## ✨ Features
@@ -73,9 +76,11 @@ It uses [DexKit](https://github.com/LuckyPray/DexKit) for dynamic class/method d
 
 <br/>
 
-- Unlock the full MetaConfig developer panel
-- Import/Export your config as JSON
-- Remove the "Build Expired" popup on older builds
+| Feature | Description |
+|---|---|
+| MetaConfig Panel | Unlock the full MetaConfig developer panel |
+| Import/Export Config | Import or export your config as JSON |
+| Remove Build Expired Popup | Dismiss the "Build Expired" popup on older builds |
 
 > **Note:** Use Beta or Alpha Instagram builds for best results. Stable builds apply obfuscation that makes some labels appear as numbers.
 
@@ -97,9 +102,11 @@ It uses [DexKit](https://github.com/LuckyPray/DexKit) for dynamic class/method d
 
 <br/>
 
-- Block sponsored posts and ads from your feed
-- Block Instagram's analytics and telemetry
-- Disable tracking links in DMs and posts
+| Feature | Description |
+|---|---|
+| Block Ads | Block sponsored posts and ads from your feed |
+| Block Analytics | Block Instagram's analytics and telemetry |
+| Disable Tracking Links | Disable tracking links in DMs and posts |
 
 </details>
 
@@ -108,8 +115,10 @@ It uses [DexKit](https://github.com/LuckyPray/DexKit) for dynamic class/method d
 
 <br/>
 
-- Disable Stories, Feed, Reels, Explore, or Comments independently
-- **Extreme Mode** — permanently removes distractions until reinstall
+| Feature | Description |
+|---|---|
+| Disable Sections | Disable Stories, Feed, Reels, Explore, or Comments independently |
+| Extreme Mode | Permanently removes distractions until reinstall |
 
 > After enabling, force stop Instagram and clear its cache.
 
@@ -137,7 +146,10 @@ It uses [DexKit](https://github.com/LuckyPray/DexKit) for dynamic class/method d
 
 <br/>
 
-Export and restore all your InstaEclipse settings as a file — useful when switching devices or reinstalling.
+| Feature | Description |
+|---|---|
+| Export Settings | Save all your InstaEclipse settings to a file |
+| Restore Settings | Restore settings from a backup — useful when switching devices or reinstalling |
 
 </details>
 
@@ -147,10 +159,10 @@ Export and restore all your InstaEclipse settings as a file — useful when swit
 
 While InstaEclipse is built to stay compatible with new Instagram releases automatically, some features may be unstable on specific versions. If something stops working after an Instagram update, check the [Telegram channel](https://t.me/InstaEclipse) for status updates before opening an issue.
 
-| | |
-|---|---|
-| **Latest tested version** | [`425.0.0.0.0`](https://www.apkmirror.com/apk/instagram/instagram-instagram/instagram-425-0-0-0-0-release/) |
-| **Recommended build type** | Beta or Alpha (from APKMirror) |
+| |                                                                                                                 |
+|---|-----------------------------------------------------------------------------------------------------------------|
+| **Latest tested version** | [`429.0.0.19.70`](https://www.apkmirror.com/apk/instagram/instagram-instagram/instagram-429-0-0-19-70-release/) |
+| **Recommended build type** | Beta or Alpha (from APKMirror)                                                                                  |
 
 ---
 
