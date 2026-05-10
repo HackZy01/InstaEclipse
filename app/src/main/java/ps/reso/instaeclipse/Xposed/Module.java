@@ -470,12 +470,7 @@ public class Module implements IXposedHookLoadPackage, IXposedHookZygoteInit {
         if (Build.VERSION.SDK_INT >= 33) {
             context.registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED);
         } else {
-            // On API < 33 there are no EXPORTED/NOT_EXPORTED flags.
-            // ContextCompat.RECEIVER_NOT_EXPORTED injects a custom permission that the
-            // companion app doesn't hold, silently blocking its broadcasts from reaching
-            // this receiver.  Use the plain two-arg overload instead so the companion app
-            // can send ACTION_UPDATE_PREF_STRING and friends without restriction.
-            context.registerReceiver(receiver, filter);
+            ContextCompat.registerReceiver(context, receiver, filter, ContextCompat.RECEIVER_EXPORTED);
         }
     }
 }

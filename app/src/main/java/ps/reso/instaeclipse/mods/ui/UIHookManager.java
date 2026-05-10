@@ -336,8 +336,10 @@ public class UIHookManager {
                     new IntentFilter("ps.reso.instaeclipse.ACTION_IMPORT_CONFIG"),
                     android.content.Context.RECEIVER_EXPORTED);
         } else {
-            context.registerReceiver(receiver,
-                    new IntentFilter("ps.reso.instaeclipse.ACTION_IMPORT_CONFIG"));
+            androidx.core.content.ContextCompat.registerReceiver(context,
+                    receiver,
+                    new IntentFilter("ps.reso.instaeclipse.ACTION_IMPORT_CONFIG"),
+                    androidx.core.content.ContextCompat.RECEIVER_EXPORTED);
         }
     }
 
@@ -370,8 +372,10 @@ public class UIHookManager {
                         new IntentFilter("ps.reso.instaeclipse.ACTION_RESTORE_SETTINGS"),
                         android.content.Context.RECEIVER_EXPORTED);
             } else {
-                context.registerReceiver(receiver,
-                        new IntentFilter("ps.reso.instaeclipse.ACTION_RESTORE_SETTINGS"));
+                androidx.core.content.ContextCompat.registerReceiver(context,
+                        receiver,
+                        new IntentFilter("ps.reso.instaeclipse.ACTION_RESTORE_SETTINGS"),
+                        androidx.core.content.ContextCompat.RECEIVER_EXPORTED);
             }
             } catch (Throwable e) {
             XposedBridge.log("(InstaEclipse | RestoreReceiver): ❌ " + e.getMessage());
