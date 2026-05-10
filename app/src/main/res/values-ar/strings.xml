@@ -142,6 +142,9 @@
     <string name="ig_dialog_dev_enable">تفعيل وضع المطور</string>
     <string name="ig_dialog_dev_import">استيراد إعدادات المطور</string>
     <string name="ig_dialog_dev_export">تصدير إعدادات المطور</string>
+    <string name="ig_dialog_dev_restore_default_config">استعادة الإعدادات الافتراضية</string>
+    <string name="ig_dialog_dev_restore_default_config_confirm">سيؤدي هذا إلى استبدال إعدادات المطور الحالية بالإعدادات الافتراضية المضمنة. هل تريد المتابعة؟</string>
+    <string name="ig_toast_default_config_restored">✅ تمت استعادة الإعدادات الافتراضية.</string>
     <string name="ig_dialog_dev_remove_build_expired">إزالة نافذة انتهاء صلاحية الإصدار</string>
     <string name="ig_dialog_unable_open_ui">تعذر فتح واجهة InstaEclipse.</string>
     <string name="ig_dialog_instagram_not_ready">إنستغرام غير مفتوح أو غير جاهز.</string>

@@ -144,6 +144,9 @@
     <string name="ig_dialog_dev_enable">Включить режим разработчика</string>
     <string name="ig_dialog_dev_import">Импорт конфигурации разработчика</string>
     <string name="ig_dialog_dev_export">Экспорт конфигурации разработчика</string>
+    <string name="ig_dialog_dev_restore_default_config">Восстановить конфигурацию по умолчанию</string>
+    <string name="ig_dialog_dev_restore_default_config_confirm">Это заменит текущую конфигурацию разработчика встроенной по умолчанию. Продолжить?</string>
+    <string name="ig_toast_default_config_restored">✅ Конфигурация по умолчанию восстановлена.</string>
     <string name="ig_dialog_dev_remove_build_expired">Убрать всплывающее окно истечения сборки</string>
     <string name="ig_dialog_unable_open_ui">Не удалось открыть интерфейс InstaEclipse.</string>
     <string name="ig_dialog_instagram_not_ready">Instagram не открыт или не готов.</string>

@@ -29,6 +29,8 @@ import java.io.FileReader;
 
 import de.robv.android.xposed.XposedBridge;
 import ps.reso.instaeclipse.R;
+import ps.reso.instaeclipse.Xposed.Module;
+import ps.reso.instaeclipse.mods.devops.config.ConfigManager;
 import ps.reso.instaeclipse.mods.ghost.ui.GhostEmojiManager;
 import ps.reso.instaeclipse.mods.ui.UIHookManager;
 import ps.reso.instaeclipse.utils.core.SettingsManager;
@@ -402,6 +404,17 @@ public class DialogUtils {
                 showSimpleDialog(context, I18n.t(context, R.string.ig_dialog_error), I18n.t(context, R.string.ig_dialog_instagram_not_ready));
             }
         }));
+
+        layout.addView(createActionRow(context, "🔄", I18n.t(context, R.string.ig_dialog_dev_restore_default_config), "#FF9F0A", v -> {
+            new AlertDialog.Builder(context)
+                    .setTitle(I18n.t(context, R.string.ig_dialog_dev_restore_default_config))
+                    .setMessage(I18n.t(context, R.string.ig_dialog_dev_restore_default_config_confirm))
+                    .setPositiveButton(I18n.t(context, R.string.ig_dialog_yes), (dialog, which) ->
+                            ConfigManager.restoreDefaultConfig(context, Module.moduleSourceDir))
+                    .setNegativeButton(I18n.t(context, R.string.ig_dialog_cancel), null)
+                    .show();
+        }));
+
         layout.addView(createDivider(context));
 
         ToggleRow buildExpiredSwitch = createSwitch(context, I18n.t(context, R.string.ig_dialog_dev_remove_build_expired), FeatureFlags.removeBuildExpiredPopup);

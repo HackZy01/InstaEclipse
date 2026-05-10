@@ -144,6 +144,9 @@
     <string name="ig_dialog_dev_enable">Geliştirici Modunu Etkinleştir</string>
     <string name="ig_dialog_dev_import">Geliştirici Yapılandırmasını İçe Aktar</string>
     <string name="ig_dialog_dev_export">Geliştirici Yapılandırmasını Dışa Aktar</string>
+    <string name="ig_dialog_dev_restore_default_config">Varsayılan Yapılandırmayı Geri Yükle</string>
+    <string name="ig_dialog_dev_restore_default_config_confirm">Bu, mevcut Geliştirici Yapılandırmasının yerini yerleşik varsayılan ile alacaktır. Devam edilsin mi?</string>
+    <string name="ig_toast_default_config_restored">✅ Varsayılan yapılandırma geri yüklendi.</string>
     <string name="ig_dialog_dev_remove_build_expired">Süresi Dolmuş Derleme Uyarısını Kaldır</string>
     <string name="ig_dialog_unable_open_ui">InstaEclipse arayüzü açılamıyor.</string>
     <string name="ig_dialog_instagram_not_ready">Instagram açık değil veya hazır değil.</string>

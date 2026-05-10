@@ -1,7 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- app wide -->
     <string name="app_name">InstaEclipse</string>
-    <string name="version" translatable="false">v0.5.1 Beta</string>
+    <string name="version" translatable="false">v0.5.2 Beta</string>
     <string name="home">Beranda</string>
     <string name="features">Fitur</string>
     <string name="help">Bantuan</string>
@@ -170,6 +170,9 @@
     <string name="ig_dialog_dev_enable">Aktifkan Mode Pengembang</string>
     <string name="ig_dialog_dev_import">Impor Konfigurasi Dev</string>
     <string name="ig_dialog_dev_export">Ekspor Konfigurasi Dev</string>
+    <string name="ig_dialog_dev_restore_default_config">Pulihkan ke Konfigurasi Default</string>
+    <string name="ig_dialog_dev_restore_default_config_confirm">Ini akan menimpa Konfigurasi Dev saat ini dengan konfigurasi default bawaan. Lanjutkan?</string>
+    <string name="ig_toast_default_config_restored">✅ Konfigurasi default berhasil dipulihkan.</string>
     <string name="ig_dialog_dev_remove_build_expired">Hapus Popup Build Kedaluwarsa</string>
     <string name="ig_dialog_unable_open_ui">Tidak dapat membuka antarmuka InstaEclipse.</string>
     <string name="ig_dialog_instagram_not_ready">Instagram tidak terbuka atau belum siap.</string>

@@ -33,9 +33,10 @@ public class CustomToast {
 
                 android.widget.Toast toast = new android.widget.Toast(context);
                 toast.setView(toastText);
-                toast.setDuration(android.widget.Toast.LENGTH_LONG);
+                toast.setDuration(android.widget.Toast.LENGTH_SHORT);
                 toast.setGravity(Gravity.BOTTOM, 0, 150);
                 toast.show();
+                new Handler(Looper.getMainLooper()).postDelayed(toast::cancel, 1500);
 
             } catch (Throwable t) {
                 XposedBridge.log("❌ Failed to show custom toast: " + Log.getStackTraceString(t));
