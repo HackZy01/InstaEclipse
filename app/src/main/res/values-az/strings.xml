@@ -144,6 +144,9 @@
     <string name="ig_dialog_dev_enable">Tərtibatçı Rejimini Aktiv Et</string>
     <string name="ig_dialog_dev_import">Tərtibatçı Konfiqurasiyasını İdxal Et</string>
     <string name="ig_dialog_dev_export">Tərtibatçı Konfiqurasiyasını İxrac Et</string>
+    <string name="ig_dialog_dev_restore_default_config">Standart Konfiqurasiyaya Qayıt</string>
+    <string name="ig_dialog_dev_restore_default_config_confirm">Bu, cari Tərtibatçı Konfiqurasiyasını daxil edilmiş standart ilə əvəz edəcəkdir. Davam etmək istəyirsiniz?</string>
+    <string name="ig_toast_default_config_restored">✅ Standart konfiqurasiya bərpa edildi.</string>
     <string name="ig_dialog_dev_remove_build_expired">Sürüm Vaxtı Keçmiş Bildirişini Sil</string>
     <string name="ig_dialog_unable_open_ui">InstaEclipse interfeysi açıla bilmir.</string>
     <string name="ig_dialog_instagram_not_ready">Instagram açıq deyil və ya hazır deyil.</string>

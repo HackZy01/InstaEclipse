@@ -170,6 +170,9 @@
     <string name="ig_dialog_dev_enable">Activer le Mode Développeur</string>
     <string name="ig_dialog_dev_import">Importer Config Dev</string>
     <string name="ig_dialog_dev_export">Exporter Config Dev</string>
+    <string name="ig_dialog_dev_restore_default_config">Restaurer la configuration par défaut</string>
+    <string name="ig_dialog_dev_restore_default_config_confirm">Cela écrasera la configuration développeur actuelle avec celle par défaut incluse. Continuer ?</string>
+    <string name="ig_toast_default_config_restored">✅ Configuration par défaut restaurée.</string>
     <string name="ig_dialog_dev_remove_build_expired">Supprimer le Popup Build Expiré</string>
     <string name="ig_dialog_unable_open_ui">Impossible d\'ouvrir l\'interface InstaEclipse.</string>
     <string name="ig_dialog_instagram_not_ready">Instagram n\'est pas ouvert ou prêt.</string>

@@ -178,6 +178,9 @@
     <string name="ig_dialog_dev_enable">Enable Developer Mode</string>
     <string name="ig_dialog_dev_import">Import Dev Config</string>
     <string name="ig_dialog_dev_export">Export Dev Config</string>
+    <string name="ig_dialog_dev_restore_default_config">Restore to Default Config</string>
+    <string name="ig_dialog_dev_restore_default_config_confirm">This will overwrite the current Developer Config with the bundled default. Continue?</string>
+    <string name="ig_toast_default_config_restored">✅ Default config restored.</string>
     <string name="ig_dialog_dev_remove_build_expired">Remove Build Expired Popup</string>
     <string name="ig_dialog_clear_cache">🔄 Clear Hooks Cache</string>
     <string name="ig_dialog_section_clear_cache">Clear Hooks Cache</string>

@@ -143,6 +143,9 @@
     <string name="ig_dialog_dev_enable">Aktivera utvecklarläge</string>
     <string name="ig_dialog_dev_import">Importera utvecklarkonfiguration</string>
     <string name="ig_dialog_dev_export">Exportera utvecklarkonfiguration</string>
+    <string name="ig_dialog_dev_restore_default_config">Återställ standardkonfiguration</string>
+    <string name="ig_dialog_dev_restore_default_config_confirm">Detta skriver över den nuvarande utvecklarkonfigurationen med den inbyggda standardkonfigurationen. Fortsätt?</string>
+    <string name="ig_toast_default_config_restored">✅ Standardkonfiguration återställd.</string>
     <string name="ig_dialog_dev_remove_build_expired">Ta bort popup för utgången version</string>
     <string name="ig_dialog_unable_open_ui">Kan inte öppna InstaEclipse-gränssnittet.</string>
     <string name="ig_dialog_instagram_not_ready">Instagram är inte öppet eller redo.</string>

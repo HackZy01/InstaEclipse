@@ -621,7 +621,8 @@ public class FeaturesFragment extends Fragment {
         defs.add(getString(R.string.feat_config));
         defs.add(Arrays.asList(
                 createClickable(getString(R.string.ig_dialog_dev_import), 0xFF30D158, this::importDevConfig),
-                createClickable(getString(R.string.ig_dialog_dev_export), 0xFF0A84FF, this::exportDevConfig)
+                createClickable(getString(R.string.ig_dialog_dev_export), 0xFF0A84FF, this::exportDevConfig),
+                createClickable(getString(R.string.ig_dialog_dev_restore_default_config), 0xFFFF9F0A, this::restoreDefaultConfig)
         ));
 
         defs.add(getString(R.string.feat_options));
@@ -938,6 +939,31 @@ public class FeaturesFragment extends Fragment {
         Intent request = new Intent("ps.reso.instaeclipse.ACTION_EXPORT_CONFIG");
         request.setPackage("com.instagram.android");
         requireContext().sendBroadcast(request);
+    }
+
+    private void restoreDefaultConfig() {
+        new AlertDialog.Builder(requireContext())
+                .setTitle(getString(R.string.ig_dialog_dev_restore_default_config))
+                .setMessage(getString(R.string.ig_dialog_dev_restore_default_config_confirm))
+                .setPositiveButton(getString(R.string.ig_dialog_yes), (dialog, which) -> {
+                    try (InputStream is = requireContext().getAssets().open("default_mc_overrides.json");
+                         Scanner scanner = new Scanner(is, "UTF-8").useDelimiter("\\A")) {
+                        String json = scanner.hasNext() ? scanner.next() : "";
+                        if (json.isEmpty()) {
+                            Toast.makeText(requireContext(), getString(R.string.ig_toast_config_import_failed), Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        Intent broadcast = new Intent("ps.reso.instaeclipse.ACTION_IMPORT_CONFIG");
+                        broadcast.setPackage("com.instagram.android");
+                        broadcast.putExtra("json_content", json);
+                        requireContext().sendBroadcast(broadcast);
+                        Toast.makeText(requireContext(), getString(R.string.ig_toast_default_config_restored), Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) {
+                        Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton(getString(R.string.ig_dialog_cancel), null)
+                .show();
     }
 
     private void showAboutDialog() {

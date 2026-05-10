@@ -170,6 +170,9 @@
     <string name="ig_dialog_dev_enable">הפעל מצב מפתחים</string>
     <string name="ig_dialog_dev_import">ייבא הגדרות מפתחים</string>
     <string name="ig_dialog_dev_export">ייצא הגדרות מפתחים</string>
+    <string name="ig_dialog_dev_restore_default_config">שחזר להגדרות ברירת המחדל</string>
+    <string name="ig_dialog_dev_restore_default_config_confirm">פעולה זו תחליף את הגדרות המפתחים הנוכחיות בהגדרות ברירת המחדל המובנות. להמשיך?</string>
+    <string name="ig_toast_default_config_restored">✅ הגדרות ברירת המחדל שוחזרו.</string>
     <string name="ig_dialog_dev_remove_build_expired">הסר חלונית Build Expired</string>
     <string name="ig_dialog_unable_open_ui">לא ניתן לפתוח את ממשק InstaEclipse.</string>
     <string name="ig_dialog_instagram_not_ready">אינסטגרם אינו פתוח או מוכן.</string>

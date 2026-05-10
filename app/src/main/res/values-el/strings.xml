@@ -171,6 +171,9 @@
     <string name="ig_dialog_dev_enable">Ενεργοποίηση Λειτουργίας Προγραμματιστή</string>
     <string name="ig_dialog_dev_import">Εισαγωγή Ρυθμίσεων Προγραμματιστή</string>
     <string name="ig_dialog_dev_export">Εξαγωγή Ρυθμίσεων Προγραμματιστή</string>
+    <string name="ig_dialog_dev_restore_default_config">Επαναφορά Προεπιλεγμένης Διαμόρφωσης</string>
+    <string name="ig_dialog_dev_restore_default_config_confirm">Αυτό θα αντικαταστήσει την τρέχουσα Διαμόρφωση Προγραμματιστή με την ενσωματωμένη προεπιλεγμένη. Συνέχεια;</string>
+    <string name="ig_toast_default_config_restored">✅ Η προεπιλεγμένη διαμόρφωση αποκαταστάθηκε.</string>
     <string name="ig_dialog_dev_remove_build_expired">Αφαίρεση Αναδυόμενου Παλαιάς Έκδοσης</string>
     <string name="ig_dialog_unable_open_ui">Αδύνατο άνοιγμα διεπαφής InstaEclipse.</string>
     <string name="ig_dialog_instagram_not_ready">Το Instagram δεν είναι ανοιχτό ή έτοιμο.</string>
