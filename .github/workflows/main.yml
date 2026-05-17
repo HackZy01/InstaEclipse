@@ -1,10 +1,9 @@
-name: Build Debug APK
+name: Build Release APK
 
 on:
   push:
     branches:
       - main  # Trigger workflow on pushes to the main branch
-      - 0.4
   pull_request:
     branches:
       - main  # Trigger workflow on pull requests to the main branch
@@ -46,12 +45,12 @@ jobs:
         run: chmod +x ./gradlew
 
       # Step 6: Build the debug APK
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug
+      - name: Build APK
+        run: ./gradlew assembleRelease
 
       # Step 7: Upload the debug APK as an artifact
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: app/build/outputs/apk/release/app-debug.apk
