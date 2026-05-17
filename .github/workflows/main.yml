@@ -10,7 +10,7 @@ on:
   workflow_dispatch:  # Allow manual triggering via the GitHub Actions UI
 
 jobs:
-  build_debug_apk:
+  build_release_apk:
     runs-on: ubuntu-latest
 
     steps:
@@ -52,5 +52,5 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: debug-apk
-          path: app/build/outputs/apk/release/app-debug.apk
+          name: release-apk
+          path: app/build/outputs/apk/release/app-release.apk
