@@ -23,22 +23,44 @@ public class HideSuggestedFeedItemsHook {
         XC_MethodHook filterHook = new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) {
-                if (!FeatureFlags.hideSuggestionsInFeed) return;
+                if (!FeatureFlags.hideSuggestionsInFeed && !FeatureFlags.hideThreadsSuggestions) return;
 
                 Object result = param.getResult();
                 if (result == null) return;
 
+                // The parsed FeedItem is a large union type — exactly one of its many
+                // optional fields is populated per server-sent unit. A real post always
+                // has its Media field set; every suggestion/injection type (clips netego,
+                // suggested users, Threads cross-promo units, ...) leaves it null.
+                boolean hasMedia = false;
+                boolean isThreadsUnit = false;
                 for (Field f : result.getClass().getDeclaredFields()) {
-                    if (f.getType().getName().equals("com.instagram.feed.media.Media")) {
+                    String typeName = f.getType().getSimpleName();
+                    if (typeName.equals("Media")) {
                         try {
                             f.setAccessible(true);
-                            if (f.get(result) != null) return;
+                            if (f.get(result) != null) { hasMedia = true; break; }
+                        } catch (Throwable ignored) {}
+                    } else if (typeName.contains("Threads") || typeName.startsWith("TextApp") || typeName.startsWith("XDTTextApp")) {
+                        // Threads-in-feed cross-promo unit types (ThreadsInFeedUnit...,
+                        // TextApp...UnitDictImpl, XDTTextApp...UnitDictImpl) — matched by
+                        // simple name since these are stable, unobfuscated GraphQL-generated
+                        // class names, unlike the surrounding obfuscated field names.
+                        try {
+                            f.setAccessible(true);
+                            if (f.get(result) != null) isThreadsUnit = true;
                         } catch (Throwable ignored) {}
                     }
                 }
 
+                if (hasMedia) return; // real post — never hide
+
+                boolean shouldHide = isThreadsUnit ? FeatureFlags.hideThreadsSuggestions
+                                                    : FeatureFlags.hideSuggestionsInFeed;
+                if (!shouldHide) return;
+
                 param.setResult(null);
-                FeatureStatusTracker.setHooked("HideSuggestionsInFeed");
+                FeatureStatusTracker.setHooked(isThreadsUnit ? "HideThreadsSuggestions" : "HideSuggestionsInFeed");
             }
         };
 

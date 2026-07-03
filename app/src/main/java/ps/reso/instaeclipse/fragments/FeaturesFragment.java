@@ -708,7 +708,8 @@ public class FeaturesFragment extends Fragment {
 
         defs.add(getString(R.string.feat_features));
         defs.add(Arrays.asList(
-                createSwitch(getString(R.string.ig_dialog_clean_feed_hide_suggested), "hideSuggestionsInFeed")
+                createSwitch(getString(R.string.ig_dialog_clean_feed_hide_suggested), "hideSuggestionsInFeed"),
+                createSwitch(getString(R.string.ig_dialog_clean_feed_hide_threads), "hideThreadsSuggestions")
         ));
 
         showMenu(getString(R.string.ig_dialog_section_clean_feed), defs);

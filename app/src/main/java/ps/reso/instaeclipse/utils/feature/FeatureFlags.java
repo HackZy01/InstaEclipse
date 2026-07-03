@@ -63,6 +63,7 @@ public class FeatureFlags {
 
     // Clean Feed
     public static boolean hideSuggestionsInFeed = false;
+    public static boolean hideThreadsSuggestions = false;
 
     // Downloader
     public static boolean enablePostDownload = false;

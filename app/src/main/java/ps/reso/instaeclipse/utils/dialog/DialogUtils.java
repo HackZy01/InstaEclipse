@@ -752,6 +752,15 @@ public class DialogUtils {
 
         layout.addView(hideSuggestedSwitch);
 
+        ToggleRow hideThreadsSwitch = createSwitch(context, I18n.t(context, R.string.ig_dialog_clean_feed_hide_threads), FeatureFlags.hideThreadsSuggestions);
+
+        hideThreadsSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            FeatureFlags.hideThreadsSuggestions = isChecked;
+            SettingsManager.saveAllFlags();
+        });
+
+        layout.addView(hideThreadsSwitch);
+
         showSectionDialog(context, I18n.t(context, R.string.ig_dialog_section_clean_feed), layout, () -> {});
     }
 
