@@ -44,6 +44,7 @@ import ps.reso.instaeclipse.mods.media.ProfilePicDownloadHook;
 import ps.reso.instaeclipse.mods.media.ReelDownloadHook;
 import ps.reso.instaeclipse.mods.media.StoryDownloadHook;
 import ps.reso.instaeclipse.mods.misc.CommentCopyHook;
+import ps.reso.instaeclipse.mods.misc.CaptionCopyContextMenuHook;
 import ps.reso.instaeclipse.mods.misc.DisableDoubleTapLikeHook;
 import ps.reso.instaeclipse.mods.misc.DisableStoryFlippingHook;
 import ps.reso.instaeclipse.mods.misc.DisableVideoAutoPlayHook;
@@ -279,6 +280,13 @@ public class Module implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                         new CommentCopyHook().install(dexKitBridge, lpparam.classLoader);
                     } catch (Throwable ignored) {
                         XposedBridge.log("(InstaEclipse | CopyComment): ❌ Failed to hook");
+                    }
+
+                    // Caption Copy
+                    try {
+                        new CaptionCopyContextMenuHook().install(dexKitBridge, lpparam.classLoader);
+                    } catch (Throwable ignored) {
+                        XposedBridge.log("(InstaEclipse | Caption): ❌ Failed to hook");
                     }
 
                     // Disable Double Tap to Like

@@ -59,6 +59,7 @@ public class FeatureFlags {
     public static boolean disableDiscoverPeople = false;
     public static boolean removeBuildExpiredPopup = false;
     public static boolean enableCopyComment = false;
+    public static boolean enableCaptionCopy = false;
     public static boolean disableDoubleTapLike = false;
 
     // Clean Feed

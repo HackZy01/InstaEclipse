@@ -260,6 +260,7 @@
     <string name="ig_dialog_misc_disable_discover_people">Disable Discover People</string>
     <string name="ig_dialog_misc_copy_comment">Copy Comment</string>
     <string name="ig_dialog_misc_disable_double_tap_like">Disable Double Tap to Like</string>
+    <string name="ig_dialog_misc_copy_caption">Copy Caption</string>
 
     <!-- Comment Copy dialog (runs in IG process) -->
     <string name="ig_comment_copy_title">Copy Comment</string>
@@ -268,6 +269,13 @@
     <string name="ig_comment_select_title">Select to Copy</string>
     <string name="ig_comment_copy_selected">Copy Selected</string>
     <string name="ig_toast_comment_copied">✅ Copied to clipboard!</string>
+
+    <!-- Caption Copy menu + dialog (runs in IG process) -->
+    <string name="ig_caption_copy_menu_item">Copy Caption</string>
+    <string name="ig_caption_copy_title">Copy Caption</string>
+    <string name="ig_caption_copy_full">Copy Full Caption</string>
+    <string name="ig_caption_copy_none">No caption on this post</string>
+    <string name="ig_caption_copied">✅ Caption copied to clipboard!</string>
 
     <!-- Downloader options -->
     <string name="ig_dialog_downloader_settings">⚙ Downloader Settings</string>

@@ -772,7 +772,7 @@ public class FeaturesFragment extends Fragment {
                 createMasterSwitch(getString(R.string.ig_dialog_enable_disable_all), Arrays.asList(
                         "disableStoryFlipping", "disableVideoAutoPlay", "disableRepost", "showFollowerToast",
                         "showFeatureToasts", "enableStoryMentions", "disableDiscoverPeople", "enableCopyComment",
-                        "disableDoubleTapLike"
+                        "disableDoubleTapLike", "enableCaptionCopy"
                 )),
                 createSwitch(getString(R.string.ig_dialog_misc_disable_story_autoswipe), "disableStoryFlipping"),
                 createSwitch(getString(R.string.ig_dialog_misc_disable_video_autoplay), "disableVideoAutoPlay"),
@@ -782,7 +782,8 @@ public class FeaturesFragment extends Fragment {
                 createSwitch(getString(R.string.ig_dialog_misc_view_story_mentions), "enableStoryMentions"),
                 createSwitch(getString(R.string.ig_dialog_misc_disable_discover_people), "disableDiscoverPeople"),
                 createSwitch(getString(R.string.ig_dialog_misc_copy_comment), "enableCopyComment"),
-                createSwitch(getString(R.string.ig_dialog_misc_disable_double_tap_like), "disableDoubleTapLike")
+                createSwitch(getString(R.string.ig_dialog_misc_disable_double_tap_like), "disableDoubleTapLike"),
+                createSwitch(getString(R.string.ig_dialog_misc_copy_caption), "enableCaptionCopy")
         ));
 
         showMenu(getString(R.string.ig_dialog_section_misc), defs);

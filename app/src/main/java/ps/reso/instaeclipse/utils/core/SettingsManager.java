@@ -76,6 +76,7 @@ public class SettingsManager {
         editor.putBoolean("disableDiscoverPeople", FeatureFlags.disableDiscoverPeople);
         editor.putBoolean("removeBuildExpiredPopup", FeatureFlags.removeBuildExpiredPopup);
         editor.putBoolean("enableCopyComment", FeatureFlags.enableCopyComment);
+        editor.putBoolean("enableCaptionCopy", FeatureFlags.enableCaptionCopy);
         editor.putBoolean("disableDoubleTapLike", FeatureFlags.disableDoubleTapLike);
         editor.putBoolean("enablePostDownload", FeatureFlags.enablePostDownload);
         editor.putBoolean("enableStoryDownload", FeatureFlags.enableStoryDownload);
@@ -153,6 +154,7 @@ public class SettingsManager {
         FeatureFlags.disableDiscoverPeople = prefs.getBoolean("disableDiscoverPeople", false);
         FeatureFlags.removeBuildExpiredPopup = prefs.getBoolean("removeBuildExpiredPopup", false);
         FeatureFlags.enableCopyComment = prefs.getBoolean("enableCopyComment", false);
+        FeatureFlags.enableCaptionCopy = prefs.getBoolean("enableCaptionCopy", false);
         FeatureFlags.disableDoubleTapLike = prefs.getBoolean("disableDoubleTapLike", false);
         FeatureFlags.enablePostDownload = prefs.getBoolean("enablePostDownload", false);
         FeatureFlags.enableStoryDownload = prefs.getBoolean("enableStoryDownload", false);
