@@ -171,6 +171,18 @@ public class FeedVideoDownloadHook {
                     }
                 }
             }
+            // Instagram 437+ moved nearly all Pando field accessors off the interface and onto
+            // the concrete backing class (com.instagram.feed.media.LiveTreeMediaDict, which
+            // implements MutableMediaDictIntf) — the interface itself now declares almost
+            // nothing. Scan the concrete class too so carouselCandidates isn't left empty.
+            try {
+                Class<?> liveTreeDictClass = classLoader.loadClass("com.instagram.feed.media.LiveTreeMediaDict");
+                for (Method m : liveTreeDictClass.getDeclaredMethods()) {
+                    if (m.getParameterCount() == 0 && List.class.isAssignableFrom(m.getReturnType())) {
+                        if (seen.add(m.getName())) { m.setAccessible(true); carouselCandidates.add(m); }
+                    }
+                }
+            } catch (Throwable ignored) {}
         } catch (Throwable ignored) {}
 
         installUriCaptureHook();
@@ -928,8 +940,7 @@ public class FeedVideoDownloadHook {
                     if (cachedGetter != null) {
                         UserUtils.userUsernameGetter = cachedGetter;
                     }
-                    // dictUserGetter is pure-reflection — fall through to scan below
-                    resolveDictUserGetter(classLoader);
+                    resolveDictUserGetter(bridge, classLoader);
                     return;
                 } catch (Throwable ignored) {}
             }
@@ -970,15 +981,23 @@ public class FeedVideoDownloadHook {
                 XposedBridge.log("(IE|DL|Username) ❌ userUsernameGetter resolution: " + t);
             }
 
-            resolveDictUserGetter(classLoader);
+            resolveDictUserGetter(bridge, classLoader);
 
         } catch (Throwable t) {
             XposedBridge.log("(IE|DL|Username) ❌ resolveUsernameGetter: " + t);
         }
     }
 
-    private static void resolveDictUserGetter(ClassLoader classLoader) {
+    private static void resolveDictUserGetter(DexKitBridge bridge, ClassLoader classLoader) {
         if (mutableMediaDictIntfClass == null || userClass == null) return;
+
+        if (DexKitCache.isCacheValid()) {
+            Method cached = DexKitCache.loadMethod("DictUserGetter", classLoader);
+            if (cached != null) {
+                dictUserGetter = cached;
+                return;
+            }
+        }
 
         // Use a Breadth-First Search to find the getter in the interface hierarchy
         // Instagram 423+ often hides this in a parent interface like X.IdM
@@ -996,6 +1015,7 @@ public class FeedVideoDownloadHook {
                 if (m.getParameterCount() == 0 && m.getReturnType().equals(userClass)) {
                     m.setAccessible(true);
                     dictUserGetter = m;
+                    DexKitCache.saveMethod("DictUserGetter", m);
                     XposedBridge.log("(IE|DL|Username) ✅ Resolved dictUserGetter: " + m.getName());
                     return;
                 }
@@ -1003,6 +1023,36 @@ public class FeedVideoDownloadHook {
             // Add parent interfaces to the queue
             Collections.addAll(queue, curr.getInterfaces());
         }
+
+        // Instagram 437+ moved nearly all Pando field accessors off the interface and
+        // onto the concrete backing class (LiveTreeMediaDict, which implements
+        // MutableMediaDictIntf) — same as the carousel-candidate accessors. That class
+        // has SEVERAL zero-arg User-returning methods though (owner, group creator,
+        // reshared-story author, previous submitter, ...) — a plain reflection scan
+        // picks whichever comes first in declaration order, which isn't reliably the
+        // post's actual author. Use DexKit to find the specific one that checks the
+        // generic Pando "user" field (the one Instagram's own code uses for post
+        // authorship, e.g. QpF's own-post check) rather than "owner"/"group"/etc.
+        try {
+            List<MethodData> results = bridge.findMethod(FindMethod.create()
+                    .matcher(MethodMatcher.create()
+                            .declaredClass("com.instagram.feed.media.LiveTreeMediaDict")
+                            .paramCount(0)
+                            .returnType(userClass)
+                            .usingEqStrings(java.util.List.of("user"))));
+
+            if (!results.isEmpty()) {
+                Method m = results.get(0).getMethodInstance(classLoader);
+                m.setAccessible(true);
+                dictUserGetter = m;
+                DexKitCache.saveMethod("DictUserGetter", m);
+                XposedBridge.log("(IE|DL|Username) ✅ Resolved dictUserGetter (concrete class): " + m.getName());
+                return;
+            }
+        } catch (Throwable t) {
+            XposedBridge.log("(IE|DL|Username) ❌ dictUserGetter DexKit lookup: " + t);
+        }
+
         XposedBridge.log("(IE|DL|Username) ❌ Failed to resolve dictUserGetter in hierarchy");
     }
 
@@ -1370,13 +1420,23 @@ public class FeedVideoDownloadHook {
         String videoUrl = bestVideoUrlFromMedia(media);
         if (videoUrl != null) return new ArrayList<>(List.of(videoUrl));
 
+        XposedBridge.log("(IE|Post|DEBUG) carousel check: mutableMediaDictIntfClass=" +
+                (mutableMediaDictIntfClass == null ? "null" : mutableMediaDictIntfClass.getName()) +
+                " carouselCandidates=" + carouselCandidates.size());
+
         // Step B: carousel (MutableMediaDictIntf candidates)
         if (mutableMediaDictIntfClass != null && !carouselCandidates.isEmpty()) {
             Object dictIntf = findFieldAssignableTo(media, mutableMediaDictIntfClass);
+            XposedBridge.log("(IE|Post|DEBUG) dictIntf=" +
+                    (dictIntf == null ? "null" : dictIntf.getClass().getName()));
             if (dictIntf != null) {
                 for (Method candidate : carouselCandidates) {
                     try {
                         Object listObj = candidate.invoke(dictIntf);
+                        int sz = (listObj instanceof List<?> l) ? l.size() : -1;
+                        XposedBridge.log("(IE|Post|DEBUG)   candidate=" + candidate.getName() +
+                                " resultType=" + (listObj == null ? "null" : listObj.getClass().getName()) +
+                                " size=" + sz);
                         if (!(listObj instanceof List<?> items) || items.size() < 2) continue;
                         if (videoVersionIntfClass != null && !items.isEmpty()
                                 && videoVersionIntfClass.isInstance(items.get(0))) continue;

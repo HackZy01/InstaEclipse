@@ -83,6 +83,7 @@ public class PostDownloadContextMenuHook {
         findCreatorClassAndAddButtonMethod(bridge, classLoader);
         installAddButtonHook();
         installClickHandlerHook(bridge, classLoader);
+        installAllowlistPatchHook(bridge, classLoader);
     }
 
     // ── Step 1: MediaOption$Option.DOWNLOAD ──────────────────────────────────
@@ -263,10 +264,12 @@ public class PostDownloadContextMenuHook {
                 if (param.args[idxOption] == downloadOptionValue) return;
 
                 Object self = param.args[idxSelf];
+                boolean alreadyProcessed;
                 synchronized (processedCreators) {
-                    if (processedCreators.contains(self)) return;
-                    processedCreators.add(self);
+                    alreadyProcessed = processedCreators.contains(self);
+                    if (!alreadyProcessed) processedCreators.add(self);
                 }
+                if (alreadyProcessed) return;
 
                 Object[] callArgs = new Object[addButtonMethod.getParameterCount()];
                 System.arraycopy(param.args, 0, callArgs, 0, callArgs.length);
@@ -304,8 +307,10 @@ public class PostDownloadContextMenuHook {
         };
 
         // Cache hit: restore all previously-found click handler methods
+        // (cache key bumped to _v2 — the old key could hold private analytics-only
+        // lookalikes hooked before the public-only filter below was added)
         if (DexKitCache.isCacheValid()) {
-            List<Method> cached = DexKitCache.loadMethods("PostDownload_click", classLoader);
+            List<Method> cached = DexKitCache.loadMethods("PostDownload_click_v2", classLoader);
             if (cached != null && !cached.isEmpty()) {
                 for (Method m : cached) XposedBridge.hookMethod(m, clickHook);
                 return;
@@ -320,11 +325,32 @@ public class PostDownloadContextMenuHook {
                             .returnType("void")
                             .paramTypes(optionClassName)));
 
-            List<Method> hooked = new ArrayList<>();
+            // Resolve all non-static candidates first so we can decide the private-exclusion
+            // policy from the whole set, rather than filtering as we go.
+            List<Method> candidates = new ArrayList<>();
             for (MethodData md : results) {
                 try {
                     Method m = md.getMethodInstance(classLoader);
                     if (Modifier.isStatic(m.getModifiers())) continue;
+                    candidates.add(m);
+                } catch (Throwable ignored) {}
+            }
+
+            // Exclude private methods — these are consistently internal analytics/logging
+            // helpers that also receive the tapped option for telemetry (e.g. 5RY.A08 on
+            // the reel menu), not the real click dispatcher (public in every case seen so
+            // far: RAu.A08 for posts, 5RY.A0O for reels). Hooking the private lookalikes
+            // caused duplicate/spurious download triggers. Only apply the exclusion when a
+            // public candidate also exists — on a build where the real dispatcher itself
+            // turns out to be private with no public sibling, skipping it entirely would
+            // just break the feature outright, which is worse than the duplicate-trigger
+            // risk this filter guards against.
+            boolean hasPublicCandidate = candidates.stream().anyMatch(m -> Modifier.isPublic(m.getModifiers()));
+
+            List<Method> hooked = new ArrayList<>();
+            for (Method m : candidates) {
+                try {
+                    if (hasPublicCandidate && Modifier.isPrivate(m.getModifiers())) continue;
                     m.setAccessible(true);
                     XposedBridge.hookMethod(m, clickHook);
                     hooked.add(m);
@@ -336,11 +362,77 @@ public class PostDownloadContextMenuHook {
             if (hooked.isEmpty()) {
                 XposedBridge.log("(IE|Post) ❌ No click handler methods could be hooked");
             } else {
-                DexKitCache.saveMethods("PostDownload_click", hooked);
+                DexKitCache.saveMethods("PostDownload_click_v2", hooked);
             }
 
         } catch (Throwable t) {
             XposedBridge.log("(IE|Post) ❌ installClickHandlerHook: " + t);
+        }
+    }
+
+    // ── Hook C: allowlist patch ─────────────────────────────────────────────────
+    //
+    // IG's newer "SimplifiedMediaOverflowBottomSheet" menu filters the button list
+    // down to a hardcoded allowlist of MediaOption$Option values before rendering
+    // (DOWNLOAD isn't one of them), silently dropping our injected entry even though
+    // Hook A added it successfully. Found via DexKit field-usage matching — the
+    // allowlist-builder method is the unique static (boolean)->List method that
+    // references these three particular MediaOption$Option constants together.
+    // We patch its return value to also include DOWNLOAD so our entry survives.
+
+    private static void installAllowlistPatchHook(DexKitBridge bridge, ClassLoader classLoader) {
+        XC_MethodHook allowlistHook = new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) {
+                if (downloadOptionValue == null) return;
+                try {
+                    Object result = param.getResult();
+                    if (!(result instanceof List<?> original)) return;
+                    if (original.contains(downloadOptionValue)) return;
+                    List<Object> patched = new ArrayList<>(original);
+                    patched.add(downloadOptionValue);
+                    param.setResult(patched);
+                } catch (Throwable t) {
+                    XposedBridge.log("(IE|Post) ❌ allowlist patch failed: " + t);
+                }
+            }
+        };
+
+        if (DexKitCache.isCacheValid()) {
+            Method cached = DexKitCache.loadMethod("PostDownload_allowlist", classLoader);
+            if (cached != null) {
+                XposedBridge.hookMethod(cached, allowlistHook);
+                return;
+            }
+        }
+
+        try {
+            String optionClassName = "com.instagram.feed.media.mediaoption.MediaOption$Option";
+            String typeDesc = "L" + optionClassName.replace('.', '/') + ";";
+            String prefix = typeDesc + "->";
+
+            List<MethodData> results = bridge.findMethod(FindMethod.create()
+                    .matcher(MethodMatcher.create()
+                            .paramTypes("boolean")
+                            .returnType("java.util.List")
+                            .addUsingField(prefix + "REPORT:" + typeDesc)
+                            .addUsingField(prefix + "HIDE_OPTIONS:" + typeDesc)
+                            .addUsingField(prefix + "GEN_AI_INFO:" + typeDesc)));
+
+            if (results.isEmpty()) {
+                XposedBridge.log("(IE|Post) ⚠️ Allowlist method not found (menu may not be filtered on this build)");
+                return;
+            }
+
+            Method target = results.get(0).getMethodInstance(classLoader);
+            target.setAccessible(true);
+            XposedBridge.hookMethod(target, allowlistHook);
+            DexKitCache.saveMethod("PostDownload_allowlist", target);
+            XposedBridge.log("(IE|Post) ✅ Allowlist patch hooked: " +
+                    target.getDeclaringClass().getName() + "." + target.getName());
+
+        } catch (Throwable t) {
+            XposedBridge.log("(IE|Post) ❌ installAllowlistPatchHook: " + t);
         }
     }
 
@@ -369,20 +461,23 @@ public class PostDownloadContextMenuHook {
 
             param.setResult(null); // consume the event
 
-            Context ctx = findContext(param.thisObject);
+            Object thisObj = param.thisObject;
+
+            Context ctx = findContext(thisObj);
             if (ctx == null) {
                 XposedBridge.log("(IE|Post) ❌ Context not found in click handler");
                 return;
             }
 
-            Object media = findMedia(param.thisObject);
+            Object media = findMediaViaMenuCreator(thisObj);
+            if (media == null) media = findMedia(thisObj);
             if (media == null) {
                 XposedBridge.log("(IE|Post) ❌ Media not found in click handler");
                 Toast.makeText(ctx, I18n.t(ctx, R.string.ig_toast_no_media_for_post), Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            triggerDownload(ctx, media, param.thisObject);
+            triggerDownload(ctx, media, thisObj);
         } catch (Throwable t) {
             XposedBridge.log("(IE|Post) ❌ onOptionClicked: " + t);
         }
@@ -457,6 +552,46 @@ public class PostDownloadContextMenuHook {
             }
             cls = cls.getSuperclass();
         }
+        return null;
+    }
+
+    /**
+     * Preferred media lookup: reads the click handler's own reference to the menu-creator
+     * (QpF-equivalent) instance and pulls its Media field directly, instead of the generic
+     * BFS in {@link #findMedia}. The generic scan can land on an unrelated Media-typed field
+     * elsewhere in the object graph first (e.g. a hosting Fragment's own "created with" post
+     * reference, which doesn't update as the user navigates between posts within that
+     * Fragment) — the menu-creator's own Media field is always the one that was current
+     * when THIS specific menu was built, so it can't go stale that way.
+     */
+    private static Object findMediaViaMenuCreator(Object clickHandler) {
+        if (clickHandler == null || menuCreatorClass == null) return null;
+        try {
+            Object creator = null;
+            Class<?> cls = clickHandler.getClass();
+            outer:
+            while (cls != null && cls != Object.class) {
+                for (Field f : cls.getDeclaredFields()) {
+                    if (f.getType() != menuCreatorClass) continue;
+                    f.setAccessible(true);
+                    Object v = f.get(clickHandler);
+                    if (v != null) { creator = v; break outer; }
+                }
+                cls = cls.getSuperclass();
+            }
+            if (creator == null) return null;
+
+            Class<?> cCls = creator.getClass();
+            while (cCls != null && cCls != Object.class) {
+                for (Field f : cCls.getDeclaredFields()) {
+                    if (f.getType().getName().equals("com.instagram.feed.media.Media")) {
+                        f.setAccessible(true);
+                        return f.get(creator);
+                    }
+                }
+                cCls = cCls.getSuperclass();
+            }
+        } catch (Throwable ignored) {}
         return null;
     }
 
