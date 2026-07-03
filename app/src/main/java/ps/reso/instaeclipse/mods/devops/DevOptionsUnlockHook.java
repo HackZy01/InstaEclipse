@@ -22,7 +22,15 @@ import ps.reso.instaeclipse.utils.feature.FeatureStatusTracker;
 
 public class DevOptionsUnlockHook {
 
-    private static final long IS_EMPLOYEE_CONFIG_ID = 36310864701161762L;
+    // MobileConfig param ID backing the "is employee" gate (LX/02il;->A00 in IG 429,
+    // renamed to LX/5sG;->A00 in IG 437+ after Meta re-generated the config schema).
+    // Both static (UserSession)Z accessors share this exact shape: null-check ->
+    // resolve UserSession to a MobileConfigUnsafeContext -> boolean getter with a
+    // hardcoded param ID. Try known IDs newest-first so current versions resolve fast.
+    private static final long[] IS_EMPLOYEE_CONFIG_IDS = {
+            36310830341423371L, // IG 437+ (LX/5sG;->A00, 0x8100820000010b)
+            36310856111227168L, // IG <= 429 (LX/02il;->A00, 0x81008800000120)
+    };
 
     public void handleDevOptions(DexKitBridge bridge) {
         if (DexKitCache.isCacheValid()) {
@@ -72,19 +80,22 @@ public class DevOptionsUnlockHook {
             // Tier 2: Failover to MobileConfig ID (The "Golden Anchor")
             if (!found) {
                 XposedBridge.log("(InstaEclipse | DevOptionsEnable): ⚠️ Tier 1 failed. Discovery Tier 2 (Config ID)...");
-                List<MethodData> idMethods = bridge.findMethod(FindMethod.create()
-                        .matcher(MethodMatcher.create()
-                                .usingNumbers(IS_EMPLOYEE_CONFIG_ID)
-                                .returnType("boolean")
-                                .paramCount(1))
-                );
+                for (long configId : IS_EMPLOYEE_CONFIG_IDS) {
+                    List<MethodData> idMethods = bridge.findMethod(FindMethod.create()
+                            .matcher(MethodMatcher.create()
+                                    .usingNumbers(configId)
+                                    .returnType("boolean")
+                                    .paramCount(1))
+                    );
 
-                if (!idMethods.isEmpty()) {
-                    String targetClass = idMethods.get(0).getClassName();
-                    XposedBridge.log("(InstaEclipse | DevOptionsEnable): 🎯 Found via Config ID in: " + targetClass);
-                    DexKitCache.saveString("DevOptionsClass", targetClass);
-                    hookAllBooleanMethodsInClass(bridge, targetClass);
-                    found = true;
+                    if (!idMethods.isEmpty()) {
+                        String targetClass = idMethods.get(0).getClassName();
+                        XposedBridge.log("(InstaEclipse | DevOptionsEnable): 🎯 Found via Config ID " + configId + " in: " + targetClass);
+                        DexKitCache.saveString("DevOptionsClass", targetClass);
+                        hookAllBooleanMethodsInClass(bridge, targetClass);
+                        found = true;
+                        break;
+                    }
                 }
             }
 
