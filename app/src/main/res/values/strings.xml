@@ -261,6 +261,7 @@
     <string name="ig_dialog_misc_copy_comment">Copy Comment</string>
     <string name="ig_dialog_misc_disable_double_tap_like">Disable Double Tap to Like</string>
     <string name="ig_dialog_misc_copy_caption">Copy Caption</string>
+    <string name="ig_dialog_misc_photo_zoom">Photo Zoom (Long-Press)</string>
 
     <!-- Comment Copy dialog (runs in IG process) -->
     <string name="ig_comment_copy_title">Copy Comment</string>

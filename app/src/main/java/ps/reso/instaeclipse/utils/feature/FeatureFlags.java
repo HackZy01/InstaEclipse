@@ -61,6 +61,7 @@ public class FeatureFlags {
     public static boolean enableCopyComment = false;
     public static boolean enableCaptionCopy = false;
     public static boolean disableDoubleTapLike = false;
+    public static boolean enablePhotoZoom = false;
 
     // Clean Feed
     public static boolean hideSuggestionsInFeed = false;

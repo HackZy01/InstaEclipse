@@ -78,6 +78,7 @@ public class SettingsManager {
         editor.putBoolean("enableCopyComment", FeatureFlags.enableCopyComment);
         editor.putBoolean("enableCaptionCopy", FeatureFlags.enableCaptionCopy);
         editor.putBoolean("disableDoubleTapLike", FeatureFlags.disableDoubleTapLike);
+        editor.putBoolean("enablePhotoZoom", FeatureFlags.enablePhotoZoom);
         editor.putBoolean("enablePostDownload", FeatureFlags.enablePostDownload);
         editor.putBoolean("enableStoryDownload", FeatureFlags.enableStoryDownload);
         editor.putBoolean("enableReelDownload", FeatureFlags.enableReelDownload);
@@ -156,6 +157,7 @@ public class SettingsManager {
         FeatureFlags.enableCopyComment = prefs.getBoolean("enableCopyComment", false);
         FeatureFlags.enableCaptionCopy = prefs.getBoolean("enableCaptionCopy", false);
         FeatureFlags.disableDoubleTapLike = prefs.getBoolean("disableDoubleTapLike", false);
+        FeatureFlags.enablePhotoZoom = prefs.getBoolean("enablePhotoZoom", false);
         FeatureFlags.enablePostDownload = prefs.getBoolean("enablePostDownload", false);
         FeatureFlags.enableStoryDownload = prefs.getBoolean("enableStoryDownload", false);
         FeatureFlags.enableReelDownload = prefs.getBoolean("enableReelDownload", false);

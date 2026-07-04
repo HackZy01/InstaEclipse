@@ -23,6 +23,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import ps.reso.instaeclipse.mods.ads.AdBlocker;
+import ps.reso.instaeclipse.mods.feed.FeedPhotoZoomHook;
 import ps.reso.instaeclipse.mods.feed.HideSuggestedFeedItemsHook;
 import ps.reso.instaeclipse.mods.ads.TrackingLinkDisable;
 import ps.reso.instaeclipse.mods.devops.BuildExpiredPopupHook;
@@ -294,6 +295,13 @@ public class Module implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                         new DisableDoubleTapLikeHook().install(dexKitBridge, lpparam.classLoader);
                     } catch (Throwable ignored) {
                         XposedBridge.log("(InstaEclipse | DoubleTapLike): ❌ Failed to hook");
+                    }
+
+                    // Photo Zoom (long-press)
+                    try {
+                        new FeedPhotoZoomHook().install(lpparam.classLoader);
+                    } catch (Throwable ignored) {
+                        XposedBridge.log("(InstaEclipse | PhotoZoom): ❌ Failed to hook");
                     }
 
                     try {

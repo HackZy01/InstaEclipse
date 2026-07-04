@@ -779,7 +779,8 @@ public class DialogUtils {
                 createSwitch(context, I18n.t(context, R.string.ig_dialog_misc_disable_discover_people), FeatureFlags.disableDiscoverPeople),
                 createSwitch(context, I18n.t(context, R.string.ig_dialog_misc_copy_comment),            FeatureFlags.enableCopyComment),
                 createSwitch(context, I18n.t(context, R.string.ig_dialog_misc_disable_double_tap_like), FeatureFlags.disableDoubleTapLike),
-                createSwitch(context, I18n.t(context, R.string.ig_dialog_misc_copy_caption),            FeatureFlags.enableCaptionCopy)
+                createSwitch(context, I18n.t(context, R.string.ig_dialog_misc_copy_caption),            FeatureFlags.enableCaptionCopy),
+                createSwitch(context, I18n.t(context, R.string.ig_dialog_misc_photo_zoom),               FeatureFlags.enablePhotoZoom)
         };
 
         // Create Enable/Disable All switch
@@ -833,6 +834,9 @@ public class DialogUtils {
                         break;
                     case 9:
                         FeatureFlags.enableCaptionCopy = isChecked;
+                        break;
+                    case 10:
+                        FeatureFlags.enablePhotoZoom = isChecked;
                         break;
                 }
 
