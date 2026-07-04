@@ -69,6 +69,7 @@ public class SettingsManager {
         editor.putBoolean("isMiscEnabled", FeatureFlags.isMiscEnabled);
         editor.putBoolean("disableStoryFlipping", FeatureFlags.disableStoryFlipping);
         editor.putBoolean("disableVideoAutoPlay", FeatureFlags.disableVideoAutoPlay);
+        editor.putBoolean("spoofLastSeen", FeatureFlags.spoofLastSeen);
         editor.putBoolean("disableRepost", FeatureFlags.disableRepost);
         editor.putBoolean("showFollowerToast", FeatureFlags.showFollowerToast);
         editor.putBoolean("showFeatureToasts", FeatureFlags.showFeatureToasts);
@@ -148,6 +149,7 @@ public class SettingsManager {
         FeatureFlags.isMiscEnabled = prefs.getBoolean("isMiscEnabled", false);
         FeatureFlags.disableStoryFlipping = prefs.getBoolean("disableStoryFlipping", false);
         FeatureFlags.disableVideoAutoPlay = prefs.getBoolean("disableVideoAutoPlay", false);
+        FeatureFlags.spoofLastSeen = prefs.getBoolean("spoofLastSeen", false);
         FeatureFlags.disableRepost = prefs.getBoolean("disableRepost", false);
         FeatureFlags.showFollowerToast = prefs.getBoolean("showFollowerToast", false);
         FeatureFlags.showFeatureToasts = prefs.getBoolean("showFeatureToasts", false);

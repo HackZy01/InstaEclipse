@@ -137,6 +137,18 @@ public class IGNetworkInterceptor {
                                     }
 
                                     // Misc
+                                    if (FeatureFlags.spoofLastSeen) {
+                                        String p = uri.getPath();
+                                        shouldDrop |= p.contains("/push/setForegroundState/")
+                                                || p.contains("/accounts/update_active_status")
+                                                || p.contains("/notes/create_note")
+                                                || p.contains("/accounts/set_presence_disabled")
+                                                || p.contains("/update_active_status")
+                                                || p.contains("/banyan/banyan/")
+                                                || p.endsWith("/last_active/")
+                                                || p.contains("/presence/");
+                                        FeatureStatusTracker.setHooked("SpoofLastSeen");
+                                    }
                                     if (FeatureFlags.disableRepost) {
                                         shouldDrop |= uri.getPath().contains("/media/create_note/");
                                     }

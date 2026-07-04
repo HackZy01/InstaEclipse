@@ -770,12 +770,13 @@ public class FeaturesFragment extends Fragment {
         defs.add(getString(R.string.feat_features));
         defs.add(Arrays.asList(
                 createMasterSwitch(getString(R.string.ig_dialog_enable_disable_all), Arrays.asList(
-                        "disableStoryFlipping", "disableVideoAutoPlay", "disableRepost", "showFollowerToast",
+                        "disableStoryFlipping", "disableVideoAutoPlay", "spoofLastSeen", "disableRepost", "showFollowerToast",
                         "showFeatureToasts", "enableStoryMentions", "disableDiscoverPeople", "enableCopyComment",
                         "disableDoubleTapLike", "enableCaptionCopy", "enablePhotoZoom"
                 )),
                 createSwitch(getString(R.string.ig_dialog_misc_disable_story_autoswipe), "disableStoryFlipping"),
                 createSwitch(getString(R.string.ig_dialog_misc_disable_video_autoplay), "disableVideoAutoPlay"),
+                createSwitch(getString(R.string.ig_dialog_misc_spoof_last_seen), "spoofLastSeen"),
                 createSwitch(getString(R.string.ig_dialog_misc_disable_repost), "disableRepost"),
                 createSwitch(getString(R.string.ig_dialog_misc_show_follower_toast), "showFollowerToast"),
                 createSwitch(getString(R.string.ig_dialog_misc_show_feature_toasts), "showFeatureToasts"),

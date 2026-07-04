@@ -111,6 +111,12 @@ public class FeatureManager {
             FeatureStatusTracker.setDisabled("DisableDiscoverPeople");
         }
 
+        if (FeatureFlags.spoofLastSeen) {
+            FeatureStatusTracker.setEnabled("SpoofLastSeen", R.string.ig_dialog_misc_spoof_last_seen);
+        } else {
+            FeatureStatusTracker.setDisabled("SpoofLastSeen");
+        }
+
         if (FeatureFlags.removeBuildExpiredPopup) {
             FeatureStatusTracker.setEnabled("RemoveBuildExpiredPopup", R.string.ig_dialog_dev_remove_build_expired);
         } else {

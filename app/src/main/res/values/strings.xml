@@ -253,6 +253,7 @@
     <!-- Miscellaneous options -->
     <string name="ig_dialog_misc_disable_story_autoswipe">Disable Story Auto-Swipe</string>
     <string name="ig_dialog_misc_disable_video_autoplay">Disable Video Autoplay</string>
+    <string name="ig_dialog_misc_spoof_last_seen">Spoof Last Seen (freeze)</string>
     <string name="ig_dialog_misc_disable_repost">Disable Repost</string>
     <string name="ig_dialog_misc_show_feature_toasts">Show Feature Toasts</string>
     <string name="ig_dialog_misc_show_follower_toast">Show Follower Toast</string>

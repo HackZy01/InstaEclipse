@@ -64,6 +64,7 @@ public class SettingsBackupManager {
         // Miscellaneous
         s.put("disableStoryFlipping",    FeatureFlags.disableStoryFlipping);
         s.put("disableVideoAutoPlay",    FeatureFlags.disableVideoAutoPlay);
+        s.put("spoofLastSeen",           FeatureFlags.spoofLastSeen);
         s.put("disableRepost",           FeatureFlags.disableRepost);
         s.put("showFollowerToast",       FeatureFlags.showFollowerToast);
         s.put("showFeatureToasts",       FeatureFlags.showFeatureToasts);
@@ -136,6 +137,7 @@ public class SettingsBackupManager {
 
         if (s.has("disableStoryFlipping"))   FeatureFlags.disableStoryFlipping   = s.getBoolean("disableStoryFlipping");
         if (s.has("disableVideoAutoPlay"))   FeatureFlags.disableVideoAutoPlay   = s.getBoolean("disableVideoAutoPlay");
+        if (s.has("spoofLastSeen"))          FeatureFlags.spoofLastSeen          = s.getBoolean("spoofLastSeen");
         if (s.has("disableRepost"))          FeatureFlags.disableRepost          = s.getBoolean("disableRepost");
         if (s.has("showFollowerToast"))      FeatureFlags.showFollowerToast      = s.getBoolean("showFollowerToast");
         if (s.has("showFeatureToasts"))      FeatureFlags.showFeatureToasts      = s.getBoolean("showFeatureToasts");

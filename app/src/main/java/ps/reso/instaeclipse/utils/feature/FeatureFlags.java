@@ -50,6 +50,7 @@ public class FeatureFlags {
     public static boolean isMiscEnabled = false;
     public static boolean disableStoryFlipping = false;
     public static boolean disableVideoAutoPlay = false;
+    public static boolean spoofLastSeen = false;
     public static boolean showFollowerToast = false;
     public static boolean showFeatureToasts = false;
     public static boolean disableRepost = false;
