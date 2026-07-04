@@ -24,6 +24,7 @@ import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import ps.reso.instaeclipse.mods.ads.AdBlocker;
 import ps.reso.instaeclipse.mods.feed.FeedPhotoZoomHook;
+import ps.reso.instaeclipse.mods.location.LocationSpoofHook;
 import ps.reso.instaeclipse.mods.feed.HideSuggestedFeedItemsHook;
 import ps.reso.instaeclipse.mods.ads.TrackingLinkDisable;
 import ps.reso.instaeclipse.mods.devops.BuildExpiredPopupHook;
@@ -302,6 +303,13 @@ public class Module implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                         new FeedPhotoZoomHook().install(lpparam.classLoader);
                     } catch (Throwable ignored) {
                         XposedBridge.log("(InstaEclipse | PhotoZoom): ❌ Failed to hook");
+                    }
+
+                    // Location Spoof
+                    try {
+                        new LocationSpoofHook().install(lpparam.classLoader);
+                    } catch (Throwable ignored) {
+                        XposedBridge.log("(InstaEclipse | SpoofLocation): ❌ Failed to hook");
                     }
 
                     try {

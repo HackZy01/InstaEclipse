@@ -1,5 +1,9 @@
 package ps.reso.instaeclipse.utils.core;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -42,6 +46,19 @@ public class CommonUtils {
         // If second segment is very short or generic, try third
         if (best.length() <= 2 && parts.length >= 3) best = parts[2];
         return Character.toUpperCase(best.charAt(0)) + best.substring(1).toLowerCase();
+    }
+
+    /** Sends a broadcast to every supported Instagram variant currently installed. */
+    public static void broadcastToInstagram(Context context, Intent intent) {
+        PackageManager pm = context.getPackageManager();
+        for (String pkg : SUPPORTED_PACKAGES) {
+            try {
+                pm.getPackageInfo(pkg, 0);
+                Intent targeted = new Intent(intent);
+                targeted.setPackage(pkg);
+                context.sendBroadcast(targeted);
+            } catch (Throwable ignored) {}
+        }
     }
 
     /*

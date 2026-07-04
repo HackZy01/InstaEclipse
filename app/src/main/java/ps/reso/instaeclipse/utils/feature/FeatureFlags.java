@@ -64,6 +64,11 @@ public class FeatureFlags {
     public static boolean disableDoubleTapLike = false;
     public static boolean enablePhotoZoom = false;
 
+    // Location Spoof
+    public static boolean spoofLocation = false;
+    public static double spoofLat = 0.0;
+    public static double spoofLng = 0.0;
+
     // Clean Feed
     public static boolean hideSuggestionsInFeed = false;
     public static boolean hideThreadsSuggestions = false;

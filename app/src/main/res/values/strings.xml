@@ -156,6 +156,7 @@
     <string name="ig_dialog_menu_distraction_free">🧘 Distraction-Free Instagram</string>
     <string name="ig_dialog_menu_misc">⚙ Misc Features</string>
     <string name="ig_dialog_menu_downloader">📥 Downloader</string>
+    <string name="ig_dialog_menu_location">📍 Location</string>
     <string name="ig_dialog_menu_backup_restore">💾 Backup &amp; Restore</string>
     <string name="ig_dialog_menu_about">ℹ️ About</string>
     <string name="ig_dialog_menu_restart">🔁 Restart App</string>
@@ -167,6 +168,18 @@
     <string name="ig_dialog_section_ad_analytics">Ad/Analytics Block 🛡️</string>
     <string name="ig_dialog_section_distraction_free">Distraction-Free Instagram 🧘</string>
     <string name="ig_dialog_section_misc">Miscellaneous ⚙️</string>
+    <string name="ig_dialog_section_location">Location</string>
+
+    <!-- Location Spoof -->
+    <string name="ig_dialog_location_spoof_enable">Spoof GPS Location</string>
+    <string name="ig_dialog_location_pick">Pick Location on Map</string>
+    <string name="ig_dialog_location_unset">No location set</string>
+    <string name="ig_dialog_location_current">Current: %1$.4f, %2$.4f</string>
+    <string name="loc_picker_title">Pick Location</string>
+    <string name="loc_picker_search_hint">Search city, address, or place</string>
+    <string name="loc_picker_use">Use this Location</string>
+    <string name="loc_picker_search_failed">Location not found</string>
+    <string name="loc_picker_search_error">Search failed: %1$s</string>
     <string name="ig_dialog_section_downloader">Downloader 📥</string>
     <string name="ig_dialog_section_downloader_settings">Downloader Settings ⚙️</string>
     <string name="ig_dialog_section_backup_restore">Backup &amp; Restore 💾</string>

@@ -65,6 +65,9 @@ public class SettingsBackupManager {
         s.put("disableStoryFlipping",    FeatureFlags.disableStoryFlipping);
         s.put("disableVideoAutoPlay",    FeatureFlags.disableVideoAutoPlay);
         s.put("spoofLastSeen",           FeatureFlags.spoofLastSeen);
+        s.put("spoofLocation",           FeatureFlags.spoofLocation);
+        s.put("spoofLat",                String.valueOf(FeatureFlags.spoofLat));
+        s.put("spoofLng",                String.valueOf(FeatureFlags.spoofLng));
         s.put("disableRepost",           FeatureFlags.disableRepost);
         s.put("showFollowerToast",       FeatureFlags.showFollowerToast);
         s.put("showFeatureToasts",       FeatureFlags.showFeatureToasts);
@@ -138,6 +141,9 @@ public class SettingsBackupManager {
         if (s.has("disableStoryFlipping"))   FeatureFlags.disableStoryFlipping   = s.getBoolean("disableStoryFlipping");
         if (s.has("disableVideoAutoPlay"))   FeatureFlags.disableVideoAutoPlay   = s.getBoolean("disableVideoAutoPlay");
         if (s.has("spoofLastSeen"))          FeatureFlags.spoofLastSeen          = s.getBoolean("spoofLastSeen");
+        if (s.has("spoofLocation"))          FeatureFlags.spoofLocation          = s.getBoolean("spoofLocation");
+        if (s.has("spoofLat"))               FeatureFlags.spoofLat               = parseDouble(s.get("spoofLat"), 0.0);
+        if (s.has("spoofLng"))               FeatureFlags.spoofLng               = parseDouble(s.get("spoofLng"), 0.0);
         if (s.has("disableRepost"))          FeatureFlags.disableRepost          = s.getBoolean("disableRepost");
         if (s.has("showFollowerToast"))      FeatureFlags.showFollowerToast      = s.getBoolean("showFollowerToast");
         if (s.has("showFeatureToasts"))      FeatureFlags.showFeatureToasts      = s.getBoolean("showFeatureToasts");
@@ -149,5 +155,15 @@ public class SettingsBackupManager {
         if (s.has("enableProfileDownload"))  FeatureFlags.enableProfileDownload  = s.getBoolean("enableProfileDownload");
         if (s.has("downloaderUsernameFolder")) FeatureFlags.downloaderUsernameFolder = s.getBoolean("downloaderUsernameFolder");
         if (s.has("downloaderAddTimestamp")) FeatureFlags.downloaderAddTimestamp  = s.getBoolean("downloaderAddTimestamp");
+    }
+
+    private static double parseDouble(Object raw, double fallback) {
+        if (raw instanceof Number) return ((Number) raw).doubleValue();
+        if (raw instanceof String) {
+            try {
+                return Double.parseDouble((String) raw);
+            } catch (Throwable ignored) {}
+        }
+        return fallback;
     }
 }

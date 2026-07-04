@@ -51,6 +51,7 @@ import java.util.Map;
 import java.util.Scanner;
 
 import ps.reso.instaeclipse.R;
+import ps.reso.instaeclipse.mods.location.LocationPickerActivity;
 
 public class FeaturesFragment extends Fragment {
 
@@ -64,6 +65,7 @@ public class FeaturesFragment extends Fragment {
     private ActivityResultLauncher<Uri> dirPickerLauncher;
     private ActivityResultLauncher<String[]> restoreFileLauncher;
     private ActivityResultLauncher<String> notifPermLauncher;
+    private ActivityResultLauncher<Intent> locationPickerLauncher;
 
     private String currentMenu = "main";
 
@@ -137,6 +139,31 @@ public class FeaturesFragment extends Fragment {
 
         notifPermLauncher = registerForActivityResult(
                 new ActivityResultContracts.RequestPermission(), granted -> {});
+
+        locationPickerLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(), result -> {
+                    if (result == null || result.getData() == null) return;
+                    Intent data = result.getData();
+                    double lat = data.getDoubleExtra(LocationPickerActivity.RESULT_LAT, 0.0);
+                    double lng = data.getDoubleExtra(LocationPickerActivity.RESULT_LNG, 0.0);
+                    SharedPreferences.Editor ed = localCache.edit();
+                    ed.putString("spoofLat", String.valueOf(lat));
+                    ed.putString("spoofLng", String.valueOf(lng));
+                    ed.commit();
+                    makeLocalCacheWorldReadable();
+
+                    Intent b1 = new Intent("ps.reso.instaeclipse.ACTION_UPDATE_PREF_STRING");
+                    b1.putExtra("key", "spoofLat");
+                    b1.putExtra("value", String.valueOf(lat));
+                    requireContext().sendBroadcast(b1);
+
+                    Intent b2 = new Intent("ps.reso.instaeclipse.ACTION_UPDATE_PREF_STRING");
+                    b2.putExtra("key", "spoofLng");
+                    b2.putExtra("value", String.valueOf(lng));
+                    requireContext().sendBroadcast(b2);
+
+                    if ("location".equals(currentMenu)) loadLocationMenu();
+                });
 
         dirPickerLauncher = registerForActivityResult(new ActivityResultContracts.OpenDocumentTree(), uri -> {
             if (uri != null) {
@@ -597,7 +624,8 @@ public class FeaturesFragment extends Fragment {
                 createNav(getString(R.string.ig_dialog_menu_clean_feed), this::loadCleanFeedMenu),
                 createNav(getString(R.string.ig_dialog_menu_distraction_free), this::loadDistractionMenu),
                 createNav(getString(R.string.ig_dialog_menu_misc), this::loadMiscMenu),
-                createNav(getString(R.string.ig_dialog_menu_downloader), this::loadDownloaderMenu)
+                createNav(getString(R.string.ig_dialog_menu_downloader), this::loadDownloaderMenu),
+                createNav(getString(R.string.ig_dialog_menu_location), this::loadLocationMenu)
         ));
 
         defs.add(getString(R.string.feat_tools));
@@ -790,6 +818,35 @@ public class FeaturesFragment extends Fragment {
 
         showMenu(getString(R.string.ig_dialog_section_misc), defs);
         currentMenu = "misc";
+    }
+
+    private void loadLocationMenu() {
+        List<Object> defs = new ArrayList<>();
+
+        defs.add(getString(R.string.feat_features));
+        defs.add(Arrays.asList(createSwitch(getString(R.string.ig_dialog_location_spoof_enable), "spoofLocation")));
+
+        double lat = 0.0, lng = 0.0;
+        try { lat = Double.parseDouble(localCache.getString("spoofLat", "0")); } catch (Throwable ignored) {}
+        try { lng = Double.parseDouble(localCache.getString("spoofLng", "0")); } catch (Throwable ignored) {}
+        String coordLabel = (lat == 0.0 && lng == 0.0)
+                ? getString(R.string.ig_dialog_location_unset)
+                : getString(R.string.ig_dialog_location_current, lat, lng);
+
+        defs.add(getString(R.string.feat_options));
+        defs.add(Arrays.asList(createClickable(
+                getString(R.string.ig_dialog_location_pick) + " — " + coordLabel, 0xFFFF9F0A, () -> {
+                    double curLat = 0.0, curLng = 0.0;
+                    try { curLat = Double.parseDouble(localCache.getString("spoofLat", "0")); } catch (Throwable ignored) {}
+                    try { curLng = Double.parseDouble(localCache.getString("spoofLng", "0")); } catch (Throwable ignored) {}
+                    Intent i = new Intent(requireContext(), LocationPickerActivity.class);
+                    i.putExtra(LocationPickerActivity.EXTRA_LAT, curLat);
+                    i.putExtra(LocationPickerActivity.EXTRA_LNG, curLng);
+                    locationPickerLauncher.launch(i);
+                })));
+
+        showMenu(getString(R.string.ig_dialog_section_location), defs);
+        currentMenu = "location";
     }
 
     private void loadDownloaderMenu() {

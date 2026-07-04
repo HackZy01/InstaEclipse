@@ -7,6 +7,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.os.Bundle;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
@@ -32,7 +33,9 @@ import ps.reso.instaeclipse.R;
 import ps.reso.instaeclipse.Xposed.Module;
 import ps.reso.instaeclipse.mods.devops.config.ConfigManager;
 import ps.reso.instaeclipse.mods.ghost.ui.GhostEmojiManager;
+import ps.reso.instaeclipse.mods.location.LocationPickerActivity;
 import ps.reso.instaeclipse.mods.ui.UIHookManager;
+import ps.reso.instaeclipse.utils.core.ModuleActivityLauncher;
 import ps.reso.instaeclipse.utils.core.SettingsManager;
 import ps.reso.instaeclipse.utils.feature.FeatureFlags;
 import ps.reso.instaeclipse.utils.ghost.GhostModeUtils;
@@ -115,6 +118,9 @@ public class DialogUtils {
 
         // 5 - Downloader => OPEN PAGE
         mainLayout.addView(createClickableSection(context, I18n.t(context, R.string.ig_dialog_menu_downloader), () -> showDownloaderOptions(context)));
+
+        // 6 - Location Spoof => OPEN PAGE
+        mainLayout.addView(createClickableSection(context, I18n.t(context, R.string.ig_dialog_menu_location), () -> showLocationOptions(context)));
 
         // 7 - Backup & Restore => OPEN PAGE
         mainLayout.addView(createClickableSection(context, I18n.t(context, R.string.ig_dialog_menu_backup_restore), () -> showBackupRestoreOptions(context)));
@@ -862,6 +868,40 @@ public class DialogUtils {
         });
     }
 
+    private static void showLocationOptions(Context context) {
+        LinearLayout layout = createSwitchLayout(context);
+
+        ToggleRow spoofSwitch = createSwitch(context,
+                I18n.t(context, R.string.ig_dialog_location_spoof_enable), FeatureFlags.spoofLocation);
+        spoofSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            FeatureFlags.spoofLocation = isChecked;
+            SettingsManager.saveAllFlags();
+        });
+
+        String coordLabel = (FeatureFlags.spoofLat == 0.0 && FeatureFlags.spoofLng == 0.0)
+                ? I18n.t(context, R.string.ig_dialog_location_unset)
+                : I18n.t(context, R.string.ig_dialog_location_current, FeatureFlags.spoofLat, FeatureFlags.spoofLng);
+
+        layout.addView(createDivider(context));
+        layout.addView(spoofSwitch);
+        layout.addView(createDivider(context));
+        layout.addView(createActionRow(context, "📍",
+                I18n.t(context, R.string.ig_dialog_location_pick) + " — " + coordLabel, "#FF9F0A", v -> {
+                    Bundle extras = new Bundle();
+                    extras.putDouble(LocationPickerActivity.EXTRA_LAT, FeatureFlags.spoofLat);
+                    extras.putDouble(LocationPickerActivity.EXTRA_LNG, FeatureFlags.spoofLng);
+                    if (ModuleActivityLauncher.launch(context,
+                            "ps.reso.instaeclipse.mods.location.LocationPickerActivity", extras)) {
+                        if (currentDialog != null) {
+                            try { currentDialog.dismiss(); } catch (Exception ignored) {}
+                            currentDialog = null;
+                        }
+                    }
+                }));
+
+        showSectionDialog(context, I18n.t(context, R.string.ig_dialog_section_location), layout, () -> {
+        });
+    }
 
     private static void showDownloaderOptions(Context context) {
         LinearLayout layout = createSwitchLayout(context);
