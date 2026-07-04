@@ -60,7 +60,6 @@ public class HideSuggestedFeedItemsHook {
                 if (!shouldHide) return;
 
                 param.setResult(null);
-                FeatureStatusTracker.setHooked(isThreadsUnit ? "HideThreadsSuggestions" : "HideSuggestionsInFeed");
             }
         };
 
@@ -69,6 +68,7 @@ public class HideSuggestedFeedItemsHook {
             if (cached != null) {
                 try {
                     hookBridgeMethod(cached, classLoader, filterHook);
+                    markHookedForEnabledFlags();
                     return;
                 } catch (Throwable t) {
                     XposedBridge.log("(InstaEclipse | HideSuggested): ⚠️ Cache hook failed: " + t.getMessage());
@@ -109,6 +109,7 @@ public class HideSuggestedFeedItemsHook {
             String targetClass = methods.get(0).getClassName();
             DexKitCache.saveString(CACHE_KEY_PARSER, targetClass);
             hookBridgeMethod(targetClass, classLoader, filterHook);
+            markHookedForEnabledFlags();
             XposedBridge.log("(InstaEclipse | HideSuggested): ✅ Hooked: " + targetClass);
 
         } catch (Throwable t) {
@@ -124,5 +125,15 @@ public class HideSuggestedFeedItemsHook {
                 XposedBridge.hookMethod(m, hook);
             }
         }
+    }
+
+    // Mark the feature(s) as hooked as soon as the filter is successfully attached, rather
+    // than waiting for a matching feed item to actually be filtered at runtime. The status
+    // toast is built ~1.5s after the main activity's onCreate — whether a suggestion/Threads
+    // unit has scrolled into the feed by then is essentially random, so gating the status on
+    // that produced a false ❌ even when the hook was installed and working correctly.
+    private void markHookedForEnabledFlags() {
+        if (FeatureFlags.hideSuggestionsInFeed) FeatureStatusTracker.setHooked("HideSuggestionsInFeed");
+        if (FeatureFlags.hideThreadsSuggestions) FeatureStatusTracker.setHooked("HideThreadsSuggestions");
     }
 }

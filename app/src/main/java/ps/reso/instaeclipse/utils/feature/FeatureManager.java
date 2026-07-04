@@ -80,6 +80,12 @@ public class FeatureManager {
             FeatureStatusTracker.setDisabled("HideSuggestionsInFeed");
         }
 
+        if (FeatureFlags.hideThreadsSuggestions) {
+            FeatureStatusTracker.setEnabled("HideThreadsSuggestions", R.string.ig_dialog_clean_feed_hide_threads);
+        } else {
+            FeatureStatusTracker.setDisabled("HideThreadsSuggestions");
+        }
+
         // Miscellaneous
         if (FeatureFlags.disableTrackingLinks) {
             FeatureStatusTracker.setEnabled("DisableTrackingLinks", R.string.ig_dialog_ad_disable_tracking);
