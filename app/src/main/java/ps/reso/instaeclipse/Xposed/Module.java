@@ -25,6 +25,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import ps.reso.instaeclipse.mods.ads.AdBlocker;
 import ps.reso.instaeclipse.mods.feed.FeedPhotoZoomHook;
 import ps.reso.instaeclipse.mods.location.LocationSpoofHook;
+import ps.reso.instaeclipse.mods.media.ForceReelQualityHook;
 import ps.reso.instaeclipse.mods.feed.HideSuggestedFeedItemsHook;
 import ps.reso.instaeclipse.mods.ads.TrackingLinkDisable;
 import ps.reso.instaeclipse.mods.devops.BuildExpiredPopupHook;
@@ -312,6 +313,13 @@ public class Module implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                         XposedBridge.log("(InstaEclipse | SpoofLocation): ❌ Failed to hook");
                     }
 
+                    // Force Reel Quality
+                    try {
+                        new ForceReelQualityHook().install(dexKitBridge, lpparam.classLoader);
+                    } catch (Throwable ignored) {
+                        XposedBridge.log("(InstaEclipse | ForceReelQuality): ❌ Failed to hook");
+                    }
+
                     try {
                         new DisableVideoAutoPlayHook().handleAutoPlayDisable(dexKitBridge); // Video Autoplay
                     } catch (Throwable ignored) {
@@ -423,6 +431,18 @@ public class Module implements IXposedHookLoadPackage, IXposedHookZygoteInit {
 
                     SettingsManager.loadAllFlags(ctx);
 
+                } else if ("ps.reso.instaeclipse.ACTION_UPDATE_PREF_INT".equals(action)) {
+                    String key = intent.getStringExtra("key");
+                    int value = intent.getIntExtra("value", 0);
+
+                    XposedBridge.log("(InstaEclipse) Sync: Updating int pref " + key + " to " + value);
+
+                    android.content.SharedPreferences prefs = ctx.getSharedPreferences("instaeclipse_prefs", Context.MODE_PRIVATE);
+                    prefs.edit().putInt(key, value).apply();
+
+                    SettingsManager.loadAllFlags(ctx);
+                    FeatureManager.refreshFeatureStatus();
+
                 } else if ("ps.reso.instaeclipse.ACTION_REQUEST_PREFS".equals(action)) {
                     XposedBridge.log("(InstaEclipse) Sync: Companion app requested current preferences.");
 
@@ -436,6 +456,8 @@ public class Module implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                             bundle.putBoolean(entry.getKey(), (Boolean) entry.getValue());
                         } else if (entry.getValue() instanceof String) {
                             bundle.putString(entry.getKey(), (String) entry.getValue());
+                        } else if (entry.getValue() instanceof Integer) {
+                            bundle.putInt(entry.getKey(), (Integer) entry.getValue());
                         }
                     }
                     reply.putExtras(bundle);
@@ -487,6 +509,7 @@ public class Module implements IXposedHookLoadPackage, IXposedHookZygoteInit {
         IntentFilter filter = new IntentFilter();
         filter.addAction("ps.reso.instaeclipse.ACTION_UPDATE_PREF");
         filter.addAction("ps.reso.instaeclipse.ACTION_UPDATE_PREF_STRING");
+        filter.addAction("ps.reso.instaeclipse.ACTION_UPDATE_PREF_INT");
         filter.addAction("ps.reso.instaeclipse.ACTION_REQUEST_PREFS");
         filter.addAction("ps.reso.instaeclipse.ACTION_EXPORT_CONFIG");
         filter.addAction("ps.reso.instaeclipse.ACTION_BACKUP_SETTINGS");

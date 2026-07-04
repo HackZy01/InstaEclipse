@@ -111,6 +111,12 @@ public class FeatureManager {
             FeatureStatusTracker.setDisabled("DisableDiscoverPeople");
         }
 
+        if (FeatureFlags.forceReelQuality > 0) {
+            FeatureStatusTracker.setEnabled("ForceReelQuality", R.string.ig_dialog_quality_force_reels);
+        } else {
+            FeatureStatusTracker.setDisabled("ForceReelQuality");
+        }
+
         if (FeatureFlags.spoofLocation) {
             FeatureStatusTracker.setEnabled("SpoofLocation", R.string.ig_dialog_location_spoof_enable);
         } else {

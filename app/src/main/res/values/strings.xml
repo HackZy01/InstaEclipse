@@ -157,6 +157,7 @@
     <string name="ig_dialog_menu_misc">⚙ Misc Features</string>
     <string name="ig_dialog_menu_downloader">📥 Downloader</string>
     <string name="ig_dialog_menu_location">📍 Location</string>
+    <string name="ig_dialog_menu_quality">🎞 Video Quality</string>
     <string name="ig_dialog_menu_backup_restore">💾 Backup &amp; Restore</string>
     <string name="ig_dialog_menu_about">ℹ️ About</string>
     <string name="ig_dialog_menu_restart">🔁 Restart App</string>
@@ -169,6 +170,16 @@
     <string name="ig_dialog_section_distraction_free">Distraction-Free Instagram 🧘</string>
     <string name="ig_dialog_section_misc">Miscellaneous ⚙️</string>
     <string name="ig_dialog_section_location">Location</string>
+    <string name="ig_dialog_section_quality">Video Quality</string>
+
+    <!-- Video Quality -->
+    <string name="ig_dialog_quality_force_reels">Force Reels Quality</string>
+    <string name="ig_dialog_quality_auto">Auto</string>
+    <string name="ig_dialog_quality_360">360p</string>
+    <string name="ig_dialog_quality_480">480p</string>
+    <string name="ig_dialog_quality_720">720p</string>
+    <string name="ig_dialog_quality_1080">1080p</string>
+    <string name="ig_dialog_quality_max">Max Available</string>
 
     <!-- Location Spoof -->
     <string name="ig_dialog_location_spoof_enable">Spoof GPS Location</string>

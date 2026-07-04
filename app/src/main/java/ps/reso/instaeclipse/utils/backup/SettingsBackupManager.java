@@ -68,6 +68,7 @@ public class SettingsBackupManager {
         s.put("spoofLocation",           FeatureFlags.spoofLocation);
         s.put("spoofLat",                String.valueOf(FeatureFlags.spoofLat));
         s.put("spoofLng",                String.valueOf(FeatureFlags.spoofLng));
+        s.put("forceReelQuality",        FeatureFlags.forceReelQuality);
         s.put("disableRepost",           FeatureFlags.disableRepost);
         s.put("showFollowerToast",       FeatureFlags.showFollowerToast);
         s.put("showFeatureToasts",       FeatureFlags.showFeatureToasts);
@@ -144,6 +145,7 @@ public class SettingsBackupManager {
         if (s.has("spoofLocation"))          FeatureFlags.spoofLocation          = s.getBoolean("spoofLocation");
         if (s.has("spoofLat"))               FeatureFlags.spoofLat               = parseDouble(s.get("spoofLat"), 0.0);
         if (s.has("spoofLng"))               FeatureFlags.spoofLng               = parseDouble(s.get("spoofLng"), 0.0);
+        if (s.has("forceReelQuality"))        FeatureFlags.forceReelQuality       = s.getInt("forceReelQuality");
         if (s.has("disableRepost"))          FeatureFlags.disableRepost          = s.getBoolean("disableRepost");
         if (s.has("showFollowerToast"))      FeatureFlags.showFollowerToast      = s.getBoolean("showFollowerToast");
         if (s.has("showFeatureToasts"))      FeatureFlags.showFeatureToasts      = s.getBoolean("showFeatureToasts");

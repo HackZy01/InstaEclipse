@@ -69,6 +69,9 @@ public class FeatureFlags {
     public static double spoofLat = 0.0;
     public static double spoofLng = 0.0;
 
+    // Video Quality (0 = auto/off, else desired height in px, or Integer.MAX_VALUE for max available)
+    public static int forceReelQuality = 0;
+
     // Clean Feed
     public static boolean hideSuggestionsInFeed = false;
     public static boolean hideThreadsSuggestions = false;

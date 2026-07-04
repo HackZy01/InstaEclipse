@@ -122,6 +122,9 @@ public class DialogUtils {
         // 6 - Location Spoof => OPEN PAGE
         mainLayout.addView(createClickableSection(context, I18n.t(context, R.string.ig_dialog_menu_location), () -> showLocationOptions(context)));
 
+        // 6b - Video Quality => OPEN PAGE
+        mainLayout.addView(createClickableSection(context, I18n.t(context, R.string.ig_dialog_menu_quality), () -> showQualityOptions(context)));
+
         // 7 - Backup & Restore => OPEN PAGE
         mainLayout.addView(createClickableSection(context, I18n.t(context, R.string.ig_dialog_menu_backup_restore), () -> showBackupRestoreOptions(context)));
 
@@ -900,6 +903,91 @@ public class DialogUtils {
                 }));
 
         showSectionDialog(context, I18n.t(context, R.string.ig_dialog_section_location), layout, () -> {
+        });
+    }
+
+    private static String qualityLabel(Context context, int h) {
+        if (h == 360) return I18n.t(context, R.string.ig_dialog_quality_360);
+        if (h == 480) return I18n.t(context, R.string.ig_dialog_quality_480);
+        if (h == 720) return I18n.t(context, R.string.ig_dialog_quality_720);
+        if (h == 1080) return I18n.t(context, R.string.ig_dialog_quality_1080);
+        if (h == Integer.MAX_VALUE) return I18n.t(context, R.string.ig_dialog_quality_max);
+        return I18n.t(context, R.string.ig_dialog_quality_auto);
+    }
+
+    private static class RadioRow extends LinearLayout {
+        private final TextView checkmark;
+
+        RadioRow(Context context, String label, boolean checked) {
+            super(context);
+            setOrientation(HORIZONTAL);
+            setPadding(8, 4, 8, 4);
+            setGravity(Gravity.CENTER_VERTICAL);
+            setClickable(true);
+            setFocusable(true);
+
+            StateListDrawable bg = new StateListDrawable();
+            bg.addState(new int[]{android.R.attr.state_pressed}, new ColorDrawable(Color.parseColor("#2C2C2E")));
+            bg.addState(new int[]{}, new ColorDrawable(Color.TRANSPARENT));
+            setBackground(bg);
+
+            TextView labelView = new TextView(context);
+            labelView.setText(label);
+            labelView.setTextColor(Color.WHITE);
+            labelView.setTextSize(16);
+            labelView.setPadding(0, 20, 16, 20);
+            LayoutParams lp = new LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f);
+            labelView.setLayoutParams(lp);
+
+            checkmark = new TextView(context);
+            checkmark.setText("✓");
+            checkmark.setTextColor(Color.parseColor("#0A84FF"));
+            checkmark.setTextSize(18);
+            checkmark.setTypeface(null, Typeface.BOLD);
+            checkmark.setVisibility(checked ? VISIBLE : INVISIBLE);
+
+            addView(labelView);
+            addView(checkmark);
+        }
+
+        void setChecked(boolean checked) {
+            checkmark.setVisibility(checked ? VISIBLE : INVISIBLE);
+        }
+    }
+
+    private static void showQualityOptions(Context context) {
+        LinearLayout layout = createSwitchLayout(context);
+
+        String[] labels = {
+                I18n.t(context, R.string.ig_dialog_quality_auto),
+                I18n.t(context, R.string.ig_dialog_quality_360),
+                I18n.t(context, R.string.ig_dialog_quality_480),
+                I18n.t(context, R.string.ig_dialog_quality_720),
+                I18n.t(context, R.string.ig_dialog_quality_1080),
+                I18n.t(context, R.string.ig_dialog_quality_max)
+        };
+        int[] values = {0, 360, 480, 720, 1080, Integer.MAX_VALUE};
+        int current = FeatureFlags.forceReelQuality;
+
+        RadioRow[] rows = new RadioRow[labels.length];
+        for (int i = 0; i < labels.length; i++) {
+            rows[i] = new RadioRow(context, labels[i], values[i] == current);
+        }
+        for (int i = 0; i < rows.length; i++) {
+            int idx = i;
+            rows[i].setOnClickListener(v -> {
+                FeatureFlags.forceReelQuality = values[idx];
+                SettingsManager.saveAllFlags();
+                for (RadioRow r : rows) r.setChecked(false);
+                rows[idx].setChecked(true);
+            });
+            layout.addView(rows[i]);
+            if (i < rows.length - 1) layout.addView(createDivider(context));
+        }
+
+        showSectionDialog(context,
+                I18n.t(context, R.string.ig_dialog_quality_force_reels) + " — " + qualityLabel(context, current),
+                layout, () -> {
         });
     }
 

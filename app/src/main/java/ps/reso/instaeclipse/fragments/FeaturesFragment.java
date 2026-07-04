@@ -33,6 +33,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.materialswitch.MaterialSwitch;
@@ -92,12 +93,16 @@ public class FeaturesFragment extends Fragment {
                                 continue;
                             }
                             editor.putString(key, (String) value);
+                        } else if (value instanceof Integer) {
+                            editor.putInt(key, (Integer) value);
                         }
                     }
                     editor.apply();
-                    // Rebuild downloader menu so the folder title reflects the latest value
+                    // Rebuild downloader/quality menus so the current value reflects immediately
                     if ("downloader".equals(currentMenu)) {
                         loadDownloaderMenu();
+                    } else if ("quality".equals(currentMenu)) {
+                        loadQualityMenu();
                     } else if (adapter != null) {
                         adapter.notifyDataSetChanged();
                     }
@@ -625,7 +630,8 @@ public class FeaturesFragment extends Fragment {
                 createNav(getString(R.string.ig_dialog_menu_distraction_free), this::loadDistractionMenu),
                 createNav(getString(R.string.ig_dialog_menu_misc), this::loadMiscMenu),
                 createNav(getString(R.string.ig_dialog_menu_downloader), this::loadDownloaderMenu),
-                createNav(getString(R.string.ig_dialog_menu_location), this::loadLocationMenu)
+                createNav(getString(R.string.ig_dialog_menu_location), this::loadLocationMenu),
+                createNav(getString(R.string.ig_dialog_menu_quality), this::loadQualityMenu)
         ));
 
         defs.add(getString(R.string.feat_tools));
@@ -847,6 +853,61 @@ public class FeaturesFragment extends Fragment {
 
         showMenu(getString(R.string.ig_dialog_section_location), defs);
         currentMenu = "location";
+    }
+
+    private String qualityLabel(int h) {
+        if (h == 360) return getString(R.string.ig_dialog_quality_360);
+        if (h == 480) return getString(R.string.ig_dialog_quality_480);
+        if (h == 720) return getString(R.string.ig_dialog_quality_720);
+        if (h == 1080) return getString(R.string.ig_dialog_quality_1080);
+        if (h == Integer.MAX_VALUE) return getString(R.string.ig_dialog_quality_max);
+        return getString(R.string.ig_dialog_quality_auto);
+    }
+
+    private void loadQualityMenu() {
+        List<Object> defs = new ArrayList<>();
+        int current = localCache.getInt("forceReelQuality", 0);
+
+        defs.add(getString(R.string.feat_features));
+        defs.add(Arrays.asList(createClickable(
+                getString(R.string.ig_dialog_quality_force_reels) + ": " + qualityLabel(current), 0, () -> pickQuality(current))));
+
+        showMenu(getString(R.string.ig_dialog_section_quality), defs);
+        currentMenu = "quality";
+    }
+
+    private void pickQuality(int current) {
+        String[] labels = {
+                getString(R.string.ig_dialog_quality_auto), getString(R.string.ig_dialog_quality_360),
+                getString(R.string.ig_dialog_quality_480), getString(R.string.ig_dialog_quality_720),
+                getString(R.string.ig_dialog_quality_1080), getString(R.string.ig_dialog_quality_max)
+        };
+        int[] values = {0, 360, 480, 720, 1080, Integer.MAX_VALUE};
+
+        int sel = 0;
+        for (int i = 0; i < values.length; i++) {
+            if (values[i] == current) { sel = i; break; }
+        }
+
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(getString(R.string.ig_dialog_quality_force_reels))
+                .setSingleChoiceItems(labels, sel, (dialog, which) -> {
+                    int value = values[which];
+                    SharedPreferences.Editor ed = localCache.edit();
+                    ed.putInt("forceReelQuality", value);
+                    ed.commit();
+                    makeLocalCacheWorldReadable();
+
+                    Intent b = new Intent("ps.reso.instaeclipse.ACTION_UPDATE_PREF_INT");
+                    b.putExtra("key", "forceReelQuality");
+                    b.putExtra("value", value);
+                    requireContext().sendBroadcast(b);
+
+                    dialog.dismiss();
+                    loadQualityMenu();
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
     }
 
     private void loadDownloaderMenu() {
