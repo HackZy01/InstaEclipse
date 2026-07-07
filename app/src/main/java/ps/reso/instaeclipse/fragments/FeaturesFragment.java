@@ -53,6 +53,7 @@ import java.util.Scanner;
 
 import ps.reso.instaeclipse.R;
 import ps.reso.instaeclipse.mods.location.LocationPickerActivity;
+import ps.reso.instaeclipse.ui.theme.ThemeCustomizerActivity;
 
 public class FeaturesFragment extends Fragment {
 
@@ -67,6 +68,7 @@ public class FeaturesFragment extends Fragment {
     private ActivityResultLauncher<String[]> restoreFileLauncher;
     private ActivityResultLauncher<String> notifPermLauncher;
     private ActivityResultLauncher<Intent> locationPickerLauncher;
+    private ActivityResultLauncher<Intent> themeCustomizerLauncher;
 
     private String currentMenu = "main";
 
@@ -168,6 +170,11 @@ public class FeaturesFragment extends Fragment {
                     requireContext().sendBroadcast(b2);
 
                     if ("location".equals(currentMenu)) loadLocationMenu();
+                });
+
+        themeCustomizerLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(), result -> {
+                    if ("theme".equals(currentMenu)) loadThemeMenu();
                 });
 
         dirPickerLauncher = registerForActivityResult(new ActivityResultContracts.OpenDocumentTree(), uri -> {
@@ -631,7 +638,8 @@ public class FeaturesFragment extends Fragment {
                 createNav(getString(R.string.ig_dialog_menu_misc), this::loadMiscMenu),
                 createNav(getString(R.string.ig_dialog_menu_downloader), this::loadDownloaderMenu),
                 createNav(getString(R.string.ig_dialog_menu_location), this::loadLocationMenu),
-                createNav(getString(R.string.ig_dialog_menu_quality), this::loadQualityMenu)
+                createNav(getString(R.string.ig_dialog_menu_quality), this::loadQualityMenu),
+                createNav(getString(R.string.ig_dialog_menu_theme), this::loadThemeMenu)
         ));
 
         defs.add(getString(R.string.feat_tools));
@@ -853,6 +861,21 @@ public class FeaturesFragment extends Fragment {
 
         showMenu(getString(R.string.ig_dialog_section_location), defs);
         currentMenu = "location";
+    }
+
+    private void loadThemeMenu() {
+        List<Object> defs = new ArrayList<>();
+
+        defs.add(getString(R.string.feat_features));
+        defs.add(Arrays.asList(createSwitch(getString(R.string.theme_enable), "customThemeEnabled")));
+
+        defs.add(getString(R.string.feat_options));
+        defs.add(Arrays.asList(createClickable(
+                getString(R.string.theme_customize), 0xFF0A84FF, () ->
+                        themeCustomizerLauncher.launch(new Intent(requireContext(), ThemeCustomizerActivity.class)))));
+
+        showMenu(getString(R.string.theme_title), defs);
+        currentMenu = "theme";
     }
 
     private String qualityLabel(int h) {

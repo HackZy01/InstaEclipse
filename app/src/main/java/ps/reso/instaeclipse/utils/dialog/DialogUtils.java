@@ -126,6 +126,9 @@ public class DialogUtils {
         // 6b - Video Quality => OPEN PAGE
         mainLayout.addView(createClickableSection(context, I18n.t(context, R.string.ig_dialog_menu_quality), () -> showQualityOptions(context)));
 
+        // 6c - Custom Theme => OPEN PAGE
+        mainLayout.addView(createClickableSection(context, I18n.t(context, R.string.ig_dialog_menu_theme), () -> showThemeOptions(context)));
+
         // 7 - Backup & Restore => OPEN PAGE
         mainLayout.addView(createClickableSection(context, I18n.t(context, R.string.ig_dialog_menu_backup_restore), () -> showBackupRestoreOptions(context)));
 
@@ -904,6 +907,36 @@ public class DialogUtils {
                 }));
 
         showSectionDialog(context, I18n.t(context, R.string.ig_dialog_section_location), layout, () -> {
+        });
+    }
+
+    private static void showThemeOptions(Context context) {
+        LinearLayout layout = createSwitchLayout(context);
+
+        ToggleRow themeSwitch = createSwitch(context,
+                I18n.t(context, R.string.theme_enable), FeatureFlags.customThemeEnabled);
+        themeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            FeatureFlags.customThemeEnabled = isChecked;
+            SettingsManager.saveAllFlags();
+            ps.reso.instaeclipse.mods.ui.theme.IgThemeEngine.invalidate();
+            ps.reso.instaeclipse.mods.ui.theme.IgThemeHook.refreshCurrentActivity();
+        });
+
+        layout.addView(createDivider(context));
+        layout.addView(themeSwitch);
+        layout.addView(createDivider(context));
+        layout.addView(createActionRow(context, "🎨",
+                I18n.t(context, R.string.theme_customize), "#0A84FF", v -> {
+                    if (ModuleActivityLauncher.launch(context,
+                            "ps.reso.instaeclipse.ui.theme.ThemeCustomizerActivity", null)) {
+                        if (currentDialog != null) {
+                            try { currentDialog.dismiss(); } catch (Exception ignored) {}
+                            currentDialog = null;
+                        }
+                    }
+                }));
+
+        showSectionDialog(context, I18n.t(context, R.string.theme_title), layout, () -> {
         });
     }
 

@@ -55,6 +55,8 @@ import ps.reso.instaeclipse.mods.misc.DisableVideoAutoPlayHook;
 import ps.reso.instaeclipse.mods.misc.StoryMentionHook;
 import ps.reso.instaeclipse.mods.network.IGNetworkInterceptor;
 import ps.reso.instaeclipse.mods.ui.UIHookManager;
+import ps.reso.instaeclipse.mods.ui.theme.IgThemeEngine;
+import ps.reso.instaeclipse.mods.ui.theme.IgThemeHook;
 import ps.reso.instaeclipse.utils.core.CommonUtils;
 import ps.reso.instaeclipse.utils.core.DexKitCache;
 import ps.reso.instaeclipse.utils.core.SettingsManager;
@@ -319,6 +321,13 @@ public class Module implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                         ModuleLog.line("(InstaEclipse | SpoofLocation): ❌ Failed to hook");
                     }
 
+                    // Custom Theme
+                    try {
+                        new IgThemeHook().install(hostClassLoader);
+                    } catch (Throwable ignored) {
+                        ModuleLog.line("(InstaEclipse | Theme): ❌ Failed to hook");
+                    }
+
                     // Force Reel Quality
                     try {
                         new ForceReelQualityHook().install(dexKitBridge, lpparam.classLoader);
@@ -425,6 +434,8 @@ public class Module implements IXposedHookLoadPackage, IXposedHookZygoteInit {
 
                     SettingsManager.loadAllFlags(ctx);
                     FeatureManager.refreshFeatureStatus();
+                    IgThemeEngine.invalidate();
+                    IgThemeHook.refreshCurrentActivity();
 
                 } else if ("ps.reso.instaeclipse.ACTION_UPDATE_PREF_STRING".equals(action)) {
                     String key = intent.getStringExtra("key");
@@ -436,6 +447,8 @@ public class Module implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                     prefs.edit().putString(key, value).apply();
 
                     SettingsManager.loadAllFlags(ctx);
+                    IgThemeEngine.invalidate();
+                    IgThemeHook.refreshCurrentActivity();
 
                 } else if ("ps.reso.instaeclipse.ACTION_UPDATE_PREF_INT".equals(action)) {
                     String key = intent.getStringExtra("key");
@@ -448,6 +461,8 @@ public class Module implements IXposedHookLoadPackage, IXposedHookZygoteInit {
 
                     SettingsManager.loadAllFlags(ctx);
                     FeatureManager.refreshFeatureStatus();
+                    IgThemeEngine.invalidate();
+                    IgThemeHook.refreshCurrentActivity();
 
                 } else if (CommonUtils.ACTION_REQUEST_LOGS.equals(action)) {
                     try {

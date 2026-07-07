@@ -158,6 +158,7 @@
     <string name="ig_dialog_menu_downloader">📥 Downloader</string>
     <string name="ig_dialog_menu_location">📍 Location</string>
     <string name="ig_dialog_menu_quality">🎞 Video Quality</string>
+    <string name="ig_dialog_menu_theme">🎨 Custom Theme</string>
 
     <!-- Logging -->
     <string name="logging">Logs</string>
@@ -192,6 +193,36 @@
     <string name="ig_dialog_quality_480">480p</string>
     <string name="ig_dialog_quality_720">720p</string>
     <string name="ig_dialog_quality_1080">1080p</string>
+
+    <!-- Custom Theme -->
+    <string name="theme_title">Custom Theme</string>
+    <string name="theme_enable">Enable Custom Theme</string>
+    <string name="theme_customize">Customize Theme…</string>
+    <string name="theme_section_presets">Presets</string>
+    <string name="theme_section_custom">Custom Colors</string>
+    <string name="theme_collapse_section">Collapse section</string>
+    <string name="theme_expand_section">Expand section</string>
+    <string name="theme_reset_custom">Reset to Default</string>
+    <string name="theme_saved">Theme saved</string>
+    <string name="theme_pick_color">Pick a color</string>
+    <string name="theme_apply_color">Apply</string>
+    <string name="theme_rgba_format">R %1$d  G %2$d  B %3$d  A %4$d</string>
+    <string name="theme_alpha_format">Opacity: %1$d%%</string>
+    <string name="theme_slot_background">Background</string>
+    <string name="theme_slot_surface">Surface</string>
+    <string name="theme_slot_primary_text">Primary Text</string>
+    <string name="theme_slot_secondary_text">Secondary Text</string>
+    <string name="theme_slot_accent">Accent</string>
+    <string name="theme_slot_button">Button</string>
+    <string name="theme_slot_icon">Icon</string>
+    <string name="theme_slot_glyph">Glyph</string>
+    <string name="theme_slot_divider">Divider</string>
+    <string name="theme_slot_border">Border</string>
+    <string name="theme_slot_status_bar">Status Bar</string>
+    <string name="theme_slot_navigation">Navigation Bar</string>
+    <string name="theme_slot_link">Link</string>
+    <string name="theme_slot_error">Error</string>
+    <string name="theme_slot_destructive">Destructive</string>
     <string name="ig_dialog_quality_max">Max Available</string>
 
     <!-- Location Spoof -->

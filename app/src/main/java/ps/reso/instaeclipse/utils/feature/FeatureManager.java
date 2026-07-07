@@ -129,6 +129,12 @@ public class FeatureManager {
             FeatureStatusTracker.setDisabled("SpoofLastSeen");
         }
 
+        if (FeatureFlags.customThemeEnabled) {
+            FeatureStatusTracker.setEnabled("CustomTheme", R.string.theme_title);
+        } else {
+            FeatureStatusTracker.setDisabled("CustomTheme");
+        }
+
         if (FeatureFlags.removeBuildExpiredPopup) {
             FeatureStatusTracker.setEnabled("RemoveBuildExpiredPopup", R.string.ig_dialog_dev_remove_build_expired);
         } else {

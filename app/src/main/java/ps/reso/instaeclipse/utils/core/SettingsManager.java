@@ -93,6 +93,11 @@ public class SettingsManager {
         editor.putString("downloaderCustomPath", FeatureFlags.downloaderCustomPath);
         editor.putString("downloaderCustomUri",  FeatureFlags.downloaderCustomUri);
 
+        // Custom Theme
+        editor.putBoolean("customThemeEnabled", FeatureFlags.customThemeEnabled);
+        editor.putInt("themePresetId", FeatureFlags.themePresetId);
+        editor.putString("themePaletteJson", FeatureFlags.themePaletteJson);
+
         editor.apply();
 
         FeatureManager.refreshFeatureStatus();
@@ -176,6 +181,11 @@ public class SettingsManager {
         FeatureFlags.downloaderAddTimestamp   = prefs.getBoolean("downloaderAddTimestamp", false);
         FeatureFlags.downloaderCustomPath     = prefs.getString("downloaderCustomPath", "");
         FeatureFlags.downloaderCustomUri      = prefs.getString("downloaderCustomUri",  "");
+
+        // Custom Theme
+        FeatureFlags.customThemeEnabled = prefs.getBoolean("customThemeEnabled", false);
+        FeatureFlags.themePresetId = prefs.getInt("themePresetId", 1);
+        FeatureFlags.themePaletteJson = prefs.getString("themePaletteJson", "");
 
         FeatureManager.refreshFeatureStatus();
     }

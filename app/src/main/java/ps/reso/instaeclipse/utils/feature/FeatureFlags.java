@@ -72,6 +72,11 @@ public class FeatureFlags {
     // Video Quality (0 = auto/off, else desired height in px, or Integer.MAX_VALUE for max available)
     public static int forceReelQuality = 0;
 
+    // Custom Theme (themePresetId: 0 = custom palette from themePaletteJson, else a built-in preset id)
+    public static boolean customThemeEnabled = false;
+    public static int themePresetId = 1;
+    public static String themePaletteJson = "";
+
     // Clean Feed
     public static boolean hideSuggestionsInFeed = false;
     public static boolean hideThreadsSuggestions = false;
