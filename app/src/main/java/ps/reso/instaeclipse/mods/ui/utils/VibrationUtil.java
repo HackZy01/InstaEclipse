@@ -6,6 +6,7 @@ import android.os.VibrationEffect;
 import android.os.Vibrator;
 
 import de.robv.android.xposed.XposedBridge;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 public class VibrationUtil {
     @SuppressLint("ObsoleteSdkInt")
@@ -20,7 +21,7 @@ public class VibrationUtil {
                 }
             }
         } catch (Exception e) {
-            XposedBridge.log("InstaEclipse (vibrate error): " + e.getMessage());
+            ModuleLog.line("InstaEclipse (vibrate error): " + e.getMessage());
         }
     }
 }

@@ -16,6 +16,7 @@ import ps.reso.instaeclipse.Xposed.Module;
 import ps.reso.instaeclipse.utils.core.DexKitCache;
 import ps.reso.instaeclipse.utils.feature.FeatureFlags;
 import ps.reso.instaeclipse.utils.feature.FeatureStatusTracker;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 public class GhostTypingIndicatorHook {
 
@@ -31,7 +32,7 @@ public class GhostTypingIndicatorHook {
             Method cached = DexKitCache.loadMethod("GhostTyping", Module.hostClassLoader);
             if (cached != null) {
                 XposedBridge.hookMethod(cached, hook);
-                XposedBridge.log("(InstaEclipse | TypingBlock): ✅ Hooked (dynamic check): " + cached.getDeclaringClass().getName() + "." + cached.getName());
+                ModuleLog.line("(InstaEclipse | TypingBlock): ✅ Hooked (dynamic check): " + cached.getDeclaringClass().getName() + "." + cached.getName());
                 FeatureStatusTracker.setHooked("GhostTyping");
                 return;
             }
@@ -43,7 +44,7 @@ public class GhostTypingIndicatorHook {
                     .matcher(MethodMatcher.create().usingStrings("is_typing_indicator_enabled")));
 
             if (methods.isEmpty()) {
-                XposedBridge.log("(InstaEclipse | TypingBlock): ❌ No methods found containing 'is_typing_indicator_enabled'");
+                ModuleLog.line("(InstaEclipse | TypingBlock): ❌ No methods found containing 'is_typing_indicator_enabled'");
                 return;
             }
 
@@ -81,21 +82,21 @@ public class GhostTypingIndicatorHook {
                         DexKitCache.saveMethod("GhostTyping", reflectMethod);
                         XposedBridge.hookMethod(reflectMethod, hook);
 
-                        XposedBridge.log("(InstaEclipse | TypingBlock): ✅ Hooked (dynamic check): " +
+                        ModuleLog.line("(InstaEclipse | TypingBlock): ✅ Hooked (dynamic check): " +
                                 method.getClassName() + "." + method.getName());
                         FeatureStatusTracker.setHooked("GhostTyping");
                         return;
 
                     } catch (Throwable e) {
-                        XposedBridge.log("(InstaEclipse | TypingBlock): ❌ Hook error: " + e.getMessage());
+                        ModuleLog.line("(InstaEclipse | TypingBlock): ❌ Hook error: " + e.getMessage());
                     }
                 }
             }
 
-            XposedBridge.log("(InstaEclipse | TypingBlock): ❌ No candidate matched the expected method shape");
+            ModuleLog.line("(InstaEclipse | TypingBlock): ❌ No candidate matched the expected method shape");
 
         } catch (Throwable t) {
-            XposedBridge.log("(InstaEclipse | TypingBlock): ❌ Exception: " + t.getMessage());
+            ModuleLog.line("(InstaEclipse | TypingBlock): ❌ Exception: " + t.getMessage());
         }
     }
 }

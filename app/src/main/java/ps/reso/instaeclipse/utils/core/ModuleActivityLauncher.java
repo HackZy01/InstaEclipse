@@ -8,6 +8,7 @@ import android.os.Bundle;
 
 import de.robv.android.xposed.XposedBridge;
 import ps.reso.instaeclipse.mods.ui.UIHookManager;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 /**
  * Launches one of InstaEclipse's own Activities (e.g. LocationPickerActivity) from code
@@ -21,7 +22,7 @@ public final class ModuleActivityLauncher {
     public static boolean launch(Context context, String activityClassName, Bundle extras) {
         Activity activity = UIHookManager.getCurrentActivity();
         if (activity == null || activity.isFinishing()) {
-            XposedBridge.log("(InstaEclipse | Launcher): no active Instagram activity");
+            ModuleLog.line("(InstaEclipse | Launcher): no active Instagram activity");
             return false;
         }
         try {
@@ -32,7 +33,7 @@ public final class ModuleActivityLauncher {
             activity.startActivity(intent);
             return true;
         } catch (Throwable t) {
-            XposedBridge.log("(InstaEclipse | Launcher): failed " + activityClassName + " -> " + t.getMessage());
+            ModuleLog.line("(InstaEclipse | Launcher): failed " + activityClassName + " -> " + t.getMessage());
             return false;
         }
     }

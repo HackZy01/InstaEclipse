@@ -14,6 +14,7 @@ import de.robv.android.xposed.XposedHelpers;
 import ps.reso.instaeclipse.R;
 import ps.reso.instaeclipse.utils.feature.FeatureFlags;
 import ps.reso.instaeclipse.utils.i18n.I18n;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 public class GhostChannelMarkAsReadHook {
 
@@ -72,7 +73,7 @@ public class GhostChannelMarkAsReadHook {
                 }
             });
         } catch (Throwable t) {
-            XposedBridge.log("(InstaEclipse): Channel seen hook failed: " + t.getMessage());
+            ModuleLog.line("(InstaEclipse): Channel seen hook failed: " + t.getMessage());
         }
     }
 

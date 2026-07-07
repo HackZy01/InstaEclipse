@@ -8,6 +8,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import ps.reso.instaeclipse.utils.feature.FeatureFlags;
 import ps.reso.instaeclipse.utils.feature.FeatureStatusTracker;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 /**
  * Strips FLAG_SECURE from every Window.setFlags / Window.addFlags call so the
@@ -43,11 +44,11 @@ public class ScreenshotPermissionHook {
                         }
                     });
 
-            XposedBridge.log("(InstaEclipse | ScreenshotPermission): ✅ Hooked Window.setFlags + addFlags");
+            ModuleLog.line("(InstaEclipse | ScreenshotPermission): ✅ Hooked Window.setFlags + addFlags");
             FeatureStatusTracker.setHooked("AllowScreenshots");
 
         } catch (Throwable e) {
-            XposedBridge.log("(InstaEclipse | ScreenshotPermission): ❌ " + e.getMessage());
+            ModuleLog.line("(InstaEclipse | ScreenshotPermission): ❌ " + e.getMessage());
         }
     }
 }

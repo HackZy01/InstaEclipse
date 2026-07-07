@@ -15,6 +15,8 @@ import com.google.android.material.color.DynamicColors;
 import ps.reso.instaeclipse.fragments.FeaturesFragment;
 import ps.reso.instaeclipse.fragments.HelpFragment;
 import ps.reso.instaeclipse.fragments.HomeFragment;
+import ps.reso.instaeclipse.fragments.LoggingFragment;
+import ps.reso.instaeclipse.utils.log.Logging;
 import ps.reso.instaeclipse.utils.version.VersionCheckUtility;
 
 public class MainActivity extends AppCompatActivity {
@@ -25,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
         DynamicColors.applyToActivityIfAvailable(this);
 
         super.onCreate(savedInstanceState);
+        Logging.init(this, "instaeclipse_companion.log");
         VersionCheckUtility.checkForUpdates(this);
 
         setContentView(R.layout.activity_main);
@@ -69,6 +72,8 @@ public class MainActivity extends AppCompatActivity {
                 selectedFragment = new HomeFragment();
             } else if (item.getItemId() == R.id.nav_features) {
                 selectedFragment = new FeaturesFragment();
+            } else if (item.getItemId() == R.id.nav_logs) {
+                selectedFragment = new LoggingFragment();
             } else if (item.getItemId() == R.id.nav_help) {
                 selectedFragment = new HelpFragment();
             }

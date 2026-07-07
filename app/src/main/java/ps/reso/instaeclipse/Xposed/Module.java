@@ -25,6 +25,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import ps.reso.instaeclipse.mods.ads.AdBlocker;
 import ps.reso.instaeclipse.mods.feed.FeedPhotoZoomHook;
 import ps.reso.instaeclipse.mods.location.LocationSpoofHook;
+import ps.reso.instaeclipse.utils.log.Logging;
 import ps.reso.instaeclipse.mods.media.ForceReelQualityHook;
 import ps.reso.instaeclipse.mods.feed.HideSuggestedFeedItemsHook;
 import ps.reso.instaeclipse.mods.ads.TrackingLinkDisable;
@@ -59,6 +60,7 @@ import ps.reso.instaeclipse.utils.core.DexKitCache;
 import ps.reso.instaeclipse.utils.core.SettingsManager;
 import ps.reso.instaeclipse.utils.feature.FeatureFlags;
 import ps.reso.instaeclipse.utils.feature.FeatureManager;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 
 @SuppressLint("UnsafeDynamicallyLoadedCode")
@@ -104,11 +106,11 @@ public class Module implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                 if (dexKitBridge == null) {
                     // Load the .so file from your module (if not already loaded)
                     System.load(moduleLibDir + "/libdexkit.so");
-                    // XposedBridge.log("libdexkit.so loaded successfully.");
+                    // ModuleLog.line("libdexkit.so loaded successfully.");
 
                     // Initialize DexKitBridge with the target app's APK
                     dexKitBridge = DexKitBridge.create(lpparam.appInfo.sourceDir);
-                    // XposedBridge.log("DexKitBridge initialized with target APK: " + lpparam.appInfo.sourceDir);
+                    // ModuleLog.line("DexKitBridge initialized with target APK: " + lpparam.appInfo.sourceDir);
                 }
 
                 // Use the target app's ClassLoader
@@ -118,7 +120,7 @@ public class Module implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                 hookInstagram(lpparam);
 
             } catch (Exception e) {
-                XposedBridge.log("(InstaEclipse): Failed to initialize DexKitBridge for " + lpparam.packageName + ": " + e.getMessage());
+                ModuleLog.line("(InstaEclipse): Failed to initialize DexKitBridge for " + lpparam.packageName + ": " + e.getMessage());
             }
         }
     }
@@ -145,7 +147,7 @@ public class Module implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                         long vc = pi.getLongVersionCode();
                         DexKitCache.init(context, String.valueOf(vc));
                     } catch (Throwable e) {
-                        XposedBridge.log("(DexKitCache) ❌ init failed: " + e.getMessage());
+                        ModuleLog.line("(DexKitCache) ❌ init failed: " + e.getMessage());
                     }
                 }
 
@@ -156,6 +158,10 @@ public class Module implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                     Context context = (Context) param.args[0];
                     SettingsManager.init(context);
                     SettingsManager.loadAllFlags(context);
+
+                    // In-app log viewer: every ModuleLog.line(...) call across the hook codebase
+                    // appends to this buffer, which the companion app can read via IPC.
+                    Logging.init(context, "instaeclipse_module.log");
 
                     // Pull downloader path from companion app's cache so it's available even
                     // when Instagram was started without ever receiving the sync broadcast.
@@ -177,12 +183,12 @@ public class Module implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                     try {
                         UIHookManager.registerConfigImportReceiver(context);
                     } catch (Throwable e) {
-                        XposedBridge.log("(InstaEclipse | ImportReceiver): ❌ " + e.getMessage());
+                        ModuleLog.line("(InstaEclipse | ImportReceiver): ❌ " + e.getMessage());
                     }
                     try {
                         UIHookManager.registerSettingsRestoreReceiver(context);
                     } catch (Throwable e) {
-                        XposedBridge.log("(InstaEclipse | RestoreReceiver): ❌ " + e.getMessage());
+                        ModuleLog.line("(InstaEclipse | RestoreReceiver): ❌ " + e.getMessage());
                     }
                     UIHookManager instagramUI = new UIHookManager();
                     instagramUI.mainActivity(hostClassLoader);
@@ -195,7 +201,7 @@ public class Module implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                     try {
                         new DevOptionsUnlockHook().handleDevOptions(dexKitBridge);
                     } catch (Throwable ignored) {
-                        XposedBridge.log("(InstaEclipse | DevOptions): ❌ Failed to hook");
+                        ModuleLog.line("(InstaEclipse | DevOptions): ❌ Failed to hook");
                     }
 
                     // Ghost Mode
@@ -204,133 +210,133 @@ public class Module implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                         new GhostDMMarkAsReadHook(moduleSourceDir).install(lpparam.classLoader); // Mark as Read Button
                         new GhostChannelMarkAsReadHook().install(lpparam.classLoader); // Channel Mark as Read Button
                     } catch (Throwable ignored) {
-                        XposedBridge.log("(InstaEclipse | GhostSeen): ❌ Failed to hook");
+                        ModuleLog.line("(InstaEclipse | GhostSeen): ❌ Failed to hook");
                     }
 
                     try {
                         new GhostTypingIndicatorHook().handleTypingBlock(dexKitBridge); // DM Typing
                     } catch (Throwable ignored) {
-                        XposedBridge.log("(InstaEclipse | GhostTyping): ❌ Failed to hook");
+                        ModuleLog.line("(InstaEclipse | GhostTyping): ❌ Failed to hook");
                     }
 
                     try {
                         new GhostScreenshotDetectionHook().handleScreenshotBlock(dexKitBridge); // Screenshot
                     } catch (Throwable ignored) {
-                        XposedBridge.log("(InstaEclipse | GhostScreenshot): ❌ Failed to hook");
+                        ModuleLog.line("(InstaEclipse | GhostScreenshot): ❌ Failed to hook");
                     }
 
                     try {
                         new ScreenshotPermissionHook().install(lpparam.classLoader); // Allow Screenshots
                     } catch (Throwable ignored) {
-                        XposedBridge.log("(InstaEclipse | ScreenshotPermission): ❌ Failed to hook");
+                        ModuleLog.line("(InstaEclipse | ScreenshotPermission): ❌ Failed to hook");
                     }
 
                     try {
                         new GhostViewOnceHook().handleViewOnceBlock(dexKitBridge); // View Once
                     } catch (Throwable ignored) {
-                        XposedBridge.log("(InstaEclipse | GhostViewOnce): ❌ Failed to hook");
+                        ModuleLog.line("(InstaEclipse | GhostViewOnce): ❌ Failed to hook");
                     }
 
                     try {
                         new GhostReplayLimitHook().install(dexKitBridge, lpparam.classLoader);
                     } catch (Throwable ignored) {
-                        XposedBridge.log("(InstaEclipse | UnlimitedReplays): ❌ Failed to hook");
+                        ModuleLog.line("(InstaEclipse | UnlimitedReplays): ❌ Failed to hook");
                     }
 
                     try {
                         new GhostStorySeenHook().handleStorySeenBlock(dexKitBridge); // Story Seen
                     } catch (Throwable ignored) {
-                        XposedBridge.log("(InstaEclipse | GhostStorySeen): ❌ Failed to hook");
+                        ModuleLog.line("(InstaEclipse | GhostStorySeen): ❌ Failed to hook");
                     }
 
                     // Hide in-feed widget units (suggested users panels, surveys, carousels, etc.)
                     try {
                         new HideSuggestedFeedItemsHook().install(dexKitBridge, hostClassLoader);
                     } catch (Throwable ignored) {
-                        XposedBridge.log("(InstaEclipse | HideSuggested): ❌ Failed to hook");
+                        ModuleLog.line("(InstaEclipse | HideSuggested): ❌ Failed to hook");
                     }
 
                     // Ads Blocker
                     try {
                         new AdBlocker().disableSponsoredContent(dexKitBridge, hostClassLoader);
                     } catch (Throwable ignored) {
-                        XposedBridge.log("(InstaEclipse | AdBlocker): ❌ Failed to hook");
+                        ModuleLog.line("(InstaEclipse | AdBlocker): ❌ Failed to hook");
                     }
 
                     // tracking link disable
                     try {
                         new TrackingLinkDisable().disableTrackingLinks(hostClassLoader);
                     } catch (Throwable ignored) {
-                        XposedBridge.log("(InstaEclipse | TrackingLinkDisable): ❌ Failed to hook");
+                        ModuleLog.line("(InstaEclipse | TrackingLinkDisable): ❌ Failed to hook");
                     }
 
                     // Miscellaneous
                     try {
                         new DisableStoryFlippingHook().handleStoryFlippingDisable(dexKitBridge); // Story Flipping
                     } catch (Throwable ignored) {
-                        XposedBridge.log("(InstaEclipse | StoryFlipping): ❌ Failed to hook");
+                        ModuleLog.line("(InstaEclipse | StoryFlipping): ❌ Failed to hook");
                     }
 
                     // Story Mentions
                     try {
                         new StoryMentionHook().install(dexKitBridge, lpparam.classLoader);
                     } catch (Throwable ignored) {
-                        XposedBridge.log("(InstaEclipse | StoryMentions): ❌ Failed to hook");
+                        ModuleLog.line("(InstaEclipse | StoryMentions): ❌ Failed to hook");
                     }
 
                     // Comment Copy
                     try {
                         new CommentCopyHook().install(dexKitBridge, lpparam.classLoader);
                     } catch (Throwable ignored) {
-                        XposedBridge.log("(InstaEclipse | CopyComment): ❌ Failed to hook");
+                        ModuleLog.line("(InstaEclipse | CopyComment): ❌ Failed to hook");
                     }
 
                     // Caption Copy
                     try {
                         new CaptionCopyContextMenuHook().install(dexKitBridge, lpparam.classLoader);
                     } catch (Throwable ignored) {
-                        XposedBridge.log("(InstaEclipse | Caption): ❌ Failed to hook");
+                        ModuleLog.line("(InstaEclipse | Caption): ❌ Failed to hook");
                     }
 
                     // Disable Double Tap to Like
                     try {
                         new DisableDoubleTapLikeHook().install(dexKitBridge, lpparam.classLoader);
                     } catch (Throwable ignored) {
-                        XposedBridge.log("(InstaEclipse | DoubleTapLike): ❌ Failed to hook");
+                        ModuleLog.line("(InstaEclipse | DoubleTapLike): ❌ Failed to hook");
                     }
 
                     // Photo Zoom (long-press)
                     try {
                         new FeedPhotoZoomHook().install(lpparam.classLoader);
                     } catch (Throwable ignored) {
-                        XposedBridge.log("(InstaEclipse | PhotoZoom): ❌ Failed to hook");
+                        ModuleLog.line("(InstaEclipse | PhotoZoom): ❌ Failed to hook");
                     }
 
                     // Location Spoof
                     try {
                         new LocationSpoofHook().install(lpparam.classLoader);
                     } catch (Throwable ignored) {
-                        XposedBridge.log("(InstaEclipse | SpoofLocation): ❌ Failed to hook");
+                        ModuleLog.line("(InstaEclipse | SpoofLocation): ❌ Failed to hook");
                     }
 
                     // Force Reel Quality
                     try {
                         new ForceReelQualityHook().install(dexKitBridge, lpparam.classLoader);
                     } catch (Throwable ignored) {
-                        XposedBridge.log("(InstaEclipse | ForceReelQuality): ❌ Failed to hook");
+                        ModuleLog.line("(InstaEclipse | ForceReelQuality): ❌ Failed to hook");
                     }
 
                     try {
                         new DisableVideoAutoPlayHook().handleAutoPlayDisable(dexKitBridge); // Video Autoplay
                     } catch (Throwable ignored) {
-                        XposedBridge.log("(InstaEclipse | AutoPlayDisable): ❌ Failed to hook");
+                        ModuleLog.line("(InstaEclipse | AutoPlayDisable): ❌ Failed to hook");
                     }
 
                     // Build Expired Popup
                     try {
                         new BuildExpiredPopupHook().install(dexKitBridge, lpparam.classLoader);
                     } catch (Throwable ignored) {
-                        XposedBridge.log("(InstaEclipse | BuildExpired): ❌ Failed to hook");
+                        ModuleLog.line("(InstaEclipse | BuildExpired): ❌ Failed to hook");
                     }
 
                     // Media Download (feed)
@@ -338,56 +344,56 @@ public class Module implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                         new FeedVideoDownloadHook().install(lpparam.classLoader);
                         FeedVideoDownloadHook.installVideoUrlCaptureHook(dexKitBridge, lpparam.classLoader);
                     } catch (Throwable ignored) {
-                        XposedBridge.log("(InstaEclipse | MediaDownload): ❌ Failed to hook");
+                        ModuleLog.line("(InstaEclipse | MediaDownload): ❌ Failed to hook");
                     }
 
                     // Post Download — three-dots menu (replaces floating button + long-press)
                     try {
                         new PostDownloadContextMenuHook().install(dexKitBridge, lpparam.classLoader);
                     } catch (Throwable ignored) {
-                        XposedBridge.log("(InstaEclipse | PostDownload): ❌ Failed to hook");
+                        ModuleLog.line("(InstaEclipse | PostDownload): ❌ Failed to hook");
                     }
 
                     // Keep Ephemeral Messages
                     try {
                         new GhostEphemeralKeepHook().install(dexKitBridge, lpparam.classLoader);
                     } catch (Throwable ignored) {
-                        XposedBridge.log("(InstaEclipse | EphemeralHook): ❌ Failed to hook");
+                        ModuleLog.line("(InstaEclipse | EphemeralHook): ❌ Failed to hook");
                     }
 
                     // Permanent View Mode (view-once / view-twice → permanent)
                     try {
                         new GhostPermanentViewHook().install(dexKitBridge, lpparam.classLoader);
                     } catch (Throwable ignored) {
-                        XposedBridge.log("(InstaEclipse | ViewOnceMedia): ❌ Failed to hook");
+                        ModuleLog.line("(InstaEclipse | ViewOnceMedia): ❌ Failed to hook");
                     }
 
                     // Story Download
                     try {
                         new StoryDownloadHook().install(dexKitBridge, lpparam.classLoader);
                     } catch (Throwable ignored) {
-                        XposedBridge.log("(InstaEclipse | StoryDownload): ❌ Failed to hook");
+                        ModuleLog.line("(InstaEclipse | StoryDownload): ❌ Failed to hook");
                     }
 
                     // Reel Download
                     try {
                         new ReelDownloadHook().install(dexKitBridge, lpparam.classLoader);
                     } catch (Throwable ignored) {
-                        XposedBridge.log("(InstaEclipse | ReelDownload): ❌ Failed to hook");
+                        ModuleLog.line("(InstaEclipse | ReelDownload): ❌ Failed to hook");
                     }
 
                     // Profile Picture Download
                     try {
                         ProfilePicDownloadHook.install();
                     } catch (Throwable ignored) {
-                        XposedBridge.log("(InstaEclipse | ProfileDownload): ❌ Failed to hook");
+                        ModuleLog.line("(InstaEclipse | ProfileDownload): ❌ Failed to hook");
                     }
 
                     // Network Interceptor
                     try {
                         interceptor.handleInterceptor(lpparam);
                     } catch (Throwable ignored) {
-                        XposedBridge.log("(InstaEclipse | Interceptor): ❌ Failed to hook");
+                        ModuleLog.line("(InstaEclipse | Interceptor): ❌ Failed to hook");
                     }
 
                 }
@@ -395,7 +401,7 @@ public class Module implements IXposedHookLoadPackage, IXposedHookZygoteInit {
             });
 
         } catch (Exception e) {
-            XposedBridge.log("(InstaEclipse): Failed to hook " + lpparam.packageName + ": " + e.getMessage());
+            ModuleLog.line("(InstaEclipse): Failed to hook " + lpparam.packageName + ": " + e.getMessage());
         }
     }
 
@@ -412,7 +418,7 @@ public class Module implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                     String key = intent.getStringExtra("key");
                     boolean value = intent.getBooleanExtra("value", false);
 
-                    XposedBridge.log("(InstaEclipse) Sync: Updating " + key + " to " + value);
+                    ModuleLog.line("(InstaEclipse) Sync: Updating " + key + " to " + value);
 
                     android.content.SharedPreferences prefs = ctx.getSharedPreferences("instaeclipse_prefs", Context.MODE_PRIVATE);
                     prefs.edit().putBoolean(key, value).apply();
@@ -424,7 +430,7 @@ public class Module implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                     String key = intent.getStringExtra("key");
                     String value = intent.getStringExtra("value");
 
-                    XposedBridge.log("(InstaEclipse) Sync: Updating string pref " + key);
+                    ModuleLog.line("(InstaEclipse) Sync: Updating string pref " + key);
 
                     android.content.SharedPreferences prefs = ctx.getSharedPreferences("instaeclipse_prefs", Context.MODE_PRIVATE);
                     prefs.edit().putString(key, value).apply();
@@ -435,7 +441,7 @@ public class Module implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                     String key = intent.getStringExtra("key");
                     int value = intent.getIntExtra("value", 0);
 
-                    XposedBridge.log("(InstaEclipse) Sync: Updating int pref " + key + " to " + value);
+                    ModuleLog.line("(InstaEclipse) Sync: Updating int pref " + key + " to " + value);
 
                     android.content.SharedPreferences prefs = ctx.getSharedPreferences("instaeclipse_prefs", Context.MODE_PRIVATE);
                     prefs.edit().putInt(key, value).apply();
@@ -443,8 +449,26 @@ public class Module implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                     SettingsManager.loadAllFlags(ctx);
                     FeatureManager.refreshFeatureStatus();
 
+                } else if (CommonUtils.ACTION_REQUEST_LOGS.equals(action)) {
+                    try {
+                        Intent reply = new Intent(CommonUtils.ACTION_LOGS_REPLY);
+                        reply.setPackage(CommonUtils.MY_PACKAGE_NAME);
+                        reply.putExtra(CommonUtils.EXTRA_LOG_TEXT, Logging.getSnapshotForIpc());
+                        reply.putExtra(CommonUtils.EXTRA_LOG_SOURCE, ctx.getPackageName());
+                        ctx.sendBroadcast(reply);
+                    } catch (Throwable t) {
+                        Intent reply = new Intent(CommonUtils.ACTION_LOGS_REPLY);
+                        reply.setPackage(CommonUtils.MY_PACKAGE_NAME);
+                        reply.putExtra(CommonUtils.EXTRA_LOG_ERROR, String.valueOf(t.getMessage()));
+                        reply.putExtra(CommonUtils.EXTRA_LOG_SOURCE, ctx.getPackageName());
+                        ctx.sendBroadcast(reply);
+                    }
+
+                } else if (CommonUtils.ACTION_CLEAR_LOGS.equals(action)) {
+                    Logging.clear();
+
                 } else if ("ps.reso.instaeclipse.ACTION_REQUEST_PREFS".equals(action)) {
-                    XposedBridge.log("(InstaEclipse) Sync: Companion app requested current preferences.");
+                    ModuleLog.line("(InstaEclipse) Sync: Companion app requested current preferences.");
 
                     android.content.SharedPreferences prefs = ctx.getSharedPreferences("instaeclipse_prefs", Context.MODE_PRIVATE);
                     Intent reply = new Intent("ps.reso.instaeclipse.ACTION_SEND_PREFS");
@@ -464,11 +488,11 @@ public class Module implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                     ctx.sendBroadcast(reply);
 
                 } else if ("ps.reso.instaeclipse.ACTION_EXPORT_CONFIG".equals(action)) {
-                    XposedBridge.log("(InstaEclipse) Sync: Companion app requested Dev Config export.");
+                    ModuleLog.line("(InstaEclipse) Sync: Companion app requested Dev Config export.");
                     try {
                         java.io.File source = new java.io.File(ctx.getFilesDir(), "mobileconfig/mc_overrides.json");
                         if (!source.exists()) {
-                            XposedBridge.log("(InstaEclipse) Export: mc_overrides.json not found.");
+                            ModuleLog.line("(InstaEclipse) Export: mc_overrides.json not found.");
                             Intent reply = new Intent("ps.reso.instaeclipse.ACTION_SEND_CONFIG");
                             reply.setPackage("ps.reso.instaeclipse");
                             reply.putExtra("error", "mc_overrides.json not found.");
@@ -484,13 +508,13 @@ public class Module implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                         reply.setPackage("ps.reso.instaeclipse");
                         reply.putExtra("json_content", sb.toString().trim());
                         ctx.sendBroadcast(reply);
-                        XposedBridge.log("(InstaEclipse) Export: config reply sent to companion.");
+                        ModuleLog.line("(InstaEclipse) Export: config reply sent to companion.");
                     } catch (Exception e) {
-                        XposedBridge.log("(InstaEclipse) Export: failed: " + e.getMessage());
+                        ModuleLog.line("(InstaEclipse) Export: failed: " + e.getMessage());
                     }
 
                 } else if ("ps.reso.instaeclipse.ACTION_BACKUP_SETTINGS".equals(action)) {
-                    XposedBridge.log("(InstaEclipse) Sync: Companion app requested Settings backup.");
+                    ModuleLog.line("(InstaEclipse) Sync: Companion app requested Settings backup.");
                     try {
                         String json = ps.reso.instaeclipse.utils.backup.SettingsBackupManager.toJson();
                         Intent exportIntent = new Intent();
@@ -500,7 +524,7 @@ public class Module implements IXposedHookLoadPackage, IXposedHookZygoteInit {
                         exportIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         ctx.startActivity(exportIntent);
                     } catch (Exception e) {
-                        XposedBridge.log("(InstaEclipse) Failed to create backup: " + e.getMessage());
+                        ModuleLog.line("(InstaEclipse) Failed to create backup: " + e.getMessage());
                     }
                 }
             }
@@ -510,6 +534,8 @@ public class Module implements IXposedHookLoadPackage, IXposedHookZygoteInit {
         filter.addAction("ps.reso.instaeclipse.ACTION_UPDATE_PREF");
         filter.addAction("ps.reso.instaeclipse.ACTION_UPDATE_PREF_STRING");
         filter.addAction("ps.reso.instaeclipse.ACTION_UPDATE_PREF_INT");
+        filter.addAction(CommonUtils.ACTION_REQUEST_LOGS);
+        filter.addAction(CommonUtils.ACTION_CLEAR_LOGS);
         filter.addAction("ps.reso.instaeclipse.ACTION_REQUEST_PREFS");
         filter.addAction("ps.reso.instaeclipse.ACTION_EXPORT_CONFIG");
         filter.addAction("ps.reso.instaeclipse.ACTION_BACKUP_SETTINGS");

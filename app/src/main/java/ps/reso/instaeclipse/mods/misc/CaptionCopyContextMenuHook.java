@@ -51,6 +51,7 @@ import ps.reso.instaeclipse.utils.core.DexKitCache;
 import ps.reso.instaeclipse.utils.feature.FeatureFlags;
 import ps.reso.instaeclipse.utils.feature.FeatureStatusTracker;
 import ps.reso.instaeclipse.utils.i18n.I18n;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 /**
  * Injects a "Copy Caption" entry into the feed-post three-dots (⋮) menu, reusing the same
@@ -121,7 +122,7 @@ public class CaptionCopyContextMenuHook {
         try {
             installReelLabelOverrideHook(bridge, classLoader);
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Caption) ❌ installReelLabelOverrideHook: " + t);
+            ModuleLog.line("(IE|Caption) ❌ installReelLabelOverrideHook: " + t);
         }
     }
 
@@ -155,9 +156,9 @@ public class CaptionCopyContextMenuHook {
                 if (copyCaptionOptionValue != null) break;
             }
             if (copyCaptionOptionValue == null)
-                XposedBridge.log("(IE|Caption) ❌ No usable carrier MediaOption$Option found");
+                ModuleLog.line("(IE|Caption) ❌ No usable carrier MediaOption$Option found");
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Caption) ❌ loadMediaOptionEnum: " + t);
+            ModuleLog.line("(IE|Caption) ❌ loadMediaOptionEnum: " + t);
         }
     }
 
@@ -187,13 +188,13 @@ public class CaptionCopyContextMenuHook {
                     m.setAccessible(true);
                     captionGetter = m;
                     DexKitCache.saveMethod("CaptionGetter", m);
-                    XposedBridge.log("(IE|Caption) ✅ captionGetter=" + m.getName());
+                    ModuleLog.line("(IE|Caption) ✅ captionGetter=" + m.getName());
                     return;
                 } catch (Throwable ignored) {}
             }
-            XposedBridge.log("(IE|Caption) ❌ captionGetter not found");
+            ModuleLog.line("(IE|Caption) ❌ captionGetter not found");
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Caption) ❌ resolveCaptionGetter: " + t);
+            ModuleLog.line("(IE|Caption) ❌ resolveCaptionGetter: " + t);
         }
     }
 
@@ -228,7 +229,7 @@ public class CaptionCopyContextMenuHook {
             }
             return bestVal;
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Caption) ❌ extractCaptionText: " + t);
+            ModuleLog.line("(IE|Caption) ❌ extractCaptionText: " + t);
             return null;
         }
     }
@@ -269,7 +270,7 @@ public class CaptionCopyContextMenuHook {
                             .usingStrings("MediaOptionsOverflowMenuCreator")));
 
             if (pass1.isEmpty()) {
-                XposedBridge.log("(IE|Caption) ❌ MediaOptionsOverflowMenuCreator class not found");
+                ModuleLog.line("(IE|Caption) ❌ MediaOptionsOverflowMenuCreator class not found");
                 return;
             }
 
@@ -318,7 +319,7 @@ public class CaptionCopyContextMenuHook {
             }
 
             if (addButtonMethod == null) {
-                XposedBridge.log("(IE|Caption) ❌ addButtonMethod not found in " + creatorClassName);
+                ModuleLog.line("(IE|Caption) ❌ addButtonMethod not found in " + creatorClassName);
                 return;
             }
             DexKitCache.saveMethod("CaptionCopy_addButton", addButtonMethod);
@@ -328,7 +329,7 @@ public class CaptionCopyContextMenuHook {
             resolveEnumNormalValue(addButtonMethod);
 
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Caption) ❌ findCreatorClassAndAddButtonMethod: " + t);
+            ModuleLog.line("(IE|Caption) ❌ findCreatorClassAndAddButtonMethod: " + t);
         }
     }
 
@@ -356,7 +357,7 @@ public class CaptionCopyContextMenuHook {
 
     private static void installAddButtonHook() {
         if (addButtonMethod == null || copyCaptionOptionValue == null || enumNormalValue == null) {
-            XposedBridge.log("(IE|Caption) ❌ Cannot install addButton hook — prerequisites missing");
+            ModuleLog.line("(IE|Caption) ❌ Cannot install addButton hook — prerequisites missing");
             return;
         }
 
@@ -386,7 +387,7 @@ public class CaptionCopyContextMenuHook {
                 try {
                     addButtonMethod.invoke(null, callArgs);
                 } catch (Throwable t) {
-                    XposedBridge.log("(IE|Caption) ❌ addButton invoke failed: " + t);
+                    ModuleLog.line("(IE|Caption) ❌ addButton invoke failed: " + t);
                 } finally {
                     sAddingCaptionRow.set(false);
                 }
@@ -394,7 +395,7 @@ public class CaptionCopyContextMenuHook {
         });
 
         FeatureStatusTracker.setHooked("CaptionCopy");
-        XposedBridge.log("(IE|Caption) ✅ Caption copy menu hook installed");
+        ModuleLog.line("(IE|Caption) ✅ Caption copy menu hook installed");
     }
 
     // ── Hook B: click handler ─────────────────────────────────────────────────
@@ -443,18 +444,18 @@ public class CaptionCopyContextMenuHook {
                     XposedBridge.hookMethod(m, clickHook);
                     hooked.add(m);
                 } catch (Throwable t) {
-                    XposedBridge.log("(IE|Caption) ❌ Failed to hook click candidate: " + t);
+                    ModuleLog.line("(IE|Caption) ❌ Failed to hook click candidate: " + t);
                 }
             }
 
             if (hooked.isEmpty()) {
-                XposedBridge.log("(IE|Caption) ❌ No click handler methods could be hooked");
+                ModuleLog.line("(IE|Caption) ❌ No click handler methods could be hooked");
             } else {
                 DexKitCache.saveMethods("CaptionCopy_click", hooked);
             }
 
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Caption) ❌ installClickHandlerHook: " + t);
+            ModuleLog.line("(IE|Caption) ❌ installClickHandlerHook: " + t);
         }
     }
 
@@ -475,7 +476,7 @@ public class CaptionCopyContextMenuHook {
                     patched.add(copyCaptionOptionValue);
                     param.setResult(patched);
                 } catch (Throwable t) {
-                    XposedBridge.log("(IE|Caption) ❌ allowlist patch failed: " + t);
+                    ModuleLog.line("(IE|Caption) ❌ allowlist patch failed: " + t);
                 }
             }
         };
@@ -508,7 +509,7 @@ public class CaptionCopyContextMenuHook {
             XposedBridge.hookMethod(target, allowlistHook);
 
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Caption) ❌ installAllowlistPatchHook: " + t);
+            ModuleLog.line("(IE|Caption) ❌ installAllowlistPatchHook: " + t);
         }
     }
 
@@ -534,7 +535,7 @@ public class CaptionCopyContextMenuHook {
                         mutable.add(copyCaptionOptionValue);
                     }
                 } catch (Throwable t) {
-                    XposedBridge.log("(IE|Caption) ❌ reel options-list patch failed: " + t);
+                    ModuleLog.line("(IE|Caption) ❌ reel options-list patch failed: " + t);
                 }
             }
         };
@@ -563,7 +564,7 @@ public class CaptionCopyContextMenuHook {
             DexKitCache.saveMethod("ReelOptionsListBuilder", target);
 
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Caption) ❌ installReelOptionsListPatch: " + t);
+            ModuleLog.line("(IE|Caption) ❌ installReelOptionsListPatch: " + t);
         }
     }
 
@@ -614,7 +615,7 @@ public class CaptionCopyContextMenuHook {
                 } catch (Throwable ignored) {}
             }
             if (any) {
-                XposedBridge.log("(IE|Caption) ✅ reel label override (cached)");
+                ModuleLog.line("(IE|Caption) ✅ reel label override (cached)");
                 return;
             }
         }
@@ -625,7 +626,7 @@ public class CaptionCopyContextMenuHook {
                             .usingEqStrings(List.of(
                                     "Unsupported text row for Clips Viewer Overflow menu."))));
             if (resolverResults.isEmpty()) {
-                XposedBridge.log("(IE|Caption) ❌ reel label resolver not found");
+                ModuleLog.line("(IE|Caption) ❌ reel label resolver not found");
                 return;
             }
             Method labelResolver = resolverResults.get(0).getMethodInstance(classLoader);
@@ -662,7 +663,7 @@ public class CaptionCopyContextMenuHook {
                         ctor.setAccessible(true);
                         XposedBridge.hookMethod(ctor, makeCtorLabelHook());
                         DexKitCache.saveString("ReelRowClassName", rowClass.getName());
-                        XposedBridge.log("(IE|Caption) ✅ reel label override (ctor) on " + rowClass.getName());
+                        ModuleLog.line("(IE|Caption) ✅ reel label override (ctor) on " + rowClass.getName());
                         hookedAny = true;
                         break;
                     }
@@ -684,7 +685,7 @@ public class CaptionCopyContextMenuHook {
                         addMethod.setAccessible(true);
                         XposedBridge.hookMethod(addMethod, makeAddMethodLabelHook());
                         DexKitCache.saveMethod("ReelRowAddMethod", addMethod);
-                        XposedBridge.log("(IE|Caption) ✅ reel label override (addMethod) on "
+                        ModuleLog.line("(IE|Caption) ✅ reel label override (addMethod) on "
                                 + addMethod.getDeclaringClass().getName());
                         hookedAny = true;
                         break;
@@ -693,10 +694,10 @@ public class CaptionCopyContextMenuHook {
             }
 
             if (!hookedAny) {
-                XposedBridge.log("(IE|Caption) ❌ no reel row-building call found for any row-adder");
+                ModuleLog.line("(IE|Caption) ❌ no reel row-building call found for any row-adder");
             }
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Caption) ❌ installReelLabelOverrideHook discovery: " + t);
+            ModuleLog.line("(IE|Caption) ❌ installReelLabelOverrideHook discovery: " + t);
         }
     }
 
@@ -733,7 +734,7 @@ public class CaptionCopyContextMenuHook {
                     if (ctx == null) return;
                     param.args[1] = I18n.t(ctx, R.string.ig_caption_copy_menu_item);
                 } catch (Throwable t) {
-                    XposedBridge.log("(IE|Caption) ❌ reel label override (ctor): " + t);
+                    ModuleLog.line("(IE|Caption) ❌ reel label override (ctor): " + t);
                 }
             }
         };
@@ -753,7 +754,7 @@ public class CaptionCopyContextMenuHook {
                     String label = I18n.t(ctx, R.string.ig_caption_copy_menu_item);
                     param.args[2] = label;
                 } catch (Throwable t) {
-                    XposedBridge.log("(IE|Caption) ❌ reel label override (addMethod): " + t);
+                    ModuleLog.line("(IE|Caption) ❌ reel label override (addMethod): " + t);
                 }
             }
         };
@@ -779,14 +780,14 @@ public class CaptionCopyContextMenuHook {
             Context ctx = findContext(thisObj);
             if (ctx == null) ctx = currentActivity;
             if (ctx == null) {
-                XposedBridge.log("(IE|Caption) ❌ Context not found in click handler");
+                ModuleLog.line("(IE|Caption) ❌ Context not found in click handler");
                 return;
             }
 
             Object media = findMediaViaMenuCreator(thisObj);
             if (media == null) media = findMedia(thisObj);
             if (media == null) {
-                XposedBridge.log("(IE|Caption) ❌ Media not found in click handler");
+                ModuleLog.line("(IE|Caption) ❌ Media not found in click handler");
                 return;
             }
 
@@ -798,7 +799,7 @@ public class CaptionCopyContextMenuHook {
 
             showCopyPopup(ctx, caption.trim());
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Caption) ❌ onOptionClicked: " + t);
+            ModuleLog.line("(IE|Caption) ❌ onOptionClicked: " + t);
         }
     }
 
@@ -1014,7 +1015,7 @@ public class CaptionCopyContextMenuHook {
                 dialog.show();
 
             } catch (Throwable t) {
-                XposedBridge.log("(IE|Caption) ❌ Popup: " + t);
+                ModuleLog.line("(IE|Caption) ❌ Popup: " + t);
             }
         });
     }
@@ -1119,7 +1120,7 @@ public class CaptionCopyContextMenuHook {
                 et.requestFocus();
 
             } catch (Throwable t) {
-                XposedBridge.log("(IE|Caption) ❌ SelectDialog: " + t);
+                ModuleLog.line("(IE|Caption) ❌ SelectDialog: " + t);
             }
         });
     }
@@ -1135,7 +1136,7 @@ public class CaptionCopyContextMenuHook {
                                 Toast.LENGTH_SHORT).show());
             }
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Caption) ❌ Copy: " + t);
+            ModuleLog.line("(IE|Caption) ❌ Copy: " + t);
         }
     }
 }

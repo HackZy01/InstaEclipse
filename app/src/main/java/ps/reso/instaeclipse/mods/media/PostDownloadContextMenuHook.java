@@ -28,6 +28,7 @@ import ps.reso.instaeclipse.utils.core.DexKitCache;
 import ps.reso.instaeclipse.utils.feature.FeatureFlags;
 import ps.reso.instaeclipse.utils.feature.FeatureStatusTracker;
 import ps.reso.instaeclipse.utils.i18n.I18n;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 /**
  * Injects a "Download" entry into the feed-post three-dots (⋮) menu.
@@ -99,9 +100,9 @@ public class PostDownloadContextMenuHook {
                 }
             }
             if (downloadOptionValue == null)
-                XposedBridge.log("(IE|Post) ❌ DOWNLOAD enum value not found");
+                ModuleLog.line("(IE|Post) ❌ DOWNLOAD enum value not found");
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Post) ❌ loadMediaOptionEnum: " + t);
+            ModuleLog.line("(IE|Post) ❌ loadMediaOptionEnum: " + t);
         }
     }
 
@@ -161,7 +162,7 @@ public class PostDownloadContextMenuHook {
                             .usingStrings("MediaOptionsOverflowMenuCreator")));
 
             if (pass1.isEmpty()) {
-                XposedBridge.log("(IE|Post) ❌ MediaOptionsOverflowMenuCreator class not found");
+                ModuleLog.line("(IE|Post) ❌ MediaOptionsOverflowMenuCreator class not found");
                 return;
             }
 
@@ -210,7 +211,7 @@ public class PostDownloadContextMenuHook {
             }
 
             if (addButtonMethod == null) {
-                XposedBridge.log("(IE|Post) ❌ addButtonMethod not found in " + creatorClassName);
+                ModuleLog.line("(IE|Post) ❌ addButtonMethod not found in " + creatorClassName);
                 return;
             }
             DexKitCache.saveMethod("PostDownload_addButton", addButtonMethod);
@@ -235,7 +236,7 @@ public class PostDownloadContextMenuHook {
             if (enumNormalValue == null) enumNormalValue = firstVal;
 
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Post) ❌ findCreatorClassAndAddButtonMethod: " + t);
+            ModuleLog.line("(IE|Post) ❌ findCreatorClassAndAddButtonMethod: " + t);
         }
     }
 
@@ -243,7 +244,7 @@ public class PostDownloadContextMenuHook {
 
     private static void installAddButtonHook() {
         if (addButtonMethod == null || downloadOptionValue == null || enumNormalValue == null) {
-            XposedBridge.log("(IE|Post) ❌ Cannot install addButton hook — prerequisites missing");
+            ModuleLog.line("(IE|Post) ❌ Cannot install addButton hook — prerequisites missing");
             return;
         }
 
@@ -281,7 +282,7 @@ public class PostDownloadContextMenuHook {
                 try {
                     addButtonMethod.invoke(null, callArgs);
                 } catch (Throwable t) {
-                    XposedBridge.log("(IE|Post) ❌ addButton invoke failed: " + t);
+                    ModuleLog.line("(IE|Post) ❌ addButton invoke failed: " + t);
                 } finally {
                     sAddingDownload.set(false);
                 }
@@ -289,7 +290,7 @@ public class PostDownloadContextMenuHook {
         });
 
         FeatureStatusTracker.setHooked("PostDownload");
-        XposedBridge.log("(IE|Post) ✅ Post download hook installed");
+        ModuleLog.line("(IE|Post) ✅ Post download hook installed");
     }
 
     // ── Hook B: click handler ─────────────────────────────────────────────────
@@ -355,18 +356,18 @@ public class PostDownloadContextMenuHook {
                     XposedBridge.hookMethod(m, clickHook);
                     hooked.add(m);
                 } catch (Throwable t) {
-                    XposedBridge.log("(IE|Post) ❌ Failed to hook click candidate: " + t);
+                    ModuleLog.line("(IE|Post) ❌ Failed to hook click candidate: " + t);
                 }
             }
 
             if (hooked.isEmpty()) {
-                XposedBridge.log("(IE|Post) ❌ No click handler methods could be hooked");
+                ModuleLog.line("(IE|Post) ❌ No click handler methods could be hooked");
             } else {
                 DexKitCache.saveMethods("PostDownload_click_v2", hooked);
             }
 
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Post) ❌ installClickHandlerHook: " + t);
+            ModuleLog.line("(IE|Post) ❌ installClickHandlerHook: " + t);
         }
     }
 
@@ -393,7 +394,7 @@ public class PostDownloadContextMenuHook {
                     patched.add(downloadOptionValue);
                     param.setResult(patched);
                 } catch (Throwable t) {
-                    XposedBridge.log("(IE|Post) ❌ allowlist patch failed: " + t);
+                    ModuleLog.line("(IE|Post) ❌ allowlist patch failed: " + t);
                 }
             }
         };
@@ -420,7 +421,7 @@ public class PostDownloadContextMenuHook {
                             .addUsingField(prefix + "GEN_AI_INFO:" + typeDesc)));
 
             if (results.isEmpty()) {
-                XposedBridge.log("(IE|Post) ⚠️ Allowlist method not found (menu may not be filtered on this build)");
+                ModuleLog.line("(IE|Post) ⚠️ Allowlist method not found (menu may not be filtered on this build)");
                 return;
             }
 
@@ -428,11 +429,11 @@ public class PostDownloadContextMenuHook {
             target.setAccessible(true);
             XposedBridge.hookMethod(target, allowlistHook);
             DexKitCache.saveMethod("PostDownload_allowlist", target);
-            XposedBridge.log("(IE|Post) ✅ Allowlist patch hooked: " +
+            ModuleLog.line("(IE|Post) ✅ Allowlist patch hooked: " +
                     target.getDeclaringClass().getName() + "." + target.getName());
 
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Post) ❌ installAllowlistPatchHook: " + t);
+            ModuleLog.line("(IE|Post) ❌ installAllowlistPatchHook: " + t);
         }
     }
 
@@ -465,21 +466,21 @@ public class PostDownloadContextMenuHook {
 
             Context ctx = findContext(thisObj);
             if (ctx == null) {
-                XposedBridge.log("(IE|Post) ❌ Context not found in click handler");
+                ModuleLog.line("(IE|Post) ❌ Context not found in click handler");
                 return;
             }
 
             Object media = findMediaViaMenuCreator(thisObj);
             if (media == null) media = findMedia(thisObj);
             if (media == null) {
-                XposedBridge.log("(IE|Post) ❌ Media not found in click handler");
+                ModuleLog.line("(IE|Post) ❌ Media not found in click handler");
                 Toast.makeText(ctx, I18n.t(ctx, R.string.ig_toast_no_media_for_post), Toast.LENGTH_SHORT).show();
                 return;
             }
 
             triggerDownload(ctx, media, thisObj);
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Post) ❌ onOptionClicked: " + t);
+            ModuleLog.line("(IE|Post) ❌ onOptionClicked: " + t);
         }
     }
 

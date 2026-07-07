@@ -14,6 +14,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import ps.reso.instaeclipse.utils.feature.FeatureFlags;
 import ps.reso.instaeclipse.utils.feature.FeatureStatusTracker;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 /**
  * Spoofs GPS location system-wide by hooking LocationManager's last-known-location and
@@ -83,9 +84,9 @@ public class LocationSpoofHook {
                 }
 
                 FeatureStatusTracker.setHooked("SpoofLocation");
-                XposedBridge.log("(InstaEclipse | SpoofLocation): ✅ Hooked LocationManager.");
+                ModuleLog.line("(InstaEclipse | SpoofLocation): ✅ Hooked LocationManager.");
             } catch (Throwable t) {
-                XposedBridge.log("(InstaEclipse | SpoofLocation): ❌ Install failed: " + t.getMessage());
+                ModuleLog.line("(InstaEclipse | SpoofLocation): ❌ Install failed: " + t.getMessage());
             }
         }
     }

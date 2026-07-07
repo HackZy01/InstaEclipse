@@ -18,6 +18,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import ps.reso.instaeclipse.utils.feature.FeatureFlags;
 import ps.reso.instaeclipse.utils.feature.FeatureStatusTracker;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 /**
  * Adds a long-press-to-zoom overlay to feed photos (issue #174) so photos can be examined
@@ -52,20 +53,20 @@ public class FeedPhotoZoomHook {
                                 showZoomOverlay(v.getContext(), snapshot);
                                 return true;
                             } catch (Throwable t) {
-                                XposedBridge.log("(IE|PhotoZoom) ❌ long-press: " + t);
+                                ModuleLog.line("(IE|PhotoZoom) ❌ long-press: " + t);
                                 return false;
                             }
                         });
                     } catch (Throwable t) {
-                        XposedBridge.log("(IE|PhotoZoom) ❌ ctor hook: " + t);
+                        ModuleLog.line("(IE|PhotoZoom) ❌ ctor hook: " + t);
                     }
                 }
             });
 
             FeatureStatusTracker.setHooked("PhotoZoom");
-            XposedBridge.log("(IE|PhotoZoom) ✅ hook installed");
+            ModuleLog.line("(IE|PhotoZoom) ✅ hook installed");
         } catch (Throwable t) {
-            XposedBridge.log("(IE|PhotoZoom) ❌ install: " + t);
+            ModuleLog.line("(IE|PhotoZoom) ❌ install: " + t);
         }
     }
 
@@ -88,7 +89,7 @@ public class FeedPhotoZoomHook {
                 }
                 dialog.show();
             } catch (Throwable t) {
-                XposedBridge.log("(IE|PhotoZoom) ❌ overlay: " + t);
+                ModuleLog.line("(IE|PhotoZoom) ❌ overlay: " + t);
             }
         });
     }

@@ -14,6 +14,7 @@ import de.robv.android.xposed.XposedBridge;
 import ps.reso.instaeclipse.utils.core.DexKitCache;
 import ps.reso.instaeclipse.utils.feature.FeatureFlags;
 import ps.reso.instaeclipse.utils.feature.FeatureStatusTracker;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 public class HideSuggestedFeedItemsHook {
 
@@ -71,7 +72,7 @@ public class HideSuggestedFeedItemsHook {
                     markHookedForEnabledFlags();
                     return;
                 } catch (Throwable t) {
-                    XposedBridge.log("(InstaEclipse | HideSuggested): ⚠️ Cache hook failed: " + t.getMessage());
+                    ModuleLog.line("(InstaEclipse | HideSuggested): ⚠️ Cache hook failed: " + t.getMessage());
                 }
             }
         }
@@ -102,7 +103,7 @@ public class HideSuggestedFeedItemsHook {
             }
 
             if (methods.isEmpty()) {
-                XposedBridge.log("(InstaEclipse | HideSuggested): ❌ FeedItem parser not found.");
+                ModuleLog.line("(InstaEclipse | HideSuggested): ❌ FeedItem parser not found.");
                 return;
             }
 
@@ -110,10 +111,10 @@ public class HideSuggestedFeedItemsHook {
             DexKitCache.saveString(CACHE_KEY_PARSER, targetClass);
             hookBridgeMethod(targetClass, classLoader, filterHook);
             markHookedForEnabledFlags();
-            XposedBridge.log("(InstaEclipse | HideSuggested): ✅ Hooked: " + targetClass);
+            ModuleLog.line("(InstaEclipse | HideSuggested): ✅ Hooked: " + targetClass);
 
         } catch (Throwable t) {
-            XposedBridge.log("(InstaEclipse | HideSuggested): ❌ Exception: " + t.getMessage());
+            ModuleLog.line("(InstaEclipse | HideSuggested): ❌ Exception: " + t.getMessage());
         }
     }
 

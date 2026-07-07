@@ -80,6 +80,7 @@ import ps.reso.instaeclipse.utils.feature.FeatureFlags;
 import ps.reso.instaeclipse.utils.feature.FeatureStatusTracker;
 import ps.reso.instaeclipse.utils.i18n.I18n;
 import ps.reso.instaeclipse.utils.users.UserUtils;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 public class FeedVideoDownloadHook {
 
@@ -209,7 +210,7 @@ public class FeedVideoDownloadHook {
                     });
             FeatureStatusTracker.setHooked("PostDownload");
         } catch (Throwable t) {
-            XposedBridge.log("(InstaEclipse | MediaDownload): ❌ Uri.parse hook: " + t);
+            ModuleLog.line("(InstaEclipse | MediaDownload): ❌ Uri.parse hook: " + t);
         }
     }
 
@@ -263,11 +264,11 @@ public class FeedVideoDownloadHook {
                                     if (media != null) {
                                         String url = bestVideoUrlFromMedia(media);
                                         if (url != null) {
-                                            XposedBridge.log("(IE|Reel) media tag hit, url=" + url);
+                                            ModuleLog.line("(IE|Reel) media tag hit, url=" + url);
                                             onDownloadClicked(ctx, List.of(url), lv);
                                             return true;
                                         }
-                                        XposedBridge.log("(IE|Reel) media tag set but no video URL found in object");
+                                        ModuleLog.line("(IE|Reel) media tag set but no video URL found in object");
                                     }
                                     // Fallback: filter buffer for m86 URLs only (combined stream, one per reel)
                                     List<String> all = snapshotUrlsSince(System.currentTimeMillis() - 60_000);
@@ -278,17 +279,17 @@ public class FeedVideoDownloadHook {
                                         Toast.makeText(ctx, I18n.t(ctx, R.string.ig_toast_no_reel_url_scroll), Toast.LENGTH_SHORT).show();
                                         return true;
                                     }
-                                    XposedBridge.log("(IE|Reel) buffer fallback, m86=" + m86.size() + " total=" + all.size());
+                                    ModuleLog.line("(IE|Reel) buffer fallback, m86=" + m86.size() + " total=" + all.size());
                                     // Take only the most recent URL (first in deque = newest)
                                     onDownloadClicked(ctx, List.of(pick.get(0)), lv);
                                     return true;
                                 });
-                                XposedBridge.log("(IE|Reel) long-press hook set on like_button");
+                                ModuleLog.line("(IE|Reel) long-press hook set on like_button");
                             }
                         }
                     });
         } catch (Throwable t) {
-            XposedBridge.log("(InstaEclipse | MediaDownload): ❌ View hook: " + t);
+            ModuleLog.line("(InstaEclipse | MediaDownload): ❌ View hook: " + t);
         }
     }
 
@@ -346,7 +347,7 @@ public class FeedVideoDownloadHook {
                 parent.addView(btn);
                 btn.bringToFront();
             } catch (Exception e) {
-                XposedBridge.log("(IE|DL) Cannot inject download button: " + e.getMessage());
+                ModuleLog.line("(IE|DL) Cannot inject download button: " + e.getMessage());
             }
         });
     }
@@ -365,7 +366,7 @@ public class FeedVideoDownloadHook {
     private List<String> resolveUrls(View likeBtn, View downloadBtn) {
         // Tier-1a: like button's listener (works for standard feed posts)
         List<String> urls = urlsFromSaveBtnListener(likeBtn);
-        XposedBridge.log("(IE|DL) Tier-1a urls=" + urls.size());
+        ModuleLog.line("(IE|DL) Tier-1a urls=" + urls.size());
         if (!urls.isEmpty()) return urls;
 
         // Tier-1b: bookmark/save button's listener.
@@ -381,9 +382,9 @@ public class FeedVideoDownloadHook {
             for (int i = 0; i < 4 && p instanceof ViewGroup vg; i++, p = vg.getParent()) {
                 View realSaveBtn = vg.findViewById(saveResId);
                 if (realSaveBtn != null) {
-                    XposedBridge.log("(IE|DL) Tier-1b found save btn at parent level " + i);
+                    ModuleLog.line("(IE|DL) Tier-1b found save btn at parent level " + i);
                     urls = urlsFromSaveBtnListener(realSaveBtn);
-                    XposedBridge.log("(IE|DL) Tier-1b urls=" + urls.size());
+                    ModuleLog.line("(IE|DL) Tier-1b urls=" + urls.size());
                     if (!urls.isEmpty()) return urls;
                     break; // found the button but listener had no URLs — no point going wider
                 }
@@ -426,7 +427,7 @@ public class FeedVideoDownloadHook {
                     //       that isn't exposed as a Java field until DIS() is called)
                     String videoUrl = findVideoUrlInObject(media,
                             Collections.newSetFromMap(new IdentityHashMap<>()), 0);
-                    XposedBridge.log("(IE|DL) stepA1 videoUrl=" + (videoUrl != null
+                    ModuleLog.line("(IE|DL) stepA1 videoUrl=" + (videoUrl != null
                             ? videoUrl.substring(0, Math.min(80, videoUrl.length())) : "null"));
 
                     if (videoUrl == null && mutableMediaDictIntfClass != null && !carouselCandidates.isEmpty()) {
@@ -450,7 +451,7 @@ public class FeedVideoDownloadHook {
                                 } catch (Throwable ignored) {}
                             }
                         }
-                        XposedBridge.log("(IE|DL) stepA2 videoUrl=" + (videoUrl != null
+                        ModuleLog.line("(IE|DL) stepA2 videoUrl=" + (videoUrl != null
                                 ? videoUrl.substring(0, Math.min(80, videoUrl.length())) : "null"));
                     }
                     if (videoUrl != null) return List.of(videoUrl);
@@ -460,7 +461,7 @@ public class FeedVideoDownloadHook {
                     // superinterfaces) to find the carousel item list.
                     if (mutableMediaDictIntfClass != null && !carouselCandidates.isEmpty()) {
                         Object dictIntf = findFieldAssignableTo(media, mutableMediaDictIntfClass);
-                        XposedBridge.log("(IE|DL) dictIntf=" + (dictIntf != null
+                        ModuleLog.line("(IE|DL) dictIntf=" + (dictIntf != null
                                 ? dictIntf.getClass().getName() : "null"));
 
                         if (dictIntf != null) {
@@ -472,7 +473,7 @@ public class FeedVideoDownloadHook {
                                     if (videoVersionIntfClass != null && !items.isEmpty()
                                             && videoVersionIntfClass.isInstance(items.get(0))) continue;
 
-                                    XposedBridge.log("(IE|Car) candidate=" + candidate.getName()
+                                    ModuleLog.line("(IE|Car) candidate=" + candidate.getName()
                                             + " items=" + items.size());
                                     List<String> carouselUrls = new ArrayList<>();
 
@@ -491,7 +492,7 @@ public class FeedVideoDownloadHook {
                                             try {
                                                 Object r = methodImageUrl.invoke(null, saveBtn.getContext(), item);
                                                 if (r instanceof String s && isCdnMediaUrl(s)) {
-                                                    XposedBridge.log("(IE|Car) item[" + idx + "] mediaExtKt=" + s.substring(0, Math.min(60, s.length())));
+                                                    ModuleLog.line("(IE|Car) item[" + idx + "] mediaExtKt=" + s.substring(0, Math.min(60, s.length())));
                                                     carouselUrls.add(s);
                                                     continue;
                                                 }
@@ -500,7 +501,7 @@ public class FeedVideoDownloadHook {
 
                                         // 3. Probe all no-param String methods (Pando JNI nodes: LX/VPC, LX/5q9)
                                         String probed = probeCdnUrlViaStringMethods(item);
-                                        XposedBridge.log("(IE|Car) item[" + idx + "] probed=" + probed);
+                                        ModuleLog.line("(IE|Car) item[" + idx + "] probed=" + probed);
                                         if (probed != null) { carouselUrls.add(probed); continue; }
 
                                         // 4. Generic CDN field scan as last resort
@@ -510,7 +511,7 @@ public class FeedVideoDownloadHook {
                                         if (!scanned.isEmpty()) carouselUrls.add(pickBestImageUrl(scanned));
                                     }
 
-                                    XposedBridge.log("(IE|Car) carouselUrls=" + carouselUrls.size());
+                                    ModuleLog.line("(IE|Car) carouselUrls=" + carouselUrls.size());
                                     if (carouselUrls.size() >= 2) return carouselUrls;
                                 } catch (Throwable ignored) {}
                             }
@@ -874,7 +875,7 @@ public class FeedVideoDownloadHook {
             List<Method> cached = DexKitCache.loadMethods("VideoUrlCapture", classLoader);
             if (cached != null && !cached.isEmpty()) {
                 for (Method m : cached) XposedBridge.hookMethod(m, urlHook);
-                XposedBridge.log("(IE|DL|DexKit) VideoUrlCapture: " + cached.size() + " method(s) from cache");
+                ModuleLog.line("(IE|DL|DexKit) VideoUrlCapture: " + cached.size() + " method(s) from cache");
                 resolveUsernameGetter(bridge, classLoader);
                 return;
             }
@@ -886,7 +887,7 @@ public class FeedVideoDownloadHook {
                             .addInterface("com.instagram.model.mediasize.VideoVersionIntf",
                                     StringMatchType.Equals, false)));
 
-            XposedBridge.log("(IE|DL|DexKit) VideoVersionIntf implementors found: " + classes.size());
+            ModuleLog.line("(IE|DL|DexKit) VideoVersionIntf implementors found: " + classes.size());
 
             List<Method> hooked = new ArrayList<>();
             for (ClassData classData : classes) {
@@ -902,22 +903,22 @@ public class FeedVideoDownloadHook {
                         try {
                             Method m = methodData.getMethodInstance(classLoader);
                             XposedBridge.hookMethod(m, urlHook);
-                            XposedBridge.log("(IE|DL|DexKit) ✅ Hooked getUrl() on "
+                            ModuleLog.line("(IE|DL|DexKit) ✅ Hooked getUrl() on "
                                     + classData.getName());
                             hooked.add(m);
                         } catch (Throwable e) {
-                            XposedBridge.log("(IE|DL|DexKit) ❌ Hook failed for "
+                            ModuleLog.line("(IE|DL|DexKit) ❌ Hook failed for "
                                     + classData.getName() + ": " + e.getMessage());
                         }
                     }
                 } catch (Throwable e) {
-                    XposedBridge.log("(IE|DL|DexKit) ❌ findMethod failed for "
+                    ModuleLog.line("(IE|DL|DexKit) ❌ findMethod failed for "
                             + classData.getName() + ": " + e.getMessage());
                 }
             }
             if (!hooked.isEmpty()) DexKitCache.saveMethods("VideoUrlCapture", hooked);
         } catch (Throwable e) {
-            XposedBridge.log("(IE|DL|DexKit) ❌ installVideoUrlCaptureHook: " + e.getMessage());
+            ModuleLog.line("(IE|DL|DexKit) ❌ installVideoUrlCaptureHook: " + e.getMessage());
         }
 
         resolveUsernameGetter(bridge, classLoader);
@@ -953,13 +954,13 @@ public class FeedVideoDownloadHook {
                             .usingStrings("username_missing_during_update")));
 
             if (userMethods.isEmpty()) {
-                XposedBridge.log("(IE|DL|Username) ❌ username_missing_during_update not found");
+                ModuleLog.line("(IE|DL|Username) ❌ username_missing_during_update not found");
                 return;
             }
 
             userClass = userMethods.get(0).getMethodInstance(classLoader).getDeclaringClass();
             DexKitCache.saveString("UserClass", userClass.getName());
-            XposedBridge.log("(IE|DL|Username) userClass=" + userClass.getName());
+            ModuleLog.line("(IE|DL|Username) userClass=" + userClass.getName());
 
             // Resolve the username getter on User via the stable GraphQL field ID -265713450.
             try {
@@ -973,18 +974,18 @@ public class FeedVideoDownloadHook {
                     UserUtils.userUsernameGetter = ugMethods.get(0).getMethodInstance(classLoader);
                     UserUtils.userUsernameGetter.setAccessible(true);
                     DexKitCache.saveMethod("UsernameGetter", UserUtils.userUsernameGetter);
-                    XposedBridge.log("(IE|DL|Username) userUsernameGetter=" + UserUtils.userUsernameGetter.getName());
+                    ModuleLog.line("(IE|DL|Username) userUsernameGetter=" + UserUtils.userUsernameGetter.getName());
                 } else {
-                    XposedBridge.log("(IE|DL|Username) ❌ userUsernameGetter not found via -265713450");
+                    ModuleLog.line("(IE|DL|Username) ❌ userUsernameGetter not found via -265713450");
                 }
             } catch (Throwable t) {
-                XposedBridge.log("(IE|DL|Username) ❌ userUsernameGetter resolution: " + t);
+                ModuleLog.line("(IE|DL|Username) ❌ userUsernameGetter resolution: " + t);
             }
 
             resolveDictUserGetter(bridge, classLoader);
 
         } catch (Throwable t) {
-            XposedBridge.log("(IE|DL|Username) ❌ resolveUsernameGetter: " + t);
+            ModuleLog.line("(IE|DL|Username) ❌ resolveUsernameGetter: " + t);
         }
     }
 
@@ -1016,7 +1017,7 @@ public class FeedVideoDownloadHook {
                     m.setAccessible(true);
                     dictUserGetter = m;
                     DexKitCache.saveMethod("DictUserGetter", m);
-                    XposedBridge.log("(IE|DL|Username) ✅ Resolved dictUserGetter: " + m.getName());
+                    ModuleLog.line("(IE|DL|Username) ✅ Resolved dictUserGetter: " + m.getName());
                     return;
                 }
             }
@@ -1046,14 +1047,14 @@ public class FeedVideoDownloadHook {
                 m.setAccessible(true);
                 dictUserGetter = m;
                 DexKitCache.saveMethod("DictUserGetter", m);
-                XposedBridge.log("(IE|DL|Username) ✅ Resolved dictUserGetter (concrete class): " + m.getName());
+                ModuleLog.line("(IE|DL|Username) ✅ Resolved dictUserGetter (concrete class): " + m.getName());
                 return;
             }
         } catch (Throwable t) {
-            XposedBridge.log("(IE|DL|Username) ❌ dictUserGetter DexKit lookup: " + t);
+            ModuleLog.line("(IE|DL|Username) ❌ dictUserGetter DexKit lookup: " + t);
         }
 
-        XposedBridge.log("(IE|DL|Username) ❌ Failed to resolve dictUserGetter in hierarchy");
+        ModuleLog.line("(IE|DL|Username) ❌ Failed to resolve dictUserGetter in hierarchy");
     }
 
     // ── Download dispatch ─────────────────────────────────────────────────────
@@ -1176,7 +1177,7 @@ public class FeedVideoDownloadHook {
             try {
                 return openRawPathOutputStream(filename, username);
             } catch (Exception e) {
-                XposedBridge.log("(InstaEclipse|DL) Raw path failed, trying SAF: " + e.getMessage());
+                ModuleLog.line("(InstaEclipse|DL) Raw path failed, trying SAF: " + e.getMessage());
             }
         }
 
@@ -1186,7 +1187,7 @@ public class FeedVideoDownloadHook {
             try {
                 return openSafOutputStream(ctx, filename, mimeType, username);
             } catch (Exception e) {
-                XposedBridge.log("(InstaEclipse|DL) SAF failed, falling back to MediaStore: " + e.getMessage());
+                ModuleLog.line("(InstaEclipse|DL) SAF failed, falling back to MediaStore: " + e.getMessage());
             }
         }
 
@@ -1381,7 +1382,7 @@ public class FeedVideoDownloadHook {
         intent.putExtra("mimeType", isVideo ? "video/mp4" : "image/jpeg");
         intent.putExtra("username", username);
         ctx.startForegroundService(intent);
-        XposedBridge.log("(IE|DL) Delegated to DownloadSaveService: " + filename);
+        ModuleLog.line("(IE|DL) Delegated to DownloadSaveService: " + filename);
     }
 
     /**
@@ -1420,21 +1421,21 @@ public class FeedVideoDownloadHook {
         String videoUrl = bestVideoUrlFromMedia(media);
         if (videoUrl != null) return new ArrayList<>(List.of(videoUrl));
 
-        XposedBridge.log("(IE|Post|DEBUG) carousel check: mutableMediaDictIntfClass=" +
+        ModuleLog.line("(IE|Post|DEBUG) carousel check: mutableMediaDictIntfClass=" +
                 (mutableMediaDictIntfClass == null ? "null" : mutableMediaDictIntfClass.getName()) +
                 " carouselCandidates=" + carouselCandidates.size());
 
         // Step B: carousel (MutableMediaDictIntf candidates)
         if (mutableMediaDictIntfClass != null && !carouselCandidates.isEmpty()) {
             Object dictIntf = findFieldAssignableTo(media, mutableMediaDictIntfClass);
-            XposedBridge.log("(IE|Post|DEBUG) dictIntf=" +
+            ModuleLog.line("(IE|Post|DEBUG) dictIntf=" +
                     (dictIntf == null ? "null" : dictIntf.getClass().getName()));
             if (dictIntf != null) {
                 for (Method candidate : carouselCandidates) {
                     try {
                         Object listObj = candidate.invoke(dictIntf);
                         int sz = (listObj instanceof List<?> l) ? l.size() : -1;
-                        XposedBridge.log("(IE|Post|DEBUG)   candidate=" + candidate.getName() +
+                        ModuleLog.line("(IE|Post|DEBUG)   candidate=" + candidate.getName() +
                                 " resultType=" + (listObj == null ? "null" : listObj.getClass().getName()) +
                                 " size=" + sz);
                         if (!(listObj instanceof List<?> items) || items.size() < 2) continue;
@@ -1504,7 +1505,7 @@ public class FeedVideoDownloadHook {
                                 Toast.LENGTH_SHORT).show());
                     }
                 } catch (Throwable e) {
-                    XposedBridge.log("(IE|Post|DL) single failed: " + e);
+                    ModuleLog.line("(IE|Post|DL) single failed: " + e);
                     mainHandler.post(() -> Toast.makeText(ctx,
                             I18n.t(ctx, R.string.ig_toast_download_failed, e.getMessage()), Toast.LENGTH_SHORT).show());
                 }
@@ -1649,7 +1650,7 @@ public class FeedVideoDownloadHook {
                             downloadAndSave(ctx, url, fn, isVid, username);
                         } catch (Throwable e) {
                             failed++;
-                            XposedBridge.log("(IE|Post|DL) item failed: " + e);
+                            ModuleLog.line("(IE|Post|DL) item failed: " + e);
                         }
                     }
                     final int finalFailed = failed;
@@ -1682,7 +1683,7 @@ public class FeedVideoDownloadHook {
             dialog.show();
 
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Post) ❌ showCarouselBottomSheet: " + t);
+            ModuleLog.line("(IE|Post) ❌ showCarouselBottomSheet: " + t);
         }
     }
 
@@ -1751,19 +1752,19 @@ public class FeedVideoDownloadHook {
     private void onDownloadClicked(Context ctx, List<String> urls, View saveBtn) {
         currentDownloadUsername = getUsernameFromView(saveBtn);
         currentDownloadMediaId  = getMediaIdFromView(saveBtn);
-        XposedBridge.log("(IE|DL) onDownloadClicked username=" + currentDownloadUsername + " mediaId=" + currentDownloadMediaId);
+        ModuleLog.line("(IE|DL) onDownloadClicked username=" + currentDownloadUsername + " mediaId=" + currentDownloadMediaId);
         List<String> videos = new ArrayList<>();
         List<String> images = new ArrayList<>();
         for (String url : urls) {
             if (isVideoUrl(url)) videos.add(url);
             else                 images.add(url);
         }
-        XposedBridge.log("(IE|DL) total=" + urls.size()
+        ModuleLog.line("(IE|DL) total=" + urls.size()
                 + " videos=" + videos.size() + " images=" + images.size());
         for (int i = 0; i < videos.size(); i++)
-            XposedBridge.log("(IE|DL) video[" + i + "]=" + videos.get(i));
+            ModuleLog.line("(IE|DL) video[" + i + "]=" + videos.get(i));
         for (int i = 0; i < images.size(); i++)
-            XposedBridge.log("(IE|DL) image[" + i + "]=" + images.get(i));
+            ModuleLog.line("(IE|DL) image[" + i + "]=" + images.get(i));
 
         if (!videos.isEmpty() && !images.isEmpty()) {
             handleMixedContent(ctx, urls, videos, images, saveBtn);
@@ -1781,7 +1782,7 @@ public class FeedVideoDownloadHook {
         executor.submit(() -> {
             String videoUrl = videos.get(0);
             TrackInfo t = probeUrl(videoUrl);
-            XposedBridge.log("(IE|DL) probeUrl=" + videoUrl
+            ModuleLog.line("(IE|DL) probeUrl=" + videoUrl
                     + " hasVideo=" + t.hasVideo + " hasAudio=" + t.hasAudio);
             mainHandler.post(() -> {
                 if (!t.hasVideo && t.hasAudio) {
@@ -1858,7 +1859,7 @@ public class FeedVideoDownloadHook {
 
     private void startDirectDownload(Context ctx, String url, boolean isVideo) {
         String fn = buildFilename(currentDownloadUsername, "post", currentDownloadMediaId, isVideo);
-        XposedBridge.log("(IE|DL) startDirectDownload file=" + fn);
+        ModuleLog.line("(IE|DL) startDirectDownload file=" + fn);
         Toast.makeText(ctx, isVideo ? I18n.t(ctx, R.string.ig_toast_downloading_video) : I18n.t(ctx, R.string.ig_toast_downloading_photo), Toast.LENGTH_SHORT).show();
         executor.submit(() -> {
             try {
@@ -1869,7 +1870,7 @@ public class FeedVideoDownloadHook {
                             Toast.LENGTH_SHORT).show());
                 }
             } catch (Throwable e) {
-                XposedBridge.log("(IE|DL) download failed: " + e.getClass().getSimpleName() + ": " + e.getMessage());
+                ModuleLog.line("(IE|DL) download failed: " + e.getClass().getSimpleName() + ": " + e.getMessage());
                 mainHandler.post(() -> Toast.makeText(ctx,
                         I18n.t(ctx, R.string.ig_toast_download_failed, e.getMessage()), Toast.LENGTH_SHORT).show());
             }
@@ -1889,7 +1890,7 @@ public class FeedVideoDownloadHook {
                 try {
                     delegateUrlToCompanionApp(ctx, videoUrl, audioUrl, fn, true, currentDownloadUsername);
                 } catch (Throwable e) {
-                    XposedBridge.log("(IE|DL) merge delegate failed: " + e.getMessage());
+                    ModuleLog.line("(IE|DL) merge delegate failed: " + e.getMessage());
                     mainHandler.post(() -> startDirectDownload(ctx, videoUrl, true));
                 }
                 return;

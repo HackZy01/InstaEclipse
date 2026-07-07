@@ -44,6 +44,7 @@ import ps.reso.instaeclipse.utils.feature.FeatureFlags;
 import ps.reso.instaeclipse.utils.feature.FeatureStatusTracker;
 import ps.reso.instaeclipse.utils.i18n.I18n;
 import ps.reso.instaeclipse.utils.users.UserUtils;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 public class StoryMentionHook {
 
@@ -79,7 +80,7 @@ public class StoryMentionHook {
             if (cached != null && !cached.isEmpty()) {
                 mentionGetterCandidates.addAll(cached);
                 mentionGetterMethod = mentionGetterCandidates.get(0);
-                XposedBridge.log("(IE|Mention) ✅ " + cached.size() + " candidate(s) from cache");
+                ModuleLog.line("(IE|Mention) ✅ " + cached.size() + " candidate(s) from cache");
                 return;
             }
         }
@@ -104,12 +105,12 @@ public class StoryMentionHook {
             if (!mentionGetterCandidates.isEmpty()) {
                 mentionGetterMethod = mentionGetterCandidates.get(0);
                 DexKitCache.saveMethods("MentionGetter", mentionGetterCandidates);
-                XposedBridge.log("(IE|Mention) ✅ " + mentionGetterCandidates.size() + " candidate(s) loaded");
+                ModuleLog.line("(IE|Mention) ✅ " + mentionGetterCandidates.size() + " candidate(s) loaded");
             } else {
-                XposedBridge.log("(IE|Mention) ❌ mentionGetter not found");
+                ModuleLog.line("(IE|Mention) ❌ mentionGetter not found");
             }
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Mention) ❌ resolveMentionGetter: " + t);
+            ModuleLog.line("(IE|Mention) ❌ resolveMentionGetter: " + t);
         }
     }
 
@@ -143,12 +144,12 @@ public class StoryMentionHook {
                     } catch (Throwable ignored) {}
                 }
             } catch (Throwable t) {
-                XposedBridge.log("(IE|Mention) ❌ button hook DexKit: " + t);
+                ModuleLog.line("(IE|Mention) ❌ button hook DexKit: " + t);
             }
         }
 
         if (method == null) {
-            XposedBridge.log("(IE|Mention) ❌ button builder not found");
+            ModuleLog.line("(IE|Mention) ❌ button builder not found");
             return;
         }
         DexKitCache.saveMethod("MentionButton", method);
@@ -170,9 +171,9 @@ public class StoryMentionHook {
                     param.setResult(extended);
                 }
             });
-            XposedBridge.log("(IE|Mention) ✅ button hook installed");
+            ModuleLog.line("(IE|Mention) ✅ button hook installed");
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Mention) ❌ button hook: " + t);
+            ModuleLog.line("(IE|Mention) ❌ button hook: " + t);
         }
     }
 
@@ -197,13 +198,13 @@ public class StoryMentionHook {
                                         "friendships/mute_friend_reel/%s/",
                                         "[INTERNAL] Pause Playback")));
                 if (methods.isEmpty()) {
-                    XposedBridge.log("(IE|Mention) ❌ click handler not found");
+                    ModuleLog.line("(IE|Mention) ❌ click handler not found");
                     return;
                 }
                 method = methods.get(0).getMethodInstance(classLoader);
                 DexKitCache.saveMethod("MentionClick", method);
             } catch (Throwable t) {
-                XposedBridge.log("(IE|Mention) ❌ click hook DexKit: " + t);
+                ModuleLog.line("(IE|Mention) ❌ click hook DexKit: " + t);
                 return;
             }
         }
@@ -238,18 +239,18 @@ public class StoryMentionHook {
                             if (ctx == null) ctx = findContext(a);
                         }
 
-                        if (ctx == null) { XposedBridge.log("(IE|Mention) ❌ context not found"); return; }
-                        if (media == null) { XposedBridge.log("(IE|Mention) ❌ Media not found"); return; }
+                        if (ctx == null) { ModuleLog.line("(IE|Mention) ❌ context not found"); return; }
+                        if (media == null) { ModuleLog.line("(IE|Mention) ❌ Media not found"); return; }
 
                         showMentionsDialog(ctx, resolveMentions(media));
                     } catch (Throwable t) {
-                        XposedBridge.log("(IE|Mention) ❌ click handler: " + t);
+                        ModuleLog.line("(IE|Mention) ❌ click handler: " + t);
                     }
                 }
             });
-            XposedBridge.log("(IE|Mention) ✅ click hook installed");
+            ModuleLog.line("(IE|Mention) ✅ click hook installed");
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Mention) ❌ click hook: " + t);
+            ModuleLog.line("(IE|Mention) ❌ click hook: " + t);
         }
     }
 
@@ -260,7 +261,7 @@ public class StoryMentionHook {
         List<String> usernames = new ArrayList<>();
         try {
             if (mentionGetterCandidates.isEmpty()) {
-                XposedBridge.log("(IE|Mention) ❌ no mentionGetter candidates");
+                ModuleLog.line("(IE|Mention) ❌ no mentionGetter candidates");
                 return usernames;
             }
 
@@ -275,7 +276,7 @@ public class StoryMentionHook {
                         if (first != null && !(first instanceof String)) {
                             // Found the User-returning method — pin it
                             mentionGetterMethod = candidate;
-                            XposedBridge.log("(IE|Mention) ✅ pinned to " + candidate.getName() + " (returns User objects)");
+                            ModuleLog.line("(IE|Mention) ✅ pinned to " + candidate.getName() + " (returns User objects)");
                             break;
                         }
                     } catch (Throwable ignored) {}
@@ -291,7 +292,7 @@ public class StoryMentionHook {
                 if (username != null && !username.isEmpty()) usernames.add(username);
             }
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Mention) resolveMentions exception: " + t);
+            ModuleLog.line("(IE|Mention) resolveMentions exception: " + t);
         }
         return usernames;
     }
@@ -466,7 +467,7 @@ public class StoryMentionHook {
                 dialog.show();
 
             } catch (Throwable t) {
-                XposedBridge.log("(IE|Mention) ❌ showMentionsDialog: " + t);
+                ModuleLog.line("(IE|Mention) ❌ showMentionsDialog: " + t);
             }
         });
     }

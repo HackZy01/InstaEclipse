@@ -22,6 +22,7 @@ import ps.reso.instaeclipse.utils.core.DexKitCache;
 import ps.reso.instaeclipse.utils.feature.FeatureFlags;
 import ps.reso.instaeclipse.utils.feature.FeatureStatusTracker;
 import ps.reso.instaeclipse.utils.i18n.I18n;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 public class ReelDownloadHook {
 
@@ -55,7 +56,7 @@ public class ReelDownloadHook {
                         onOptionsBuilt(param);
                     }
                 });
-                XposedBridge.log("(IE|Reel) ✅ hooked: " + hookMethod.getDeclaringClass().getName() + "." + hookMethod.getName());
+                ModuleLog.line("(IE|Reel) ✅ hooked: " + hookMethod.getDeclaringClass().getName() + "." + hookMethod.getName());
                 return;
             }
         }
@@ -66,7 +67,7 @@ public class ReelDownloadHook {
                             .usingStrings("ClipsOrganicMediaItemViewMoreOptionsController")));
 
             if (methods.isEmpty()) {
-                XposedBridge.log("(IE|Reel) ❌ ClipsOrganicMediaItemViewMoreOptionsController not found");
+                ModuleLog.line("(IE|Reel) ❌ ClipsOrganicMediaItemViewMoreOptionsController not found");
                 return;
             }
 
@@ -85,7 +86,7 @@ public class ReelDownloadHook {
             }
 
             if (target == null) {
-                XposedBridge.log("(IE|Reel) ❌ hook method (Media, ButtonAdder)V not found");
+                ModuleLog.line("(IE|Reel) ❌ hook method (Media, ButtonAdder)V not found");
                 return;
             }
 
@@ -101,10 +102,10 @@ public class ReelDownloadHook {
                     onOptionsBuilt(param);
                 }
             });
-            XposedBridge.log("(IE|Reel) ✅ hooked: " + hookMethod.getDeclaringClass().getName() + "." + hookMethod.getName());
+            ModuleLog.line("(IE|Reel) ✅ hooked: " + hookMethod.getDeclaringClass().getName() + "." + hookMethod.getName());
 
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Reel) ❌ install: " + t);
+            ModuleLog.line("(IE|Reel) ❌ install: " + t);
         }
     }
 
@@ -129,7 +130,7 @@ public class ReelDownloadHook {
                 if (v.toString().equals("DOWNLOAD")) { downloadOption = v; break; }
             }
             if (downloadOption == null) {
-                XposedBridge.log("(IE|Reel) ❌ DOWNLOAD enum value not found");
+                ModuleLog.line("(IE|Reel) ❌ DOWNLOAD enum value not found");
                 return;
             }
             final Object download = downloadOption;
@@ -146,7 +147,7 @@ public class ReelDownloadHook {
                             mutable.add(download);
                         }
                     } catch (Throwable t) {
-                        XposedBridge.log("(IE|Reel) ❌ options-list patch failed: " + t);
+                        ModuleLog.line("(IE|Reel) ❌ options-list patch failed: " + t);
                     }
                 }
             };
@@ -167,7 +168,7 @@ public class ReelDownloadHook {
                             .addUsingField(optionDesc + "->UNSAVE:" + optionDesc)));
 
             if (methods.isEmpty()) {
-                XposedBridge.log("(IE|Reel) ⚠️ Reduced options-list builder not found");
+                ModuleLog.line("(IE|Reel) ⚠️ Reduced options-list builder not found");
                 return;
             }
 
@@ -176,11 +177,11 @@ public class ReelDownloadHook {
             XposedBridge.hookMethod(target, hook);
             DexKitCache.saveMethod("ReelOptionsListBuilder", target);
             FeatureStatusTracker.setHooked("ReelDownload");
-            XposedBridge.log("(IE|Reel) ✅ Options-list patch hooked: " +
+            ModuleLog.line("(IE|Reel) ✅ Options-list patch hooked: " +
                     target.getDeclaringClass().getName() + "." + target.getName());
 
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Reel) ❌ installReduceOptionsListPatch: " + t);
+            ModuleLog.line("(IE|Reel) ❌ installReduceOptionsListPatch: " + t);
         }
     }
 
@@ -215,7 +216,7 @@ public class ReelDownloadHook {
         XC_MethodHook hook = new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) {
-                XposedBridge.log("(IE|Reel|DEBUG) gate fired: " + cacheKey + " enabled=" + FeatureFlags.enableReelDownload);
+                ModuleLog.line("(IE|Reel|DEBUG) gate fired: " + cacheKey + " enabled=" + FeatureFlags.enableReelDownload);
                 if (FeatureFlags.enableReelDownload) param.setResult(forcedResult);
             }
         };
@@ -236,7 +237,7 @@ public class ReelDownloadHook {
                             .usingNumbers(configId)));
 
             if (methods.isEmpty()) {
-                XposedBridge.log("(IE|Reel) ⚠️ Gate method not found for config " + configId);
+                ModuleLog.line("(IE|Reel) ⚠️ Gate method not found for config " + configId);
                 return;
             }
 
@@ -245,11 +246,11 @@ public class ReelDownloadHook {
             XposedBridge.hookMethod(target, hook);
             DexKitCache.saveMethod(cacheKey, target);
             FeatureStatusTracker.setHooked("ReelDownload");
-            XposedBridge.log("(IE|Reel) ✅ Gate unlocked: " +
+            ModuleLog.line("(IE|Reel) ✅ Gate unlocked: " +
                     target.getDeclaringClass().getName() + "." + target.getName() + " -> " + forcedResult);
 
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Reel) ❌ installGateHook(" + cacheKey + "): " + t);
+            ModuleLog.line("(IE|Reel) ❌ installGateHook(" + cacheKey + "): " + t);
         }
     }
 
@@ -434,7 +435,7 @@ public class ReelDownloadHook {
                 }
             }
             if (activityField == null) {
-                XposedBridge.log("(IE|Reel) ❌ no Activity field on controller");
+                ModuleLog.line("(IE|Reel) ❌ no Activity field on controller");
                 return;
             }
 
@@ -455,7 +456,7 @@ public class ReelDownloadHook {
                 }
             }
             if (buttonAdderMethod == null) {
-                XposedBridge.log("(IE|Reel) ❌ buttonAdderMethod not found");
+                ModuleLog.line("(IE|Reel) ❌ buttonAdderMethod not found");
                 return;
             }
 
@@ -469,7 +470,7 @@ public class ReelDownloadHook {
                     I18n.t(activity, R.string.ig_dl_title), icon);
 
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Reel) ❌ onOptionsBuilt: " + t);
+            ModuleLog.line("(IE|Reel) ❌ onOptionsBuilt: " + t);
         }
     }
 

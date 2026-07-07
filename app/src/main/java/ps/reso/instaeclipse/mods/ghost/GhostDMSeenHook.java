@@ -16,6 +16,7 @@ import ps.reso.instaeclipse.Xposed.Module;
 import ps.reso.instaeclipse.utils.core.DexKitCache;
 import ps.reso.instaeclipse.utils.feature.FeatureFlags;
 import ps.reso.instaeclipse.utils.feature.FeatureStatusTracker;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 /**
  * Handles Ghost Mode for Direct Messages (DM) in Instagram.
@@ -34,7 +35,7 @@ public class GhostDMSeenHook {
             Method cached = DexKitCache.loadMethod("GhostSeen", Module.hostClassLoader);
             if (cached != null) {
                 XposedBridge.hookMethod(cached, hook);
-                XposedBridge.log("(InstaEclipse | GhostModeSeen): ✅ Hooked: " + cached.getDeclaringClass().getName() + "." + cached.getName());
+                ModuleLog.line("(InstaEclipse | GhostModeSeen): ✅ Hooked: " + cached.getDeclaringClass().getName() + "." + cached.getName());
                 FeatureStatusTracker.setHooked("GhostSeen");
                 return;
             }
@@ -46,7 +47,7 @@ public class GhostDMSeenHook {
                     .matcher(MethodMatcher.create().usingStrings("mark_thread_seen-")));
 
             if (methods.isEmpty()) {
-                XposedBridge.log("(InstaEclipse | GhostModeSeen): ❌ No methods found using 'mark_thread_seen-'");
+                ModuleLog.line("(InstaEclipse | GhostModeSeen): ❌ No methods found using 'mark_thread_seen-'");
                 return;
             }
 
@@ -72,19 +73,19 @@ public class GhostDMSeenHook {
                         DexKitCache.saveMethod("GhostSeen", reflectMethod);
                         XposedBridge.hookMethod(reflectMethod, hook);
 
-                        XposedBridge.log("(InstaEclipse | GhostModeSeen): ✅ Hooked: " +
+                        ModuleLog.line("(InstaEclipse | GhostModeSeen): ✅ Hooked: " +
                                 method.getClassName() + "." + method.getName());
                         FeatureStatusTracker.setHooked("GhostSeen");
                         return;
 
                     } catch (Throwable e) {
-                        XposedBridge.log("(InstaEclipse | GhostModeSeen): ❌ Hook error: " + e.getMessage());
+                        ModuleLog.line("(InstaEclipse | GhostModeSeen): ❌ Hook error: " + e.getMessage());
                     }
                 }
             }
 
         } catch (Throwable e) {
-            XposedBridge.log("(InstaEclipse | GhostModeSeen): ❌ DexKit exception: " + e.getMessage());
+            ModuleLog.line("(InstaEclipse | GhostModeSeen): ❌ DexKit exception: " + e.getMessage());
         }
     }
 

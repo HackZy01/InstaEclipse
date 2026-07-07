@@ -40,6 +40,7 @@ import ps.reso.instaeclipse.utils.core.SettingsManager;
 import ps.reso.instaeclipse.utils.feature.FeatureFlags;
 import ps.reso.instaeclipse.utils.ghost.GhostModeUtils;
 import ps.reso.instaeclipse.utils.i18n.I18n;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 public class DialogUtils {
 
@@ -309,7 +310,7 @@ public class DialogUtils {
             }
         } catch (Exception e) {
             String packageName = context.getPackageName();
-            XposedBridge.log("InstaEclipse: Restart failed for " + packageName + " - " + e.getMessage());
+            ModuleLog.line("InstaEclipse: Restart failed for " + packageName + " - " + e.getMessage());
             Toast.makeText(context, I18n.t(context, R.string.ig_dialog_restart_failed, e.getMessage()), Toast.LENGTH_LONG).show();
         }
     }
@@ -324,12 +325,12 @@ public class DialogUtils {
             File cacheDir = context.getCacheDir();
             if (cacheDir != null && cacheDir.isDirectory()) {
                 deleteRecursive(cacheDir);
-                XposedBridge.log("InstaEclipse: Cache cleared for " + context.getPackageName());
+                ModuleLog.line("InstaEclipse: Cache cleared for " + context.getPackageName());
             } else {
-                XposedBridge.log("InstaEclipse: Cache directory not found for " + context.getPackageName());
+                ModuleLog.line("InstaEclipse: Cache directory not found for " + context.getPackageName());
             }
         } catch (Exception e) {
-            XposedBridge.log("InstaEclipse: Failed to clear cache for " + context.getPackageName() + " - " + e.getMessage());
+            ModuleLog.line("InstaEclipse: Failed to clear cache for " + context.getPackageName() + " - " + e.getMessage());
         }
     }
 
@@ -378,7 +379,7 @@ public class DialogUtils {
                 try {
                     instagramActivity.startActivity(importIntent);
                 } catch (Exception e) {
-                    XposedBridge.log("InstaEclipse | ❌ Failed to start JsonImportActivity: " + e.getMessage());
+                    ModuleLog.line("InstaEclipse | ❌ Failed to start JsonImportActivity: " + e.getMessage());
                     showSimpleDialog(context, I18n.t(context, R.string.ig_dialog_error), I18n.t(context, R.string.ig_dialog_unable_open_ui));
                 }
             } else {

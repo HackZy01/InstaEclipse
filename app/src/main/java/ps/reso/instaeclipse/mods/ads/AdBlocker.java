@@ -13,6 +13,7 @@ import de.robv.android.xposed.XposedBridge;
 import ps.reso.instaeclipse.utils.core.DexKitCache;
 import ps.reso.instaeclipse.utils.feature.FeatureFlags;
 import ps.reso.instaeclipse.utils.feature.FeatureStatusTracker;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 public class AdBlocker {
 
@@ -51,7 +52,7 @@ public class AdBlocker {
                 );
 
                 if (methods.isEmpty()) {
-                    XposedBridge.log("(InstaEclipse | AdBlocker): ⚠️ No methods found referencing '" + marker + "'");
+                    ModuleLog.line("(InstaEclipse | AdBlocker): ⚠️ No methods found referencing '" + marker + "'");
                     continue;
                 }
 
@@ -64,22 +65,22 @@ public class AdBlocker {
                         DexKitCache.saveMethod("AdBlocker", targetMethod);
                         XposedBridge.hookMethod(targetMethod, hook);
 
-                        XposedBridge.log("(InstaEclipse | AdBlocker): ✅ Hooked (dynamic check, marker='" + marker + "'): " +
+                        ModuleLog.line("(InstaEclipse | AdBlocker): ✅ Hooked (dynamic check, marker='" + marker + "'): " +
                                 method.getClassName() + "." + method.getName());
                         FeatureStatusTracker.setHooked("AdBlocker");
                         return; // Stop after first successful hook
 
                     } catch (Throwable hookEx) {
-                        XposedBridge.log("(InstaEclipse | AdBlocker): ❌ Failed to hook: " +
+                        ModuleLog.line("(InstaEclipse | AdBlocker): ❌ Failed to hook: " +
                                 method.getName() + " → " + hookEx.getMessage());
                     }
                 }
             }
 
-            XposedBridge.log("(InstaEclipse | AdBlocker): ❌ No valid methods hooked (all markers exhausted).");
+            ModuleLog.line("(InstaEclipse | AdBlocker): ❌ No valid methods hooked (all markers exhausted).");
 
         } catch (Throwable t) {
-            XposedBridge.log("(InstaEclipse | AdBlocker): ❌ Exception: " + t.getMessage());
+            ModuleLog.line("(InstaEclipse | AdBlocker): ❌ Exception: " + t.getMessage());
         }
     }
 }

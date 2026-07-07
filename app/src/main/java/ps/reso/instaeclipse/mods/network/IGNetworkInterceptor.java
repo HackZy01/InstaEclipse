@@ -11,6 +11,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import ps.reso.instaeclipse.mods.misc.FollowStatusHook;
 import ps.reso.instaeclipse.utils.feature.FeatureFlags;
 import ps.reso.instaeclipse.utils.feature.FeatureStatusTracker;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 public class IGNetworkInterceptor {
 
@@ -175,11 +176,11 @@ public class IGNetworkInterceptor {
                         }
                 );
             } else {
-                XposedBridge.log("(InstaEclipse | Interceptor): Could not resolve required classes or fields.");
+                ModuleLog.line("(InstaEclipse | Interceptor): Could not resolve required classes or fields.");
             }
 
         } catch (Exception e) {
-            XposedBridge.log("(InstaEclipse | Interceptor): ❌ " + e.getMessage());
+            ModuleLog.line("(InstaEclipse | Interceptor): ❌ " + e.getMessage());
         }
     }
 }

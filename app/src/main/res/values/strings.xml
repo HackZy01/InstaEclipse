@@ -158,6 +158,19 @@
     <string name="ig_dialog_menu_downloader">📥 Downloader</string>
     <string name="ig_dialog_menu_location">📍 Location</string>
     <string name="ig_dialog_menu_quality">🎞 Video Quality</string>
+
+    <!-- Logging -->
+    <string name="logging">Logs</string>
+    <string name="logging_clear">Clear</string>
+    <string name="logging_copy">Copy</string>
+    <string name="logging_copied">Copied to clipboard</string>
+    <string name="logging_companion">InstaEclipse</string>
+    <string name="logging_instagram">Instagram</string>
+    <string name="logging_instagram_timeout">Instagram did not respond in time. Showing companion logs only.</string>
+    <string name="logging_no_target">Install a supported Instagram app first.</string>
+    <string name="logging_empty_reply">(empty buffer - open Instagram with the module enabled)</string>
+    <string name="logging_placeholder">No logs loaded yet.</string>
+    <string name="logging_lines_format">%1$d lines</string>
     <string name="ig_dialog_menu_backup_restore">💾 Backup &amp; Restore</string>
     <string name="ig_dialog_menu_about">ℹ️ About</string>
     <string name="ig_dialog_menu_restart">🔁 Restart App</string>

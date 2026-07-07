@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.robv.android.xposed.XposedBridge;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 /**
  * Caches DexKit-resolved method signatures in SharedPreferences, keyed by
@@ -55,11 +56,11 @@ public class DexKitCache {
         String stored = prefs.getString(KEY_VER, "");
         if (stored.equals(igVersion)) {
             cacheValid = true;
-            XposedBridge.log("(DexKitCache) Cache valid for IG " + igVersion);
+            ModuleLog.line("(DexKitCache) Cache valid for IG " + igVersion);
         } else {
             cacheValid = false;
             prefs.edit().clear().putString(KEY_VER, igVersion).apply();
-            XposedBridge.log("(DexKitCache) Version " + stored + " → " + igVersion + ", cache cleared");
+            ModuleLog.line("(DexKitCache) Version " + stored + " → " + igVersion + ", cache cleared");
         }
     }
 
@@ -76,7 +77,7 @@ public class DexKitCache {
         if (prefs == null) return;
         prefs.edit().clear().apply();
         cacheValid = false;
-        XposedBridge.log("(DexKitCache) Cache manually cleared — DexKit will re-run on next launch");
+        ModuleLog.line("(DexKitCache) Cache manually cleared — DexKit will re-run on next launch");
     }
 
     // ── Single method ────────────────────────────────────────────────────────

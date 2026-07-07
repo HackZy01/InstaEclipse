@@ -11,6 +11,14 @@ public class CommonUtils {
     public static final String IG_PACKAGE_NAME = "com.instagram.android";
     public static final String MY_PACKAGE_NAME = "ps.reso.instaeclipse";
 
+    // In-app log viewer IPC
+    public static final String ACTION_REQUEST_LOGS = "ps.reso.instaeclipse.ACTION_REQUEST_LOGS";
+    public static final String ACTION_LOGS_REPLY = "ps.reso.instaeclipse.ACTION_LOGS_REPLY";
+    public static final String ACTION_CLEAR_LOGS = "ps.reso.instaeclipse.ACTION_CLEAR_LOGS";
+    public static final String EXTRA_LOG_TEXT = "log_text";
+    public static final String EXTRA_LOG_SOURCE = "source_package";
+    public static final String EXTRA_LOG_ERROR = "error";
+
     /** All Instagram packages this module hooks into. */
     public static final List<String> SUPPORTED_PACKAGES = Arrays.asList(
             "com.instagram.android",

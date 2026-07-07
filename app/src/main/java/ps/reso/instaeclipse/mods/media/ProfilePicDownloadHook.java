@@ -23,6 +23,7 @@ import ps.reso.instaeclipse.R;
 import ps.reso.instaeclipse.utils.feature.FeatureFlags;
 import ps.reso.instaeclipse.utils.feature.FeatureStatusTracker;
 import ps.reso.instaeclipse.utils.i18n.I18n;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 /**
  * Profile Picture Downloader
@@ -90,7 +91,7 @@ public class ProfilePicDownloadHook {
                 String url = extractUrl(v);
                 if (url == null) {
                     Toast.makeText(ctx, I18n.t(ctx, R.string.ig_toast_profile_pic_url_not_found), Toast.LENGTH_SHORT).show();
-                    XposedBridge.log("(IE|ProfileDL) ❌ URL extraction failed");
+                    ModuleLog.line("(IE|ProfileDL) ❌ URL extraction failed");
                     return true;
                 }
                 String username = activity != null ? extractUsername(activity) : null;
@@ -105,7 +106,7 @@ public class ProfilePicDownloadHook {
                                     I18n.t(ctx, R.string.ig_toast_profile_pic_saved), Toast.LENGTH_SHORT).show());
                         }
                     } catch (Throwable e) {
-                        XposedBridge.log("(IE|ProfileDL) ❌ download: " + e.getMessage());
+                        ModuleLog.line("(IE|ProfileDL) ❌ download: " + e.getMessage());
                         mainHandler.post(() -> Toast.makeText(ctx,
                                 I18n.t(ctx, R.string.ig_toast_download_failed, e.getMessage()), Toast.LENGTH_SHORT).show());
                     }
@@ -114,7 +115,7 @@ public class ProfilePicDownloadHook {
             });
 
         } catch (Throwable t) {
-            XposedBridge.log("(IE|ProfileDL) ❌ injectLongPress: " + t.getMessage());
+            ModuleLog.line("(IE|ProfileDL) ❌ injectLongPress: " + t.getMessage());
         }
     }
 
@@ -139,7 +140,7 @@ public class ProfilePicDownloadHook {
             if (tag instanceof String s && s.startsWith("http")) return s;
         } catch (Throwable ignored) {}
 
-        XposedBridge.log("(IE|ProfileDL) ❌ all URL strategies failed for " + view.getClass().getName());
+        ModuleLog.line("(IE|ProfileDL) ❌ all URL strategies failed for " + view.getClass().getName());
         return null;
     }
 

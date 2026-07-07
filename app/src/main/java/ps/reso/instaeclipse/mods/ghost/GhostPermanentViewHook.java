@@ -14,6 +14,7 @@ import de.robv.android.xposed.XposedBridge;
 import ps.reso.instaeclipse.utils.core.DexKitCache;
 import ps.reso.instaeclipse.utils.feature.FeatureFlags;
 import ps.reso.instaeclipse.utils.feature.FeatureStatusTracker;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 /**
  * Makes view-once and view-twice (replayable) media behave like permanent media.
@@ -52,7 +53,7 @@ public class GhostPermanentViewHook {
                             .paramCount(1)));
 
             if (methods.isEmpty()) {
-                XposedBridge.log("(IE|ViewOnceMedia) ❌ unsafeParseFromJson not found");
+                ModuleLog.line("(IE|ViewOnceMedia) ❌ unsafeParseFromJson not found");
                 return;
             }
 
@@ -73,22 +74,22 @@ public class GhostPermanentViewHook {
                 try {
                     target = methods.get(0).getMethodInstance(classLoader);
                 } catch (Throwable t) {
-                    XposedBridge.log("(IE|ViewOnceMedia) ❌ Could not resolve method: " + t);
+                    ModuleLog.line("(IE|ViewOnceMedia) ❌ Could not resolve method: " + t);
                     return;
                 }
             }
 
-            XposedBridge.log("(IE|ViewOnceMedia) ✅ hooking "
+            ModuleLog.line("(IE|ViewOnceMedia) ✅ hooking "
                     + target.getDeclaringClass().getName() + "." + target.getName());
 
             DexKitCache.saveMethod("ViewOnceMedia", target);
             XposedBridge.hookMethod(target, buildHook());
 
             FeatureStatusTracker.setHooked("PermanentViewMode");
-            XposedBridge.log("(IE|ViewOnceMedia) ✅ hooked");
+            ModuleLog.line("(IE|ViewOnceMedia) ✅ hooked");
 
         } catch (Throwable t) {
-            XposedBridge.log("(IE|ViewOnceMedia) ❌ " + t);
+            ModuleLog.line("(IE|ViewOnceMedia) ❌ " + t);
         }
     }
 
