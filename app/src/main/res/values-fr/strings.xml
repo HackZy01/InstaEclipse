@@ -69,9 +69,9 @@
     <string name="feat_quick_toggle">Bascule rapide :</string>
     <string name="feat_danger_zone">Zone de danger :</string>
     <string name="feat_download_folder">Dossier de téléchargement :</string>
-    <string name="feat_downloader_set_folder">📂 Définir l\'emplacement du dossier de téléchargement</string>
-    <string name="feat_downloader_selected">📂 Sélectionné : %1$s</string>
-    <string name="feat_downloader_reset_folder">🗑 Réinitialiser le dossier de téléchargement</string>
+    <string name="feat_downloader_set_folder">Définir l\'emplacement du dossier de téléchargement</string>
+    <string name="feat_downloader_selected">Sélectionné : %1$s</string>
+    <string name="feat_downloader_reset_folder">Réinitialiser le dossier de téléchargement</string>
 
     <!-- features -->
     <string name="developer_options">Options Développeurs</string>
@@ -141,30 +141,30 @@
     <string name="ig_dialog_cancel">Annuler</string>
 
     <!-- Main menu items -->
-    <string name="ig_dialog_menu_dev_options">🎛 Options Développeurs</string>
-    <string name="ig_dialog_menu_ghost_settings">👻 Paramètres Mode Fantôme</string>
-    <string name="ig_dialog_menu_ad_analytics">🛡 Blocage Pubs/Analytics</string>
-    <string name="ig_dialog_menu_clean_feed">✨ Fil propre</string>
-    <string name="ig_dialog_menu_distraction_free">🧘 Instagram Sans Distractions</string>
-    <string name="ig_dialog_menu_misc">⚙ Fonctions Diverses</string>
-    <string name="ig_dialog_menu_downloader">📥 Téléchargeur</string>
-    <string name="ig_dialog_menu_backup_restore">💾 Sauvegarde &amp; Restauration</string>
-    <string name="ig_dialog_menu_about">ℹ️ À propos</string>
-    <string name="ig_dialog_menu_restart">🔁 Redémarrer l\'app</string>
+    <string name="ig_dialog_menu_dev_options">Options Développeurs</string>
+    <string name="ig_dialog_menu_ghost_settings">Paramètres Mode Fantôme</string>
+    <string name="ig_dialog_menu_ad_analytics">Blocage Pubs/Analytics</string>
+    <string name="ig_dialog_menu_clean_feed">Fil propre</string>
+    <string name="ig_dialog_menu_distraction_free">Instagram Sans Distractions</string>
+    <string name="ig_dialog_menu_misc">Fonctions Diverses</string>
+    <string name="ig_dialog_menu_downloader">Téléchargeur</string>
+    <string name="ig_dialog_menu_backup_restore">Sauvegarde &amp; Restauration</string>
+    <string name="ig_dialog_menu_about">À propos</string>
+    <string name="ig_dialog_menu_restart">Redémarrer l\'app</string>
 
     <!-- Section titles -->
-    <string name="ig_dialog_section_dev_options">Options Développeurs 🎛</string>
-    <string name="ig_dialog_section_ghost_mode">Mode Fantôme 👻</string>
-    <string name="ig_dialog_section_ad_analytics">Blocage Pubs/Analytics 🛡️</string>
-    <string name="ig_dialog_section_clean_feed">Fil propre ✨</string>
-    <string name="ig_dialog_section_distraction_free">Instagram Sans Distractions 🧘</string>
-    <string name="ig_dialog_section_misc">Divers ⚙️</string>
-    <string name="ig_dialog_section_downloader">Téléchargeur 📥</string>
-    <string name="ig_dialog_section_downloader_settings">Paramètres Téléchargeur ⚙️</string>
-    <string name="ig_dialog_section_backup_restore">Sauvegarde &amp; Restauration 💾</string>
+    <string name="ig_dialog_section_dev_options">Options Développeurs</string>
+    <string name="ig_dialog_section_ghost_mode">Mode Fantôme</string>
+    <string name="ig_dialog_section_ad_analytics">Blocage Pubs/Analytics</string>
+    <string name="ig_dialog_section_clean_feed">Fil propre</string>
+    <string name="ig_dialog_section_distraction_free">Instagram Sans Distractions</string>
+    <string name="ig_dialog_section_misc">Divers</string>
+    <string name="ig_dialog_section_downloader">Téléchargeur</string>
+    <string name="ig_dialog_section_downloader_settings">Paramètres Téléchargeur</string>
+    <string name="ig_dialog_section_backup_restore">Sauvegarde &amp; Restauration</string>
     <string name="ig_dialog_section_about">À propos</string>
     <string name="ig_dialog_section_restart">Redémarrer l\'app</string>
-    <string name="ig_dialog_section_quick_toggle">Personnaliser Bascule Rapide 🛠️</string>
+    <string name="ig_dialog_section_quick_toggle">Personnaliser Bascule Rapide</string>
 
     <!-- Developer options -->
     <string name="ig_dialog_dev_enable">Activer le Mode Développeur</string>
@@ -202,9 +202,9 @@
     <string name="ig_dialog_ghost_bypass_screenshot">Contourner Détection de capture d\'écran</string>
     <string name="ig_dialog_ghost_hide_view_once">Masquer Ouverture Vue Unique</string>
     <string name="ig_dialog_ghost_unlimited_replays">Relectures illimitées Vue Unique</string>
-    <string name="ig_dialog_ghost_permanent_view_once">⚠️ Médias Vue Unique permanents</string>
+    <string name="ig_dialog_ghost_permanent_view_once">Médias Vue Unique permanents (Instable)</string>
     <string name="ig_dialog_ghost_keep_disappearing">Conserver Messages éphémères</string>
-    <string name="ig_dialog_customize_quick_toggle">🛠 Personnaliser Bascule Rapide</string>
+    <string name="ig_dialog_customize_quick_toggle">Personnaliser Bascule Rapide</string>
 
     <!-- Quick Toggle options -->
     <string name="ig_dialog_quick_hide_seen">Inclure Masquer Lu DM</string>
@@ -215,7 +215,7 @@
     <string name="ig_dialog_quick_hide_live_seen">Inclure Masquer Présence en Live</string>
     <string name="ig_dialog_quick_keep_ephemeral">Inclure Conserver Messages éphémères</string>
     <string name="ig_dialog_quick_unlimited_replays">Inclure Relectures illimitées Vue Unique</string>
-    <string name="ig_dialog_quick_permanent_view">Inclure Médias Vue Unique permanents</string>
+    <string name="ig_dialog_quick_permanent_view">Inclure Médias Vue Unique permanents (Instable)</string>
     <string name="ig_dialog_quick_allow_screenshots">Inclure Autoriser captures d\'écran en DM</string>
 
     <!-- Ad / Analytics options -->
@@ -225,7 +225,7 @@
     <string name="ig_dialog_ad_disable_tracking">Désactiver liens de suivi</string>
 
     <!-- Distraction-Free options -->
-    <string name="ig_dialog_distraction_extreme_mode">Mode Extrême 🔒 (Irréversible jusqu\'à réinstallation)</string>
+    <string name="ig_dialog_distraction_extreme_mode">Mode Extrême (Irréversible jusqu\'à réinstallation)</string>
     <string name="ig_dialog_distraction_disable_stories">Désactiver les Stories</string>
     <string name="ig_dialog_distraction_disable_feed">Désactiver le fil d\'actualité</string>
     <string name="ig_dialog_distraction_disable_reels">Désactiver les Reels</string>
@@ -255,12 +255,12 @@
     <string name="ig_toast_comment_copied">✅ Copié dans le presse-papiers !</string>
 
     <!-- Downloader options -->
-    <string name="ig_dialog_downloader_settings">⚙ Paramètres Téléchargeur</string>
+    <string name="ig_dialog_downloader_settings">Paramètres Téléchargeur</string>
     <string name="ig_dialog_downloader_posts">Télécharger les Publications</string>
     <string name="ig_dialog_downloader_stories">Télécharger les Stories</string>
     <string name="ig_dialog_downloader_reels">Télécharger les Reels</string>
     <string name="ig_dialog_downloader_profiles">Télécharger les Photos de Profil</string>
-    <string name="ig_dialog_downloader_folder">📁 Dossier de téléchargement</string>
+    <string name="ig_dialog_downloader_folder">Dossier de téléchargement</string>
     <string name="ig_dialog_downloader_username_subfolder">Sauvegarder dans Sous-dossier utilisateur</string>
     <string name="ig_dialog_downloader_add_timestamp">Ajouter Horodatage au Nom de fichier</string>
     <string name="ig_dialog_downloader_cannot_open_picker">Impossible d\'ouvrir le sélecteur de dossier ici</string>
@@ -277,7 +277,7 @@
 
     <!-- Restart -->
     <string name="ig_dialog_restart_message">⚠️ Vider le cache et redémarrer ?</string>
-    <string name="ig_dialog_clear_cache">🔄 Vider le Cache des Hooks</string>
+    <string name="ig_dialog_clear_cache">Vider le Cache des Hooks</string>
     <string name="ig_dialog_section_clear_cache">Vider le Cache des Hooks</string>
     <string name="ig_dialog_clear_cache_message">⚠️ Cela forcera InstaEclipse à re-scanner Instagram au prochain démarrage. L\'application redémarrera.</string>
     <string name="ig_dialog_clear_cache_now">Vider le Cache &amp; Redémarrer</string>
@@ -365,4 +365,34 @@
     <string name="ig_update_button">Mettre à jour</string>
     <string name="ig_update_later">Plus tard</string>
     <string name="ig_update_error_message">Échec de la vérification des mises à jour. Réessayez plus tard.</string>
+    <!-- Custom Theme -->
+    <string name="ig_dialog_menu_theme">Thème Personnalisé</string>
+    <string name="theme_title">Thème Personnalisé</string>
+    <string name="theme_enable">Activer le Thème Personnalisé</string>
+    <string name="theme_customize">Personnaliser le Thème…</string>
+    <string name="theme_section_presets">Préréglages</string>
+    <string name="theme_section_custom">Couleurs Personnalisées</string>
+    <string name="theme_collapse_section">Réduire la section</string>
+    <string name="theme_expand_section">Développer la section</string>
+    <string name="theme_reset_custom">Réinitialiser par Défaut</string>
+    <string name="theme_saved">Thème enregistré</string>
+    <string name="theme_pick_color">Choisir une couleur</string>
+    <string name="theme_apply_color">Appliquer</string>
+    <string name="theme_rgba_format">R %1$d  G %2$d  B %3$d  A %4$d</string>
+    <string name="theme_alpha_format">Opacité : %1$d%%</string>
+    <string name="theme_slot_background">Arrière-plan</string>
+    <string name="theme_slot_surface">Surface</string>
+    <string name="theme_slot_primary_text">Texte Principal</string>
+    <string name="theme_slot_secondary_text">Texte Secondaire</string>
+    <string name="theme_slot_accent">Accent</string>
+    <string name="theme_slot_button">Bouton</string>
+    <string name="theme_slot_icon">Icône</string>
+    <string name="theme_slot_glyph">Glyphe</string>
+    <string name="theme_slot_divider">Séparateur</string>
+    <string name="theme_slot_border">Bordure</string>
+    <string name="theme_slot_status_bar">Barre d\'État</string>
+    <string name="theme_slot_navigation">Barre de Navigation</string>
+    <string name="theme_slot_link">Lien</string>
+    <string name="theme_slot_error">Erreur</string>
+    <string name="theme_slot_destructive">Destructeur</string>
 </resources>
