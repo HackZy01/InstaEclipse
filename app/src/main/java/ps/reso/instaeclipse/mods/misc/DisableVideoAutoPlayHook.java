@@ -124,6 +124,7 @@ public class DisableVideoAutoPlayHook {
         XC_MethodHook hook = new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                if (!FeatureFlags.disableVideoAutoPlay) return;
                 if (!(param.thisObject instanceof Resources) || !(param.getResult() instanceof Drawable)) return;
                 if (param.args == null || param.args.length == 0 || !(param.args[0] instanceof Integer)) return;
 
@@ -143,6 +144,7 @@ public class DisableVideoAutoPlayHook {
         XposedBridge.hookAllMethods(ImageView.class, "setImageResource", new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                if (!FeatureFlags.disableVideoAutoPlay) return;
                 if (!(param.thisObject instanceof ImageView)) return;
                 if (param.args == null || param.args.length == 0 || !(param.args[0] instanceof Integer)) return;
 
@@ -157,6 +159,7 @@ public class DisableVideoAutoPlayHook {
         XposedBridge.hookAllMethods(ImageView.class, "setImageDrawable", new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                if (!FeatureFlags.disableVideoAutoPlay) return;
                 if (!(param.thisObject instanceof ImageView)) return;
                 if (param.args == null || param.args.length == 0 || !(param.args[0] instanceof Drawable)) return;
 

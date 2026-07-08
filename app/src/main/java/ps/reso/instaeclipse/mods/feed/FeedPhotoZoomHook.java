@@ -9,12 +9,13 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
 import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import ps.reso.instaeclipse.utils.feature.FeatureFlags;
 import ps.reso.instaeclipse.utils.feature.FeatureStatusTracker;
@@ -34,15 +35,35 @@ public class FeedPhotoZoomHook {
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
     private static final String VIEW_CLASS = "com.instagram.feed.widget.IgProgressImageView";
 
+    // IgProgressImageView is a shared, general-purpose component — reused for feed rows,
+    // DM media previews, and story frames alike — so it carries no identity of its own.
+    // "row_feed_button_like" is the same feed-row-only anchor FeedVideoDownloadHook already
+    // relies on to tell a feed post apart from a reel/DM context. Cached once resolved.
+    private static volatile int sFeedLikeButtonId = 0;
+
     public void install(ClassLoader classLoader) {
         try {
             Class<?> viewClass = classLoader.loadClass(VIEW_CLASS);
 
-            XposedBridge.hookAllConstructors(viewClass, new XC_MethodHook() {
+            // Hooked at onAttachedToWindow, not the constructor: the view has no parent yet
+            // at construction time, so the feed-row ancestor check below would always fail.
+            XposedHelpers.findAndHookMethod(viewClass, "onAttachedToWindow", new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) {
+                    // setOnLongClickListener() has a side effect beyond registering the
+                    // callback: it also flips the view's LONG_CLICKABLE flag, which changes
+                    // Android's internal tap-vs-long-press disambiguation timing for that
+                    // view. Attaching it unconditionally to every IgProgressImageView
+                    // instance app-wide was altering touch dispatch on every image view
+                    // regardless of whether Photo Zoom was even enabled or whether the view
+                    // was actually a feed post — causing intermittent dropped taps on
+                    // story-advance and DM media opens. Gate on BOTH the feature flag and a
+                    // feed-row identity check BEFORE attaching, not just inside the callback,
+                    // so the flag is left untouched everywhere else.
+                    if (!FeatureFlags.enablePhotoZoom) return;
                     try {
                         View view = (View) param.thisObject;
+                        if (!isInsideFeedRow(view)) return;
                         view.setOnLongClickListener(v -> {
                             if (!FeatureFlags.enablePhotoZoom) return false;
                             try {
@@ -58,7 +79,7 @@ public class FeedPhotoZoomHook {
                             }
                         });
                     } catch (Throwable t) {
-                        ModuleLog.line("(IE|PhotoZoom) ❌ ctor hook: " + t);
+                        ModuleLog.line("(IE|PhotoZoom) ❌ attach hook: " + t);
                     }
                 }
             });
@@ -68,6 +89,40 @@ public class FeedPhotoZoomHook {
         } catch (Throwable t) {
             ModuleLog.line("(IE|PhotoZoom) ❌ install: " + t);
         }
+    }
+
+    /**
+     * True only when {@code view} sits inside a classic feed post row — verified by finding
+     * "row_feed_button_like" somewhere in the same row's view tree. Walks a bounded number of
+     * ancestors (the row root is typically a few levels up) and, at each level, searches that
+     * ancestor's own subtree (siblings like the like/save buttons, not just further ancestors).
+     */
+    private static boolean isInsideFeedRow(View view) {
+        if (sFeedLikeButtonId == 0) {
+            sFeedLikeButtonId = view.getContext().getResources()
+                    .getIdentifier("row_feed_button_like", "id", view.getContext().getPackageName());
+        }
+        if (sFeedLikeButtonId == 0) return false; // can't verify — be conservative and skip
+
+        ViewParent parent = view.getParent();
+        for (int depth = 0; depth < 6 && parent instanceof ViewGroup group; depth++) {
+            if (containsDescendantWithId(group, sFeedLikeButtonId, 4)) return true;
+            parent = group.getParent();
+        }
+        return false;
+    }
+
+    private static boolean containsDescendantWithId(ViewGroup group, int targetId, int depth) {
+        if (depth < 0) return false;
+        int count = group.getChildCount();
+        for (int i = 0; i < count; i++) {
+            View child = group.getChildAt(i);
+            if (child.getId() == targetId) return true;
+            if (child instanceof ViewGroup childGroup && containsDescendantWithId(childGroup, targetId, depth - 1)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static void showZoomOverlay(Context ctx, Bitmap bitmap) {
