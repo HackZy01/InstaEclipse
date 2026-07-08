@@ -36,19 +36,19 @@ It uses [DexKit](https://github.com/LuckyPray/DexKit) for dynamic class/method d
 
 <br/>
 
-| Feature                                            | Description |
-|----------------------------------------------------|---|
-| Hide DM Seen                                       | Read messages without sending the read receipt |
-| Hide Typing Indicator                              | Type freely without the other person knowing |
-| Hide Story Views                                   | View stories without appearing in the viewer list |
-| Hide Live Presence                                 | Join lives anonymously |
-| Bypass Screenshot Detection                        | Take screenshots in DMs without triggering alerts |
-| Allow Screenshots in DMs                           | Re-enable screenshot capability in restricted chats |
-| Hide View Once Opened                              | Open view-once media without marking it as seen |
-| Unlimited View-Once Replays                        | Replay view-once media as many times as you want |
-| Permanent View Once Media (May cause some bugs ⚠️) | Prevent view-once media from disappearing |
-| Keep Disappearing Messages                         | Stop ephemeral messages from deleting |
-| Quick Toggle                                       | Enable/disable all ghost options from inside Instagram with one tap |
+| Feature                                | Description |
+|-----------------------------------------|---|
+| Hide DM Seen                             | Read messages without sending the read receipt |
+| Hide Typing Indicator                    | Type freely without the other person knowing |
+| Hide Story Views                         | View stories without appearing in the viewer list |
+| Hide Live Presence                       | Join lives anonymously |
+| Bypass Screenshot Detection              | Take screenshots in DMs without triggering alerts |
+| Allow Screenshots in DMs                 | Re-enable screenshot capability in restricted chats |
+| Hide View Once Opened                    | Open view-once media without marking it as seen |
+| Unlimited View-Once Replays              | Replay view-once media as many times as you want |
+| Permanent View Once Media (Unstable)     | Prevent view-once media from disappearing |
+| Keep Disappearing Messages               | Stop ephemeral messages from deleting |
+| Quick Toggle                             | Enable/disable all ghost options from inside Instagram with one tap |
 
 </details>
 
@@ -65,6 +65,43 @@ It uses [DexKit](https://github.com/LuckyPray/DexKit) for dynamic class/method d
 | Download Profile Pictures | Long-press a profile to save their picture |
 | Custom Download Folder | Choose where files are saved |
 | Username Subfolders | Organize downloads by username automatically |
+| Add Timestamp to Filename | Append the download date/time to saved filenames |
+
+</details>
+
+<details>
+<summary><b>🎬 Video Quality</b> — Watch Reels the way you want</summary>
+
+<br/>
+
+| Feature | Description |
+|---|---|
+| Force Reels Quality | Pin Reels playback to a fixed quality (Auto, 360p–1080p, or Max Available) instead of Instagram's adaptive bitrate |
+
+</details>
+
+<details>
+<summary><b>🎨 Custom Theme</b> — Recolor Instagram to match your style</summary>
+
+<br/>
+
+| Feature | Description |
+|---|---|
+| Built-in Presets | Switch between ready-made color palettes with one tap |
+| Custom Colors | Fine-tune background, surface, text, accent, icons, and more with a full color picker |
+| Live Apply | Changes apply immediately across the app without restarting Instagram |
+
+</details>
+
+<details>
+<summary><b>📍 Location Spoof</b> — Control what Instagram thinks your GPS says</summary>
+
+<br/>
+
+| Feature | Description |
+|---|---|
+| Spoof GPS Location | Fake Instagram's location reporting to a location of your choosing |
+| Interactive Map Picker | Search for a place or drop a pin directly on a map to set the spoofed location |
 
 </details>
 
@@ -77,7 +114,9 @@ It uses [DexKit](https://github.com/LuckyPray/DexKit) for dynamic class/method d
 |---|---|
 | MetaConfig Panel | Unlock the full MetaConfig developer panel |
 | Import/Export Config | Import or export your config as JSON |
+| Restore to Default Config | Reset the Developer Config back to the bundled defaults |
 | Remove Build Expired Popup | Dismiss the "Build Expired" popup on older builds |
+| Clear Hooks Cache | Force InstaEclipse to re-scan Instagram on next launch |
 
 > **Note:** Use Beta or Alpha Instagram builds for best results. Stable builds apply obfuscation that makes some labels appear as numbers.
 
@@ -91,6 +130,7 @@ It uses [DexKit](https://github.com/LuckyPray/DexKit) for dynamic class/method d
 | Feature | Description |
 |---|---|
 | Hide Suggestions in Feed | Remove suggested posts, reels widgets, and other non-followed content from your feed |
+| Hide Threads Suggestions | Remove Threads cross-promotion units from your feed independently |
 
 </details>
 
@@ -130,11 +170,25 @@ It uses [DexKit](https://github.com/LuckyPray/DexKit) for dynamic class/method d
 |---|---|
 | Disable Story Auto-Swipe | Stop stories from flipping automatically |
 | Disable Video Autoplay | Videos don't play until you tap them |
+| Spoof Last Seen (freeze) | Freeze your "last active" status instead of updating it live |
 | Follower Toast | See if someone follows you back when you visit their profile |
 | Copy Comment | Copy any comment text with one tap |
+| Copy Caption | Copy a post or reel's caption from the overflow menu |
+| Photo Zoom (Long-Press) | Long-press a feed photo to view it full-screen with pinch-to-zoom |
 | View Story Mentions | See all @mentions in a story at once |
 | Disable Discover People | Remove the "People you may know" section |
 | Disable Double Tap to Like | Prevent accidentally liking posts and reels by double tapping |
+
+</details>
+
+<details>
+<summary><b>📋 Log Viewer</b> — See exactly what InstaEclipse is doing</summary>
+
+<br/>
+
+| Feature | Description |
+|---|---|
+| In-App Logs | View hook status and activity logs from both Instagram and the companion app, without adb |
 
 </details>
 
@@ -158,7 +212,7 @@ While InstaEclipse is built to stay compatible with new Instagram releases autom
 
 | |                                                                                                                 |
 |---|-----------------------------------------------------------------------------------------------------------------|
-| **Latest tested version** | [`438.0.0.0.64`](https://www.apkmirror.com/apk/instagram/instagram-instagram/instagram-438-0-0-0-64-release/) |
+| **Latest tested version** | [`436.0.0.14.73`](https://www.apkmirror.com/apk/instagram/instagram-instagram/instagram-436-0-0-14-73-release/) |
 | **Recommended build type** | Beta or Alpha (from APKMirror)                                                                                  |
 
 ---
