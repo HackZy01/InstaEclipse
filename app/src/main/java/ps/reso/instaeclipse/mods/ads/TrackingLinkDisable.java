@@ -15,28 +15,29 @@ public class TrackingLinkDisable {
                 Class.forName("android.content.ClipData"), new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        if (!FeatureFlags.disableTrackingLinks) return;
 
-                        if (FeatureFlags.disableTrackingLinks) {
-                            ClipData clipData = (ClipData) param.args[0];
-                            if (clipData == null || clipData.getItemCount() == 0 || clipData.getItemAt(0) == null || clipData.getItemAt(0).getText() == null) {
-                                return;
-                            }
-                            String x = clipData.getItemAt(0).getText().toString();
-                            if (x.contains("https://www.instagram.com/") && (x.contains("igsh=") || (x.contains("ig_rid=")))) { // Global
-                                param.args[0] = ClipData.newPlainText("URL", x.replaceAll("\\?.*", ""));
-                            } else if (x.contains("https://www.instagram.com/") && x.contains("?utm_source=")) { // Stories
-                                param.args[0] = ClipData.newPlainText("URL", x.replaceAll("\\?utm_source=.*", ""));
-                            }
-                            else if (x.contains("https://www.instagram.com/") && x.contains("?story_media_id=")){ // Highlights
-                                param.args[0] = ClipData.newPlainText("URL", x.replaceAll("\\?story_media_id=.*", ""));
-                            }
-                            // Saved-by rule: match saved-by or saved_by anywhere in query
-                            else if (x.contains("https://www.instagram.com/") &&
-                                    x.matches("(?i).*saved[-_]by.*")) {
-                                param.args[0] = ClipData.newPlainText("URL", x.replaceAll("\\?.*", ""));
-                            }
+                        ClipData clipData = (ClipData) param.args[0];
+                        if (clipData == null || clipData.getItemCount() == 0) return;
+
+                        ClipData.Item item = clipData.getItemAt(0);
+                        if (item == null || item.getText() == null) return;
+
+                        String url = item.getText().toString();
+                        if (!url.contains("https://www.instagram.com/")) return;
+
+                        // Tracking params can appear anywhere in the query string, not just
+                        // as the first one — matching only "?param=" (old behavior) missed
+                        // links where another param came first, e.g. "?igshid=X&utm_source=...".
+                        boolean hasTracking = url.contains("igsh=")
+                                || url.contains("ig_rid=")
+                                || url.contains("utm_source=")
+                                || url.contains("story_media_id=")
+                                || url.matches("(?i).*saved[-_]by.*");
+
+                        if (hasTracking) {
+                            param.args[0] = ClipData.newPlainText("URL", url.replaceAll("\\?.*", ""));
                         }
-
                     }
                 });
     }
