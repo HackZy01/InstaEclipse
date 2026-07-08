@@ -330,18 +330,24 @@ public class ReelDownloadHook {
     }
 
     /**
-     * Primary index resolver: walks the activity's live view hierarchy to find a
-     * ViewPager / ViewPager2 / ReboundViewPager whose adapter item count equals
-     * {@code carouselSize} and returns its current data index.
-     * Always accurate since it reads live view state, not the data-layer field.
+     * Primary index resolver: walks the activity's live view hierarchy for a
+     * ViewPager / ViewPager2 / ReboundViewPager / horizontal RecyclerView whose adapter
+     * item count equals {@code carouselSize} and returns its current data index.
+     * Multiple unrelated carousels can coincidentally share the same item count (e.g.
+     * two feed posts both showing 4 photos) — trusting the first DFS hit in that case
+     * previously misattributed the index to the wrong post. So every match is collected
+     * and the result is only trusted when exactly one candidate matches; otherwise the
+     * caller falls back to the data-layer field.
      *
-     * @return current position [0, carouselSize), or -1 if not found
+     * @return current position [0, carouselSize), or -1 if not found / ambiguous
      */
-    private static int findCarouselIndexFromView(Context ctx, int carouselSize) {
+    static int findCarouselIndexFromView(Context ctx, int carouselSize) {
         if (!(ctx instanceof Activity)) return -1;
         try {
             View root = ((Activity) ctx).getWindow().getDecorView();
-            return scanViewForCarousel(root, carouselSize);
+            List<Integer> matches = new java.util.ArrayList<>();
+            collectCarouselMatches(root, carouselSize, matches);
+            return matches.size() == 1 ? matches.get(0) : -1;
         } catch (Throwable ignored) {
             return -1;
         }
@@ -355,10 +361,11 @@ public class ReelDownloadHook {
     }
 
     /**
-     * Recursive DFS over the view tree. ViewPager / ViewPager2 / ReboundViewPager are
-     * AndroidX / Instagram common-UI classes — stable names, no obfuscation.
+     * Recursive DFS over the view tree, collecting the resolved index of every carousel
+     * whose adapter size matches — does not stop at the first hit. ViewPager / ViewPager2 /
+     * ReboundViewPager are AndroidX / Instagram common-UI classes — stable names, no obfuscation.
      */
-    private static int scanViewForCarousel(View view, int carouselSize) {
+    private static void collectCarouselMatches(View view, int carouselSize, List<Integer> out) {
         String cn = view.getClass().getName();
 
         // ViewPager / ViewPager2 / ReboundViewPager and any subclass
@@ -373,7 +380,7 @@ public class ReelDownloadHook {
                             "getCurrentWrappedDataIndex", "getCurrentRawDataIndex"}) {
                         try {
                             int cur = (int) view.getClass().getMethod(getter).invoke(view);
-                            if (cur >= 0) return cur;
+                            if (cur >= 0) { out.add(cur); break; }
                         } catch (NoSuchMethodException ignored) {}
                     }
                 }
@@ -392,16 +399,20 @@ public class ReelDownloadHook {
                             if (orientation != 0 /* HORIZONTAL */) lm = null;
                         } catch (Throwable ignored) {}
                         if (lm != null) {
+                            Integer pos = null;
                             try {
-                                int pos = (int) lm.getClass()
+                                int p = (int) lm.getClass()
                                         .getMethod("findFirstCompletelyVisibleItemPosition").invoke(lm);
-                                if (pos >= 0) return pos;
+                                if (p >= 0) pos = p;
                             } catch (Throwable ignored) {}
-                            try {
-                                int pos = (int) lm.getClass()
-                                        .getMethod("findFirstVisibleItemPosition").invoke(lm);
-                                if (pos >= 0) return pos;
-                            } catch (Throwable ignored) {}
+                            if (pos == null) {
+                                try {
+                                    int p = (int) lm.getClass()
+                                            .getMethod("findFirstVisibleItemPosition").invoke(lm);
+                                    if (p >= 0) pos = p;
+                                } catch (Throwable ignored) {}
+                            }
+                            if (pos != null) out.add(pos);
                         }
                     }
                 }
@@ -411,12 +422,9 @@ public class ReelDownloadHook {
         if (view instanceof ViewGroup) {
             ViewGroup vg = (ViewGroup) view;
             for (int i = 0; i < vg.getChildCount(); i++) {
-                int result = scanViewForCarousel(vg.getChildAt(i), carouselSize);
-                if (result >= 0) return result;
+                collectCarouselMatches(vg.getChildAt(i), carouselSize, out);
             }
         }
-
-        return -1;
     }
 
     private static void onOptionsBuilt(XC_MethodHook.MethodHookParam param) {

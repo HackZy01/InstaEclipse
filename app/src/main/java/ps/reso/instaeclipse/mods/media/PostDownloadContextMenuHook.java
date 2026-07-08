@@ -498,9 +498,17 @@ public class PostDownloadContextMenuHook {
 
         List<String> urls = FeedVideoDownloadHook.extractAllUrlsFromMedia(ctx, media);
 
-        // Carousel index: try the known field name first; fall back to scanning all int fields
-        // for one whose value fits [0, urlCount) — resilient to field renames across builds.
-        int carouselIdx = findCarouselIndex(clickHandler, urls.size());
+        // Carousel index: live view scan is primary (reads the actual visible slide, and
+        // now only trusts itself when exactly one on-screen carousel matches the target
+        // size — see ReelDownloadHook.findCarouselIndexFromView). Field-guessing on
+        // clickHandler is the fallback for when the scan is ambiguous or finds nothing;
+        // it's unreliable specifically for reels whose DOWNLOAD row was patched into the
+        // shared post-style option list (see ReelDownloadHook.installReduceOptionsListPatch),
+        // where clickHandler carries no real position field.
+        int viewIdx = urls.size() > 1
+                ? ReelDownloadHook.findCarouselIndexFromView(ctx, urls.size())
+                : -1;
+        final int carouselIdx = viewIdx >= 0 ? viewIdx : findCarouselIndex(clickHandler, urls.size());
 
         final String finalUser = username;
         final String finalId   = mediaId;
