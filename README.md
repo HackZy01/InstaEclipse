@@ -27,6 +27,9 @@
 
 It uses [DexKit](https://github.com/LuckyPray/DexKit) for dynamic class/method detection, keeping it compatible with new Instagram releases automatically.
 
+> [!IMPORTANT]
+> **InstaEclipse is being succeeded by the [Purrfect](https://t.me/purrfect_tg) project.** Development here will stay active until Purrfect reaches a stable release — follow the Telegram channel for progress updates.
+
 ---
 
 ## ✨ Features
