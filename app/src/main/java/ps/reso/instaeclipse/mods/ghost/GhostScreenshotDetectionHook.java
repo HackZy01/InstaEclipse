@@ -18,6 +18,7 @@ import ps.reso.instaeclipse.Xposed.Module;
 import ps.reso.instaeclipse.utils.core.DexKitCache;
 import ps.reso.instaeclipse.utils.feature.FeatureFlags;
 import ps.reso.instaeclipse.utils.feature.FeatureStatusTracker;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 public class GhostScreenshotDetectionHook {
 
@@ -33,7 +34,7 @@ public class GhostScreenshotDetectionHook {
             Method cached = DexKitCache.loadMethod("GhostScreenshot", Module.hostClassLoader);
             if (cached != null) {
                 XposedBridge.hookMethod(cached, hook);
-                XposedBridge.log("(InstaEclipse | ScreenshotBlock): ✅ Hooked (dynamic check): " + cached.getDeclaringClass().getName() + "." + cached.getName());
+                ModuleLog.line("(InstaEclipse | ScreenshotBlock): ✅ Hooked (dynamic check): " + cached.getDeclaringClass().getName() + "." + cached.getName());
                 FeatureStatusTracker.setHooked("GhostScreenshot");
                 return;
             }
@@ -45,7 +46,7 @@ public class GhostScreenshotDetectionHook {
                     .matcher(ClassMatcher.create().usingStrings("ScreenshotNotificationManager")));
 
             if (classes.isEmpty()) {
-                XposedBridge.log("(InstaEclipse | ScreenshotBlock): ❌ No class found containing 'ScreenshotNotificationManager'");
+                ModuleLog.line("(InstaEclipse | ScreenshotBlock): ❌ No class found containing 'ScreenshotNotificationManager'");
                 return;
             }
 
@@ -70,20 +71,20 @@ public class GhostScreenshotDetectionHook {
                             DexKitCache.saveMethod("GhostScreenshot", targetMethod);
                             XposedBridge.hookMethod(targetMethod, hook);
 
-                            XposedBridge.log("(InstaEclipse | ScreenshotBlock): ✅ Hooked (dynamic check): " +
+                            ModuleLog.line("(InstaEclipse | ScreenshotBlock): ✅ Hooked (dynamic check): " +
                                     method.getClassName() + "." + method.getName());
                             FeatureStatusTracker.setHooked("GhostScreenshot");
                             return;
 
                         } catch (Throwable e) {
-                            XposedBridge.log("(InstaEclipse | ScreenshotBlock): ❌ Hook error: " + e.getMessage());
+                            ModuleLog.line("(InstaEclipse | ScreenshotBlock): ❌ Hook error: " + e.getMessage());
                         }
                     }
                 }
             }
 
         } catch (Throwable e) {
-            XposedBridge.log("(InstaEclipse | ScreenshotBlock): ❌ Exception: " + e.getMessage());
+            ModuleLog.line("(InstaEclipse | ScreenshotBlock): ❌ Exception: " + e.getMessage());
         }
     }
 }

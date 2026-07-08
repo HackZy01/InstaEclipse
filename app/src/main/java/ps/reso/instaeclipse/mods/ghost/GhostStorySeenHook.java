@@ -16,6 +16,7 @@ import ps.reso.instaeclipse.Xposed.Module;
 import ps.reso.instaeclipse.utils.core.DexKitCache;
 import ps.reso.instaeclipse.utils.feature.FeatureFlags;
 import ps.reso.instaeclipse.utils.feature.FeatureStatusTracker;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 public class GhostStorySeenHook {
 
@@ -31,7 +32,7 @@ public class GhostStorySeenHook {
             Method cached = DexKitCache.loadMethod("GhostStorySeen", Module.hostClassLoader);
             if (cached != null) {
                 XposedBridge.hookMethod(cached, hook);
-                XposedBridge.log("(InstaEclipse | StoryBlock): ✅ Hooked (dynamic check): " + cached.getDeclaringClass().getName() + "." + cached.getName());
+                ModuleLog.line("(InstaEclipse | StoryBlock): ✅ Hooked (dynamic check): " + cached.getDeclaringClass().getName() + "." + cached.getName());
                 FeatureStatusTracker.setHooked("GhostStories");
                 return;
             }
@@ -43,7 +44,7 @@ public class GhostStorySeenHook {
                     .matcher(MethodMatcher.create().usingStrings("media/seen/")));
 
             if (methods.isEmpty()) {
-                XposedBridge.log("(InstaEclipse | StoryBlock): ❌ No methods found containing 'media/seen/'");
+                ModuleLog.line("(InstaEclipse | StoryBlock): ❌ No methods found containing 'media/seen/'");
                 return;
             }
 
@@ -69,19 +70,19 @@ public class GhostStorySeenHook {
                         DexKitCache.saveMethod("GhostStorySeen", reflectMethod);
                         XposedBridge.hookMethod(reflectMethod, hook);
 
-                        XposedBridge.log("(InstaEclipse | StoryBlock): ✅ Hooked (dynamic check): " +
+                        ModuleLog.line("(InstaEclipse | StoryBlock): ✅ Hooked (dynamic check): " +
                                 method.getClassName() + "." + method.getName());
                         FeatureStatusTracker.setHooked("GhostStories");
                         return;
 
                     } catch (Throwable e) {
-                        XposedBridge.log("(InstaEclipse | StoryBlock): ❌ Hook error: " + e.getMessage());
+                        ModuleLog.line("(InstaEclipse | StoryBlock): ❌ Hook error: " + e.getMessage());
                     }
                 }
             }
 
         } catch (Throwable t) {
-            XposedBridge.log("(InstaEclipse | StoryBlock): ❌ Exception: " + t.getMessage());
+            ModuleLog.line("(InstaEclipse | StoryBlock): ❌ Exception: " + t.getMessage());
         }
     }
 }

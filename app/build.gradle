@@ -10,8 +10,8 @@ android {
         applicationId "ps.reso.instaeclipse"
         minSdkVersion 28
         targetSdk 36
-        versionCode 15
-        versionName '0.5.2'
+        versionCode 16
+        versionName '0.6.0'
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -44,6 +44,7 @@ dependencies {
     implementation libs.dexkit
     implementation 'com.google.android.material:material:1.12.0'
     implementation "androidx.documentfile:documentfile:1.1.0"
+    implementation libs.osmdroid
 
     // External library for shared preferences
     implementation libs.fileprefs

@@ -1,7 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- app wide -->
     <string name="app_name">InstaEclipse</string>
-    <string name="version" translatable="false">v0.5.2 Beta</string>
+    <string name="version" translatable="false">v0.6.0</string>
     <string name="home">Beranda</string>
     <string name="features">Fitur</string>
     <string name="help">Bantuan</string>
@@ -69,9 +69,9 @@
     <string name="feat_quick_toggle">Sakelar Cepat:</string>
     <string name="feat_danger_zone">Zona Bahaya:</string>
     <string name="feat_download_folder">Folder Unduhan:</string>
-    <string name="feat_downloader_set_folder">📂 Atur Lokasi Folder Unduhan</string>
-    <string name="feat_downloader_selected">📂 Dipilih: %1$s</string>
-    <string name="feat_downloader_reset_folder">🗑 Reset Folder Unduhan</string>
+    <string name="feat_downloader_set_folder">Atur Lokasi Folder Unduhan</string>
+    <string name="feat_downloader_selected">Dipilih: %1$s</string>
+    <string name="feat_downloader_reset_folder">Reset Folder Unduhan</string>
 
     <!-- features -->
     <string name="developer_options">Opsi Pengembang</string>
@@ -141,30 +141,30 @@
     <string name="ig_dialog_cancel">Batal</string>
 
     <!-- Main menu items -->
-    <string name="ig_dialog_menu_dev_options">🎛 Opsi Pengembang</string>
-    <string name="ig_dialog_menu_ghost_settings">👻 Pengaturan Mode Hantu</string>
-    <string name="ig_dialog_menu_ad_analytics">🛡 Blokir Iklan/Analitik</string>
-    <string name="ig_dialog_menu_clean_feed">✨ Feed Bersih</string>
-    <string name="ig_dialog_menu_distraction_free">🧘 Instagram Bebas Gangguan</string>
-    <string name="ig_dialog_menu_misc">⚙ Fitur Lainnya</string>
-    <string name="ig_dialog_menu_downloader">📥 Pengunduh</string>
-    <string name="ig_dialog_menu_backup_restore">💾 Cadangan &amp; Pemulihan</string>
-    <string name="ig_dialog_menu_about">ℹ️ Tentang</string>
-    <string name="ig_dialog_menu_restart">🔁 Mulai Ulang Aplikasi</string>
+    <string name="ig_dialog_menu_dev_options">Opsi Pengembang</string>
+    <string name="ig_dialog_menu_ghost_settings">Pengaturan Mode Hantu</string>
+    <string name="ig_dialog_menu_ad_analytics">Blokir Iklan/Analitik</string>
+    <string name="ig_dialog_menu_clean_feed">Feed Bersih</string>
+    <string name="ig_dialog_menu_distraction_free">Instagram Bebas Gangguan</string>
+    <string name="ig_dialog_menu_misc">Fitur Lainnya</string>
+    <string name="ig_dialog_menu_downloader">Pengunduh</string>
+    <string name="ig_dialog_menu_backup_restore">Cadangan &amp; Pemulihan</string>
+    <string name="ig_dialog_menu_about">Tentang</string>
+    <string name="ig_dialog_menu_restart">Mulai Ulang Aplikasi</string>
 
     <!-- Section titles -->
-    <string name="ig_dialog_section_dev_options">Opsi Pengembang 🎛</string>
-    <string name="ig_dialog_section_ghost_mode">Mode Hantu 👻</string>
-    <string name="ig_dialog_section_ad_analytics">Blokir Iklan/Analitik 🛡️</string>
-    <string name="ig_dialog_section_clean_feed">Feed Bersih ✨</string>
-    <string name="ig_dialog_section_distraction_free">Instagram Bebas Gangguan 🧘</string>
-    <string name="ig_dialog_section_misc">Lainnya ⚙️</string>
-    <string name="ig_dialog_section_downloader">Pengunduh 📥</string>
-    <string name="ig_dialog_section_downloader_settings">Pengaturan Pengunduh ⚙️</string>
-    <string name="ig_dialog_section_backup_restore">Cadangan &amp; Pemulihan 💾</string>
+    <string name="ig_dialog_section_dev_options">Opsi Pengembang</string>
+    <string name="ig_dialog_section_ghost_mode">Mode Hantu</string>
+    <string name="ig_dialog_section_ad_analytics">Blokir Iklan/Analitik</string>
+    <string name="ig_dialog_section_clean_feed">Feed Bersih</string>
+    <string name="ig_dialog_section_distraction_free">Instagram Bebas Gangguan</string>
+    <string name="ig_dialog_section_misc">Lainnya</string>
+    <string name="ig_dialog_section_downloader">Pengunduh</string>
+    <string name="ig_dialog_section_downloader_settings">Pengaturan Pengunduh</string>
+    <string name="ig_dialog_section_backup_restore">Cadangan &amp; Pemulihan</string>
     <string name="ig_dialog_section_about">Tentang</string>
     <string name="ig_dialog_section_restart">Mulai Ulang Aplikasi</string>
-    <string name="ig_dialog_section_quick_toggle">Sesuaikan Sakelar Cepat 🛠️</string>
+    <string name="ig_dialog_section_quick_toggle">Sesuaikan Sakelar Cepat</string>
 
     <!-- Developer options -->
     <string name="ig_dialog_dev_enable">Aktifkan Mode Pengembang</string>
@@ -202,9 +202,9 @@
     <string name="ig_dialog_ghost_bypass_screenshot">Lewati Deteksi Tangkapan Layar</string>
     <string name="ig_dialog_ghost_hide_view_once">Sembunyikan Pembukaan Sekali Lihat</string>
     <string name="ig_dialog_ghost_unlimited_replays">Putar Ulang Sekali Lihat Tanpa Batas</string>
-    <string name="ig_dialog_ghost_permanent_view_once">⚠️ Media Sekali Lihat Permanen</string>
+    <string name="ig_dialog_ghost_permanent_view_once">Media Sekali Lihat Permanen (Tidak Stabil)</string>
     <string name="ig_dialog_ghost_keep_disappearing">Simpan Pesan yang Menghilang</string>
-    <string name="ig_dialog_customize_quick_toggle">🛠 Sesuaikan Sakelar Cepat</string>
+    <string name="ig_dialog_customize_quick_toggle">Sesuaikan Sakelar Cepat</string>
 
     <!-- Quick Toggle options -->
     <string name="ig_dialog_quick_hide_seen">Sertakan Sembunyikan Tanda Baca DM</string>
@@ -215,7 +215,7 @@
     <string name="ig_dialog_quick_hide_live_seen">Sertakan Sembunyikan Kehadiran Live</string>
     <string name="ig_dialog_quick_keep_ephemeral">Sertakan Simpan Pesan yang Menghilang</string>
     <string name="ig_dialog_quick_unlimited_replays">Sertakan Putar Ulang Sekali Lihat Tanpa Batas</string>
-    <string name="ig_dialog_quick_permanent_view">Sertakan Media Sekali Lihat Permanen</string>
+    <string name="ig_dialog_quick_permanent_view">Sertakan Media Sekali Lihat Permanen (Tidak Stabil)</string>
     <string name="ig_dialog_quick_allow_screenshots">Sertakan Izinkan Tangkapan Layar di DM</string>
 
     <!-- Ad / Analytics options -->
@@ -225,7 +225,7 @@
     <string name="ig_dialog_ad_disable_tracking">Nonaktifkan Tautan Pelacakan</string>
 
     <!-- Distraction-Free options -->
-    <string name="ig_dialog_distraction_extreme_mode">Mode Ekstrem 🔒 (Tidak dapat dipulihkan hingga reinstall)</string>
+    <string name="ig_dialog_distraction_extreme_mode">Mode Ekstrem (Tidak dapat dipulihkan hingga reinstall)</string>
     <string name="ig_dialog_distraction_disable_stories">Nonaktifkan Story</string>
     <string name="ig_dialog_distraction_disable_feed">Nonaktifkan Feed</string>
     <string name="ig_dialog_distraction_disable_reels">Nonaktifkan Reels</string>
@@ -255,12 +255,12 @@
     <string name="ig_toast_comment_copied">✅ Disalin ke clipboard!</string>
 
     <!-- Downloader options -->
-    <string name="ig_dialog_downloader_settings">⚙ Pengaturan Pengunduh</string>
+    <string name="ig_dialog_downloader_settings">Pengaturan Pengunduh</string>
     <string name="ig_dialog_downloader_posts">Unduh Postingan</string>
     <string name="ig_dialog_downloader_stories">Unduh Story</string>
     <string name="ig_dialog_downloader_reels">Unduh Reels</string>
     <string name="ig_dialog_downloader_profiles">Unduh Foto Profil</string>
-    <string name="ig_dialog_downloader_folder">📁 Folder Unduhan</string>
+    <string name="ig_dialog_downloader_folder">Folder Unduhan</string>
     <string name="ig_dialog_downloader_username_subfolder">Simpan di Subfolder Nama Pengguna</string>
     <string name="ig_dialog_downloader_add_timestamp">Tambahkan Stempel Waktu ke Nama File</string>
     <string name="ig_dialog_downloader_cannot_open_picker">Tidak dapat membuka pemilih folder di sini</string>
@@ -277,7 +277,7 @@
 
     <!-- Restart -->
     <string name="ig_dialog_restart_message">⚠️ Hapus cache aplikasi dan mulai ulang?</string>
-    <string name="ig_dialog_clear_cache">🔄 Bersihkan Cache Hooks</string>
+    <string name="ig_dialog_clear_cache">Bersihkan Cache Hooks</string>
     <string name="ig_dialog_section_clear_cache">Bersihkan Cache Hooks</string>
     <string name="ig_dialog_clear_cache_message">⚠️ Ini akan memaksa InstaEclipse untuk memindai ulang Instagram saat peluncuran berikutnya. Aplikasi akan dimulai ulang.</string>
     <string name="ig_dialog_clear_cache_now">Bersihkan Cache &amp; Mulai Ulang</string>
@@ -365,4 +365,34 @@
     <string name="ig_update_button">Perbarui</string>
     <string name="ig_update_later">Nanti</string>
     <string name="ig_update_error_message">Gagal memeriksa pembaruan. Silakan coba lagi nanti.</string>
+    <!-- Custom Theme -->
+    <string name="ig_dialog_menu_theme">Tema Kustom</string>
+    <string name="theme_title">Tema Kustom</string>
+    <string name="theme_enable">Aktifkan Tema Kustom</string>
+    <string name="theme_customize">Sesuaikan Tema…</string>
+    <string name="theme_section_presets">Preset</string>
+    <string name="theme_section_custom">Warna Kustom</string>
+    <string name="theme_collapse_section">Ciutkan bagian</string>
+    <string name="theme_expand_section">Perluas bagian</string>
+    <string name="theme_reset_custom">Setel Ulang ke Default</string>
+    <string name="theme_saved">Tema disimpan</string>
+    <string name="theme_pick_color">Pilih warna</string>
+    <string name="theme_apply_color">Terapkan</string>
+    <string name="theme_rgba_format">R %1$d  G %2$d  B %3$d  A %4$d</string>
+    <string name="theme_alpha_format">Opasitas: %1$d%%</string>
+    <string name="theme_slot_background">Latar Belakang</string>
+    <string name="theme_slot_surface">Permukaan</string>
+    <string name="theme_slot_primary_text">Teks Utama</string>
+    <string name="theme_slot_secondary_text">Teks Sekunder</string>
+    <string name="theme_slot_accent">Aksen</string>
+    <string name="theme_slot_button">Tombol</string>
+    <string name="theme_slot_icon">Ikon</string>
+    <string name="theme_slot_glyph">Glif</string>
+    <string name="theme_slot_divider">Pemisah</string>
+    <string name="theme_slot_border">Batas</string>
+    <string name="theme_slot_status_bar">Bilah Status</string>
+    <string name="theme_slot_navigation">Bilah Navigasi</string>
+    <string name="theme_slot_link">Tautan</string>
+    <string name="theme_slot_error">Kesalahan</string>
+    <string name="theme_slot_destructive">Destruktif</string>
 </resources>

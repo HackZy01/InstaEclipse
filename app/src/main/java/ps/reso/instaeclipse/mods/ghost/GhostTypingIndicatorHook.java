@@ -16,6 +16,7 @@ import ps.reso.instaeclipse.Xposed.Module;
 import ps.reso.instaeclipse.utils.core.DexKitCache;
 import ps.reso.instaeclipse.utils.feature.FeatureFlags;
 import ps.reso.instaeclipse.utils.feature.FeatureStatusTracker;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 public class GhostTypingIndicatorHook {
 
@@ -31,7 +32,7 @@ public class GhostTypingIndicatorHook {
             Method cached = DexKitCache.loadMethod("GhostTyping", Module.hostClassLoader);
             if (cached != null) {
                 XposedBridge.hookMethod(cached, hook);
-                XposedBridge.log("(InstaEclipse | TypingBlock): ✅ Hooked (dynamic check): " + cached.getDeclaringClass().getName() + "." + cached.getName());
+                ModuleLog.line("(InstaEclipse | TypingBlock): ✅ Hooked (dynamic check): " + cached.getDeclaringClass().getName() + "." + cached.getName());
                 FeatureStatusTracker.setHooked("GhostTyping");
                 return;
             }
@@ -43,7 +44,7 @@ public class GhostTypingIndicatorHook {
                     .matcher(MethodMatcher.create().usingStrings("is_typing_indicator_enabled")));
 
             if (methods.isEmpty()) {
-                XposedBridge.log("(InstaEclipse | TypingBlock): ❌ No methods found containing 'is_typing_indicator_enabled'");
+                ModuleLog.line("(InstaEclipse | TypingBlock): ❌ No methods found containing 'is_typing_indicator_enabled'");
                 return;
             }
 
@@ -59,32 +60,43 @@ public class GhostTypingIndicatorHook {
                     continue;
                 }
 
+                if (!returnType.contains("void")) continue;
                 int modifiers = reflectMethod.getModifiers();
 
-                // Step 2: Match: static final void method(ClassType, boolean)
-                if (Modifier.isStatic(modifiers) &&
+                // Old shape (<= 429): static final void method(ClassType, boolean)
+                // New shape (437+): instance final void method(boolean) — the string is now
+                // just a QuickPerformanceLogger marker label, not a functional flag key, and
+                // the leading ClassType param was dropped entirely.
+                boolean matchesOldShape = Modifier.isStatic(modifiers) &&
                         Modifier.isFinal(modifiers) &&
-                        returnType.contains("void") &&
                         paramTypes.size() == 2 &&
-                        String.valueOf(paramTypes.get(1)).contains("boolean")) {
+                        String.valueOf(paramTypes.get(1)).contains("boolean");
 
+                boolean matchesNewShape = !Modifier.isStatic(modifiers) &&
+                        Modifier.isFinal(modifiers) &&
+                        paramTypes.size() == 1 &&
+                        String.valueOf(paramTypes.get(0)).contains("boolean");
+
+                if (matchesOldShape || matchesNewShape) {
                     try {
                         DexKitCache.saveMethod("GhostTyping", reflectMethod);
                         XposedBridge.hookMethod(reflectMethod, hook);
 
-                        XposedBridge.log("(InstaEclipse | TypingBlock): ✅ Hooked (dynamic check): " +
+                        ModuleLog.line("(InstaEclipse | TypingBlock): ✅ Hooked (dynamic check): " +
                                 method.getClassName() + "." + method.getName());
                         FeatureStatusTracker.setHooked("GhostTyping");
                         return;
 
                     } catch (Throwable e) {
-                        XposedBridge.log("(InstaEclipse | TypingBlock): ❌ Hook error: " + e.getMessage());
+                        ModuleLog.line("(InstaEclipse | TypingBlock): ❌ Hook error: " + e.getMessage());
                     }
                 }
             }
 
+            ModuleLog.line("(InstaEclipse | TypingBlock): ❌ No candidate matched the expected method shape");
+
         } catch (Throwable t) {
-            XposedBridge.log("(InstaEclipse | TypingBlock): ❌ Exception: " + t.getMessage());
+            ModuleLog.line("(InstaEclipse | TypingBlock): ❌ Exception: " + t.getMessage());
         }
     }
 }

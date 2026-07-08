@@ -13,8 +13,18 @@ import de.robv.android.xposed.XposedBridge;
 import ps.reso.instaeclipse.utils.core.DexKitCache;
 import ps.reso.instaeclipse.utils.feature.FeatureFlags;
 import ps.reso.instaeclipse.utils.feature.FeatureStatusTracker;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 public class AdBlocker {
+
+    // Marker string referenced inside the ad-insertion decision method.
+    // IG >= 437 refactored SponsoredContentController and dropped the old
+    // "SponsoredContentController.insertItem" trace tag, so we try the new
+    // marker first and fall back to the legacy one for older installs.
+    private static final String[] INSERT_ITEM_MARKERS = {
+            "Is ad pod",
+            "SponsoredContentController.insertItem"
+    };
 
     public void disableSponsoredContent(DexKitBridge bridge, ClassLoader classLoader) {
         XC_MethodHook hook = new XC_MethodHook() {
@@ -34,41 +44,43 @@ public class AdBlocker {
         }
 
         try {
-            List<MethodData> methods = bridge.findMethod(
-                    FindMethod.create().matcher(
-                            MethodMatcher.create().usingStrings("SponsoredContentController.insertItem")
-                    )
-            );
+            for (String marker : INSERT_ITEM_MARKERS) {
+                List<MethodData> methods = bridge.findMethod(
+                        FindMethod.create().matcher(
+                                MethodMatcher.create().usingStrings(marker)
+                        )
+                );
 
-            if (methods.isEmpty()) {
-                XposedBridge.log("(InstaEclipse | AdBlocker): ❌ No methods found referencing 'SponsoredContentController.insertItem'");
-                return;
-            }
+                if (methods.isEmpty()) {
+                    ModuleLog.line("(InstaEclipse | AdBlocker): ⚠️ No methods found referencing '" + marker + "'");
+                    continue;
+                }
 
-            for (MethodData method : methods) {
-                String returnType = String.valueOf(method.getReturnType());
-                if (!returnType.contains("boolean")) continue;
+                for (MethodData method : methods) {
+                    String returnType = String.valueOf(method.getReturnType());
+                    if (!returnType.contains("boolean")) continue;
 
-                try {
-                    Method targetMethod = method.getMethodInstance(classLoader);
-                    DexKitCache.saveMethod("AdBlocker", targetMethod);
-                    XposedBridge.hookMethod(targetMethod, hook);
+                    try {
+                        Method targetMethod = method.getMethodInstance(classLoader);
+                        DexKitCache.saveMethod("AdBlocker", targetMethod);
+                        XposedBridge.hookMethod(targetMethod, hook);
 
-                    XposedBridge.log("(InstaEclipse | AdBlocker): ✅ Hooked (dynamic check): " +
-                            method.getClassName() + "." + method.getName());
-                    FeatureStatusTracker.setHooked("AdBlocker");
-                    return; // Stop after first successful hook
+                        ModuleLog.line("(InstaEclipse | AdBlocker): ✅ Hooked (dynamic check, marker='" + marker + "'): " +
+                                method.getClassName() + "." + method.getName());
+                        FeatureStatusTracker.setHooked("AdBlocker");
+                        return; // Stop after first successful hook
 
-                } catch (Throwable hookEx) {
-                    XposedBridge.log("(InstaEclipse | AdBlocker): ❌ Failed to hook: " +
-                            method.getName() + " → " + hookEx.getMessage());
+                    } catch (Throwable hookEx) {
+                        ModuleLog.line("(InstaEclipse | AdBlocker): ❌ Failed to hook: " +
+                                method.getName() + " → " + hookEx.getMessage());
+                    }
                 }
             }
 
-            XposedBridge.log("(InstaEclipse | AdBlocker): ❌ No valid methods hooked.");
+            ModuleLog.line("(InstaEclipse | AdBlocker): ❌ No valid methods hooked (all markers exhausted).");
 
         } catch (Throwable t) {
-            XposedBridge.log("(InstaEclipse | AdBlocker): ❌ Exception: " + t.getMessage());
+            ModuleLog.line("(InstaEclipse | AdBlocker): ❌ Exception: " + t.getMessage());
         }
     }
 }

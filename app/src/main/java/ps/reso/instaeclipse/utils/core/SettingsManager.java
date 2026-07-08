@@ -58,6 +58,7 @@ public class SettingsManager {
 
         // Clean Feed
         editor.putBoolean("hideSuggestionsInFeed", FeatureFlags.hideSuggestionsInFeed);
+        editor.putBoolean("hideThreadsSuggestions", FeatureFlags.hideThreadsSuggestions);
 
         // Ads
         editor.putBoolean("isAdBlockEnabled", FeatureFlags.isAdBlockEnabled);
@@ -68,6 +69,11 @@ public class SettingsManager {
         editor.putBoolean("isMiscEnabled", FeatureFlags.isMiscEnabled);
         editor.putBoolean("disableStoryFlipping", FeatureFlags.disableStoryFlipping);
         editor.putBoolean("disableVideoAutoPlay", FeatureFlags.disableVideoAutoPlay);
+        editor.putBoolean("spoofLastSeen", FeatureFlags.spoofLastSeen);
+        editor.putBoolean("spoofLocation", FeatureFlags.spoofLocation);
+        editor.putString("spoofLat", String.valueOf(FeatureFlags.spoofLat));
+        editor.putString("spoofLng", String.valueOf(FeatureFlags.spoofLng));
+        editor.putInt("forceReelQuality", FeatureFlags.forceReelQuality);
         editor.putBoolean("disableRepost", FeatureFlags.disableRepost);
         editor.putBoolean("showFollowerToast", FeatureFlags.showFollowerToast);
         editor.putBoolean("showFeatureToasts", FeatureFlags.showFeatureToasts);
@@ -75,7 +81,9 @@ public class SettingsManager {
         editor.putBoolean("disableDiscoverPeople", FeatureFlags.disableDiscoverPeople);
         editor.putBoolean("removeBuildExpiredPopup", FeatureFlags.removeBuildExpiredPopup);
         editor.putBoolean("enableCopyComment", FeatureFlags.enableCopyComment);
+        editor.putBoolean("enableCaptionCopy", FeatureFlags.enableCaptionCopy);
         editor.putBoolean("disableDoubleTapLike", FeatureFlags.disableDoubleTapLike);
+        editor.putBoolean("enablePhotoZoom", FeatureFlags.enablePhotoZoom);
         editor.putBoolean("enablePostDownload", FeatureFlags.enablePostDownload);
         editor.putBoolean("enableStoryDownload", FeatureFlags.enableStoryDownload);
         editor.putBoolean("enableReelDownload", FeatureFlags.enableReelDownload);
@@ -84,6 +92,11 @@ public class SettingsManager {
         editor.putBoolean("downloaderAddTimestamp", FeatureFlags.downloaderAddTimestamp);
         editor.putString("downloaderCustomPath", FeatureFlags.downloaderCustomPath);
         editor.putString("downloaderCustomUri",  FeatureFlags.downloaderCustomUri);
+
+        // Custom Theme
+        editor.putBoolean("customThemeEnabled", FeatureFlags.customThemeEnabled);
+        editor.putInt("themePresetId", FeatureFlags.themePresetId);
+        editor.putString("themePaletteJson", FeatureFlags.themePaletteJson);
 
         editor.apply();
 
@@ -134,6 +147,7 @@ public class SettingsManager {
 
         // Clean Feed
         FeatureFlags.hideSuggestionsInFeed = prefs.getBoolean("hideSuggestionsInFeed", false);
+        FeatureFlags.hideThreadsSuggestions = prefs.getBoolean("hideThreadsSuggestions", false);
 
         // Ads
         FeatureFlags.isAdBlockEnabled = prefs.getBoolean("isAdBlockEnabled", false);
@@ -144,6 +158,11 @@ public class SettingsManager {
         FeatureFlags.isMiscEnabled = prefs.getBoolean("isMiscEnabled", false);
         FeatureFlags.disableStoryFlipping = prefs.getBoolean("disableStoryFlipping", false);
         FeatureFlags.disableVideoAutoPlay = prefs.getBoolean("disableVideoAutoPlay", false);
+        FeatureFlags.spoofLastSeen = prefs.getBoolean("spoofLastSeen", false);
+        FeatureFlags.spoofLocation = prefs.getBoolean("spoofLocation", false);
+        FeatureFlags.spoofLat = readDoublePref(prefs, "spoofLat", 0.0);
+        FeatureFlags.spoofLng = readDoublePref(prefs, "spoofLng", 0.0);
+        FeatureFlags.forceReelQuality = prefs.getInt("forceReelQuality", 0);
         FeatureFlags.disableRepost = prefs.getBoolean("disableRepost", false);
         FeatureFlags.showFollowerToast = prefs.getBoolean("showFollowerToast", false);
         FeatureFlags.showFeatureToasts = prefs.getBoolean("showFeatureToasts", false);
@@ -151,7 +170,9 @@ public class SettingsManager {
         FeatureFlags.disableDiscoverPeople = prefs.getBoolean("disableDiscoverPeople", false);
         FeatureFlags.removeBuildExpiredPopup = prefs.getBoolean("removeBuildExpiredPopup", false);
         FeatureFlags.enableCopyComment = prefs.getBoolean("enableCopyComment", false);
+        FeatureFlags.enableCaptionCopy = prefs.getBoolean("enableCaptionCopy", false);
         FeatureFlags.disableDoubleTapLike = prefs.getBoolean("disableDoubleTapLike", false);
+        FeatureFlags.enablePhotoZoom = prefs.getBoolean("enablePhotoZoom", false);
         FeatureFlags.enablePostDownload = prefs.getBoolean("enablePostDownload", false);
         FeatureFlags.enableStoryDownload = prefs.getBoolean("enableStoryDownload", false);
         FeatureFlags.enableReelDownload = prefs.getBoolean("enableReelDownload", false);
@@ -161,6 +182,19 @@ public class SettingsManager {
         FeatureFlags.downloaderCustomPath     = prefs.getString("downloaderCustomPath", "");
         FeatureFlags.downloaderCustomUri      = prefs.getString("downloaderCustomUri",  "");
 
+        // Custom Theme
+        FeatureFlags.customThemeEnabled = prefs.getBoolean("customThemeEnabled", false);
+        FeatureFlags.themePresetId = prefs.getInt("themePresetId", 1);
+        FeatureFlags.themePaletteJson = prefs.getString("themePaletteJson", "");
+
         FeatureManager.refreshFeatureStatus();
+    }
+
+    private static double readDoublePref(SharedPreferences p, String key, double fallback) {
+        try {
+            return Double.parseDouble(p.getString(key, String.valueOf(fallback)));
+        } catch (Throwable ignored) {
+            return fallback;
+        }
     }
 }

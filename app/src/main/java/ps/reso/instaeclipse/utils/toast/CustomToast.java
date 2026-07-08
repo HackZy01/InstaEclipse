@@ -9,6 +9,7 @@ import android.view.Gravity;
 import android.widget.TextView;
 
 import de.robv.android.xposed.XposedBridge;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 public class CustomToast {
 
@@ -16,7 +17,7 @@ public class CustomToast {
 
     public static void showCustomToast(Context context, String message) {
         if (context == null) {
-            XposedBridge.log("❌ CustomToast: Context is null!");
+            ModuleLog.line("❌ CustomToast: Context is null!");
             return;
         }
 
@@ -39,7 +40,7 @@ public class CustomToast {
                 new Handler(Looper.getMainLooper()).postDelayed(toast::cancel, 1500);
 
             } catch (Throwable t) {
-                XposedBridge.log("❌ Failed to show custom toast: " + Log.getStackTraceString(t));
+                ModuleLog.line("❌ Failed to show custom toast: " + Log.getStackTraceString(t));
             }
         });
     }

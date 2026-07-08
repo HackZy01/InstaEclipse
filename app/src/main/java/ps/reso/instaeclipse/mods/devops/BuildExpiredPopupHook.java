@@ -13,6 +13,7 @@ import de.robv.android.xposed.XposedBridge;
 import ps.reso.instaeclipse.utils.core.DexKitCache;
 import ps.reso.instaeclipse.utils.feature.FeatureFlags;
 import ps.reso.instaeclipse.utils.feature.FeatureStatusTracker;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 public class BuildExpiredPopupHook {
 
@@ -82,7 +83,7 @@ public class BuildExpiredPopupHook {
 
                 XposedBridge.hookMethod(method, noOpHook);
                 DexKitCache.saveMethod(CACHE_SHOW, method);
-                XposedBridge.log("(IE|BuildExpired) ✅ hooked show-popup → "
+                ModuleLog.line("(IE|BuildExpired) ✅ hooked show-popup → "
                         + md.getClassName() + "." + md.getName());
                 FeatureStatusTracker.setHooked("RemoveBuildExpiredPopup");
                 hookedMain = true;
@@ -90,7 +91,7 @@ public class BuildExpiredPopupHook {
             }
 
             if (!hookedMain) {
-                XposedBridge.log("(IE|BuildExpired) ⚠️ show-popup method not found, falling back to boolean hook only");
+                ModuleLog.line("(IE|BuildExpired) ⚠️ show-popup method not found, falling back to boolean hook only");
             }
 
             // Secondary: hook the snooze-expired boolean check
@@ -105,7 +106,7 @@ public class BuildExpiredPopupHook {
 
                 XposedBridge.hookMethod(method, falseHook);
                 DexKitCache.saveMethod(CACHE_CHECK, method);
-                XposedBridge.log("(IE|BuildExpired) ✅ hooked snooze-check → "
+                ModuleLog.line("(IE|BuildExpired) ✅ hooked snooze-check → "
                         + md.getClassName() + "." + md.getName());
                 if (!hookedMain) {
                     FeatureStatusTracker.setHooked("RemoveBuildExpiredPopup");
@@ -114,7 +115,7 @@ public class BuildExpiredPopupHook {
             }
 
         } catch (Throwable t) {
-            XposedBridge.log("(IE|BuildExpired) ❌ install: " + t);
+            ModuleLog.line("(IE|BuildExpired) ❌ install: " + t);
         }
     }
 }

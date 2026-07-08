@@ -14,6 +14,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import ps.reso.instaeclipse.Xposed.Module;
 import ps.reso.instaeclipse.utils.core.DexKitCache;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 public class BottomSheetHookUtil {
 
@@ -60,7 +61,7 @@ public class BottomSheetHookUtil {
             }
 
         } catch (Throwable e) {
-            XposedBridge.log("(InstaEclipse | BottomSheet): ❌ DexKit exception: " + e.getMessage());
+            ModuleLog.line("(InstaEclipse | BottomSheet): ❌ DexKit exception: " + e.getMessage());
         }
     }
 
@@ -71,7 +72,7 @@ public class BottomSheetHookUtil {
         // updates. This hook exists only to locate the method; its body is intentionally
         // empty to avoid any per-call overhead.
         XposedBridge.hookMethod(reflectMethod, new XC_MethodHook() { });
-        XposedBridge.log("(InstaEclipse | BottomSheet): ✅ Hooked: " + reflectMethod.getDeclaringClass().getName() + "." + reflectMethod.getName());
+        ModuleLog.line("(InstaEclipse | BottomSheet): ✅ Hooked: " + reflectMethod.getDeclaringClass().getName() + "." + reflectMethod.getName());
     }
 }
 

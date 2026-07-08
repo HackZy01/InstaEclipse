@@ -80,6 +80,12 @@ public class FeatureManager {
             FeatureStatusTracker.setDisabled("HideSuggestionsInFeed");
         }
 
+        if (FeatureFlags.hideThreadsSuggestions) {
+            FeatureStatusTracker.setEnabled("HideThreadsSuggestions", R.string.ig_dialog_clean_feed_hide_threads);
+        } else {
+            FeatureStatusTracker.setDisabled("HideThreadsSuggestions");
+        }
+
         // Miscellaneous
         if (FeatureFlags.disableTrackingLinks) {
             FeatureStatusTracker.setEnabled("DisableTrackingLinks", R.string.ig_dialog_ad_disable_tracking);
@@ -103,6 +109,30 @@ public class FeatureManager {
             FeatureStatusTracker.setEnabled("DisableDiscoverPeople", R.string.ig_dialog_misc_disable_discover_people);
         } else {
             FeatureStatusTracker.setDisabled("DisableDiscoverPeople");
+        }
+
+        if (FeatureFlags.forceReelQuality > 0) {
+            FeatureStatusTracker.setEnabled("ForceReelQuality", R.string.ig_dialog_quality_force_reels);
+        } else {
+            FeatureStatusTracker.setDisabled("ForceReelQuality");
+        }
+
+        if (FeatureFlags.spoofLocation) {
+            FeatureStatusTracker.setEnabled("SpoofLocation", R.string.ig_dialog_location_spoof_enable);
+        } else {
+            FeatureStatusTracker.setDisabled("SpoofLocation");
+        }
+
+        if (FeatureFlags.spoofLastSeen) {
+            FeatureStatusTracker.setEnabled("SpoofLastSeen", R.string.ig_dialog_misc_spoof_last_seen);
+        } else {
+            FeatureStatusTracker.setDisabled("SpoofLastSeen");
+        }
+
+        if (FeatureFlags.customThemeEnabled) {
+            FeatureStatusTracker.setEnabled("CustomTheme", R.string.theme_title);
+        } else {
+            FeatureStatusTracker.setDisabled("CustomTheme");
         }
 
         if (FeatureFlags.removeBuildExpiredPopup) {

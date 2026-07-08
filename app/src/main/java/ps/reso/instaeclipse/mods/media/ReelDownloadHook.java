@@ -22,6 +22,7 @@ import ps.reso.instaeclipse.utils.core.DexKitCache;
 import ps.reso.instaeclipse.utils.feature.FeatureFlags;
 import ps.reso.instaeclipse.utils.feature.FeatureStatusTracker;
 import ps.reso.instaeclipse.utils.i18n.I18n;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 public class ReelDownloadHook {
 
@@ -38,6 +39,9 @@ public class ReelDownloadHook {
     private static Field cachedInnerField = null;
 
     public void install(DexKitBridge bridge, ClassLoader classLoader) {
+        installNativeDownloadGateUnlock(bridge, classLoader);
+        installReduceOptionsListPatch(bridge, classLoader);
+
         if (DexKitCache.isCacheValid()) {
             Method cached = DexKitCache.loadMethod("ReelDownload", classLoader);
             if (cached != null) {
@@ -52,7 +56,7 @@ public class ReelDownloadHook {
                         onOptionsBuilt(param);
                     }
                 });
-                XposedBridge.log("(IE|Reel) ✅ hooked: " + hookMethod.getDeclaringClass().getName() + "." + hookMethod.getName());
+                ModuleLog.line("(IE|Reel) ✅ hooked: " + hookMethod.getDeclaringClass().getName() + "." + hookMethod.getName());
                 return;
             }
         }
@@ -63,7 +67,7 @@ public class ReelDownloadHook {
                             .usingStrings("ClipsOrganicMediaItemViewMoreOptionsController")));
 
             if (methods.isEmpty()) {
-                XposedBridge.log("(IE|Reel) ❌ ClipsOrganicMediaItemViewMoreOptionsController not found");
+                ModuleLog.line("(IE|Reel) ❌ ClipsOrganicMediaItemViewMoreOptionsController not found");
                 return;
             }
 
@@ -82,7 +86,7 @@ public class ReelDownloadHook {
             }
 
             if (target == null) {
-                XposedBridge.log("(IE|Reel) ❌ hook method (Media, ButtonAdder)V not found");
+                ModuleLog.line("(IE|Reel) ❌ hook method (Media, ButtonAdder)V not found");
                 return;
             }
 
@@ -98,10 +102,155 @@ public class ReelDownloadHook {
                     onOptionsBuilt(param);
                 }
             });
-            XposedBridge.log("(IE|Reel) ✅ hooked: " + hookMethod.getDeclaringClass().getName() + "." + hookMethod.getName());
+            ModuleLog.line("(IE|Reel) ✅ hooked: " + hookMethod.getDeclaringClass().getName() + "." + hookMethod.getName());
 
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Reel) ❌ install: " + t);
+            ModuleLog.line("(IE|Reel) ❌ install: " + t);
+        }
+    }
+
+    // ── Reduced options-list patch ──────────────────────────────────────────────
+    //
+    // IG's newer, simplified reel overflow menu builds its option list via one
+    // method that returns a plain ArrayList<MediaOption$Option> (SAVE/UNSAVE,
+    // PLAYBACK_CONTROLS, WHY_AM_I_SEEING_THIS, INTERESTED, NOT_INTERESTED,
+    // TAG_OPTIONS, REPORT, REQUEST_COMMUNITY_NOTE, DEBUG_STICKER_TRANSLATION) —
+    // DOWNLOAD was dropped entirely from this list, unlike the older/fuller
+    // overflow-menu code path. Found via field-usage matching on two of its
+    // distinctive enum references. Appending DOWNLOAD to the returned (mutable)
+    // ArrayList lets it flow through the same generic per-option row builder
+    // (LX/5RY;->A0Q -> LX/QIy;->A04) used for every other option here — same
+    // shared row primitive the post menu uses, so PostDownloadContextMenuHook's
+    // app-wide click-handler hook already covers whatever dispatches its click.
+    private static void installReduceOptionsListPatch(DexKitBridge bridge, ClassLoader classLoader) {
+        try {
+            Object downloadOption = null;
+            Class<?> optionClass = classLoader.loadClass("com.instagram.feed.media.mediaoption.MediaOption$Option");
+            for (Object v : (Object[]) optionClass.getMethod("values").invoke(null)) {
+                if (v.toString().equals("DOWNLOAD")) { downloadOption = v; break; }
+            }
+            if (downloadOption == null) {
+                ModuleLog.line("(IE|Reel) ❌ DOWNLOAD enum value not found");
+                return;
+            }
+            final Object download = downloadOption;
+
+            XC_MethodHook hook = new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) {
+                    if (!FeatureFlags.enableReelDownload) return;
+                    try {
+                        Object result = param.getResult();
+                        if (result instanceof List<?> list && !list.contains(download)) {
+                            @SuppressWarnings("unchecked")
+                            List<Object> mutable = (List<Object>) list;
+                            mutable.add(download);
+                        }
+                    } catch (Throwable t) {
+                        ModuleLog.line("(IE|Reel) ❌ options-list patch failed: " + t);
+                    }
+                }
+            };
+
+            if (DexKitCache.isCacheValid()) {
+                Method cached = DexKitCache.loadMethod("ReelOptionsListBuilder", classLoader);
+                if (cached != null) {
+                    XposedBridge.hookMethod(cached, hook);
+                    return;
+                }
+            }
+
+            String optionDesc = "Lcom/instagram/feed/media/mediaoption/MediaOption$Option;";
+            var methods = bridge.findMethod(FindMethod.create()
+                    .matcher(MethodMatcher.create()
+                            .returnType("java.util.ArrayList")
+                            .addUsingField(optionDesc + "->PLAYBACK_CONTROLS:" + optionDesc)
+                            .addUsingField(optionDesc + "->UNSAVE:" + optionDesc)));
+
+            if (methods.isEmpty()) {
+                ModuleLog.line("(IE|Reel) ⚠️ Reduced options-list builder not found");
+                return;
+            }
+
+            Method target = methods.get(0).getMethodInstance(classLoader);
+            target.setAccessible(true);
+            XposedBridge.hookMethod(target, hook);
+            DexKitCache.saveMethod("ReelOptionsListBuilder", target);
+            FeatureStatusTracker.setHooked("ReelDownload");
+            ModuleLog.line("(IE|Reel) ✅ Options-list patch hooked: " +
+                    target.getDeclaringClass().getName() + "." + target.getName());
+
+        } catch (Throwable t) {
+            ModuleLog.line("(IE|Reel) ❌ installReduceOptionsListPatch: " + t);
+        }
+    }
+
+    // ── Native download-row unlock ──────────────────────────────────────────────
+    //
+    // IG 437+ moved the reel overflow menu to the same shared row-builder (QIy) used
+    // by the post menu, and it already has a fully-working, native DOWNLOAD row —
+    // gated behind two eligibility checks (a "can this media be downloaded" gate and
+    // a "is the viewer restricted" gate). When both pass, native code adds the row
+    // via the same QIy.A04 primitive posts use, with a working click handler already
+    // wired to Instagram's own save-to-camera-roll flow. Bypassing the two gates is
+    // far simpler and more robust than reconstructing that row/click machinery
+    // ourselves. Found via each gate's distinct hardcoded MobileConfig param ID.
+    private static void installNativeDownloadGateUnlock(DexKitBridge bridge, ClassLoader classLoader) {
+        // "Can this media be downloaded" — force true.
+        installGateHook(bridge, classLoader, "ReelDownloadGate_eligible",
+                36313978552585585L, // 0x81035f00020d71
+                "com.instagram.common.session.UserSession", "com.instagram.feed.media.Media",
+                true);
+
+        // "Is the viewer restricted from downloading" — force false.
+        installGateHook(bridge, classLoader, "ReelDownloadGate_restricted",
+                36313978552847731L, // 0x81035f00060d73
+                "com.instagram.common.session.UserSession", "boolean",
+                false);
+    }
+
+    private static void installGateHook(DexKitBridge bridge, ClassLoader classLoader,
+                                         String cacheKey, long configId,
+                                         String param1Type, String param2Type,
+                                         boolean forcedResult) {
+        XC_MethodHook hook = new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) {
+                ModuleLog.line("(IE|Reel|DEBUG) gate fired: " + cacheKey + " enabled=" + FeatureFlags.enableReelDownload);
+                if (FeatureFlags.enableReelDownload) param.setResult(forcedResult);
+            }
+        };
+
+        if (DexKitCache.isCacheValid()) {
+            Method cached = DexKitCache.loadMethod(cacheKey, classLoader);
+            if (cached != null) {
+                XposedBridge.hookMethod(cached, hook);
+                return;
+            }
+        }
+
+        try {
+            var methods = bridge.findMethod(FindMethod.create()
+                    .matcher(MethodMatcher.create()
+                            .paramTypes(param1Type, param2Type)
+                            .returnType("boolean")
+                            .usingNumbers(configId)));
+
+            if (methods.isEmpty()) {
+                ModuleLog.line("(IE|Reel) ⚠️ Gate method not found for config " + configId);
+                return;
+            }
+
+            Method target = methods.get(0).getMethodInstance(classLoader);
+            target.setAccessible(true);
+            XposedBridge.hookMethod(target, hook);
+            DexKitCache.saveMethod(cacheKey, target);
+            FeatureStatusTracker.setHooked("ReelDownload");
+            ModuleLog.line("(IE|Reel) ✅ Gate unlocked: " +
+                    target.getDeclaringClass().getName() + "." + target.getName() + " -> " + forcedResult);
+
+        } catch (Throwable t) {
+            ModuleLog.line("(IE|Reel) ❌ installGateHook(" + cacheKey + "): " + t);
         }
     }
 
@@ -286,7 +435,7 @@ public class ReelDownloadHook {
                 }
             }
             if (activityField == null) {
-                XposedBridge.log("(IE|Reel) ❌ no Activity field on controller");
+                ModuleLog.line("(IE|Reel) ❌ no Activity field on controller");
                 return;
             }
 
@@ -307,7 +456,7 @@ public class ReelDownloadHook {
                 }
             }
             if (buttonAdderMethod == null) {
-                XposedBridge.log("(IE|Reel) ❌ buttonAdderMethod not found");
+                ModuleLog.line("(IE|Reel) ❌ buttonAdderMethod not found");
                 return;
             }
 
@@ -321,7 +470,7 @@ public class ReelDownloadHook {
                     I18n.t(activity, R.string.ig_dl_title), icon);
 
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Reel) ❌ onOptionsBuilt: " + t);
+            ModuleLog.line("(IE|Reel) ❌ onOptionsBuilt: " + t);
         }
     }
 

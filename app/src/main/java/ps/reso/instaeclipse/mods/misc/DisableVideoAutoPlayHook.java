@@ -24,6 +24,7 @@ import de.robv.android.xposed.XposedHelpers;
 import ps.reso.instaeclipse.Xposed.Module;
 import ps.reso.instaeclipse.utils.core.DexKitCache;
 import ps.reso.instaeclipse.utils.feature.FeatureFlags;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 public class DisableVideoAutoPlayHook {
     private static final String PLAY_DRAWABLE_FIELD = "InstaEclipseManualVideoPlayDrawable";
@@ -46,7 +47,7 @@ public class DisableVideoAutoPlayHook {
         try {
             findAndHookDynamicMethod(bridge);
         } catch (Exception e) {
-            XposedBridge.log("(InstaEclipse | AutoPlayDisable): Error: " + e.getMessage());
+            ModuleLog.line("(InstaEclipse | AutoPlayDisable): Error: " + e.getMessage());
         }
     }
 
@@ -60,7 +61,7 @@ public class DisableVideoAutoPlayHook {
             );
 
             if (methods.isEmpty()) {
-                XposedBridge.log("(InstaEclipse | AutoPlayDisable): ❌ No matching methods found.");
+                ModuleLog.line("(InstaEclipse | AutoPlayDisable): ❌ No matching methods found.");
                 return;
             }
 
@@ -75,9 +76,9 @@ public class DisableVideoAutoPlayHook {
                 }
             }
 
-            XposedBridge.log("(InstaEclipse | AutoPlayDisable): ❌ No matching methods with correct signature.");
+            ModuleLog.line("(InstaEclipse | AutoPlayDisable): ❌ No matching methods with correct signature.");
         } catch (Exception e) {
-            XposedBridge.log("(InstaEclipse | AutoPlayDisable): ❌ Error during method discovery: " + e.getMessage());
+            ModuleLog.line("(InstaEclipse | AutoPlayDisable): ❌ Error during method discovery: " + e.getMessage());
         }
     }
 
@@ -86,10 +87,10 @@ public class DisableVideoAutoPlayHook {
             Method targetMethod = method.getMethodInstance(Module.hostClassLoader);
             DexKitCache.saveMethod("AutoPlayDisable", targetMethod);
             hookMethod(targetMethod);
-            XposedBridge.log("(InstaEclipse | AutoPlayDisable): ✅ Hooked (dynamic check): " +
+            ModuleLog.line("(InstaEclipse | AutoPlayDisable): ✅ Hooked (dynamic check): " +
                     method.getClassName() + "." + method.getName());
         } catch (Exception e) {
-            XposedBridge.log("(InstaEclipse | AutoPlayDisable): ❌ Error hooking method: " + e.getMessage());
+            ModuleLog.line("(InstaEclipse | AutoPlayDisable): ❌ Error hooking method: " + e.getMessage());
         }
     }
 
@@ -113,9 +114,9 @@ public class DisableVideoAutoPlayHook {
             hookPlayDrawableLoads();
             hookPlayImageBinding();
             hookPlayOverlayClicks();
-            XposedBridge.log("(InstaEclipse | AutoPlayDisable): Hooked manual play overlay lifecycle.");
+            ModuleLog.line("(InstaEclipse | AutoPlayDisable): Hooked manual play overlay lifecycle.");
         } catch (Throwable t) {
-            XposedBridge.log("(InstaEclipse | AutoPlayDisable): Error hooking play overlay lifecycle: " + t.getMessage());
+            ModuleLog.line("(InstaEclipse | AutoPlayDisable): Error hooking play overlay lifecycle: " + t.getMessage());
         }
     }
 
@@ -123,6 +124,7 @@ public class DisableVideoAutoPlayHook {
         XC_MethodHook hook = new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                if (!FeatureFlags.disableVideoAutoPlay) return;
                 if (!(param.thisObject instanceof Resources) || !(param.getResult() instanceof Drawable)) return;
                 if (param.args == null || param.args.length == 0 || !(param.args[0] instanceof Integer)) return;
 
@@ -142,6 +144,7 @@ public class DisableVideoAutoPlayHook {
         XposedBridge.hookAllMethods(ImageView.class, "setImageResource", new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                if (!FeatureFlags.disableVideoAutoPlay) return;
                 if (!(param.thisObject instanceof ImageView)) return;
                 if (param.args == null || param.args.length == 0 || !(param.args[0] instanceof Integer)) return;
 
@@ -156,6 +159,7 @@ public class DisableVideoAutoPlayHook {
         XposedBridge.hookAllMethods(ImageView.class, "setImageDrawable", new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                if (!FeatureFlags.disableVideoAutoPlay) return;
                 if (!(param.thisObject instanceof ImageView)) return;
                 if (param.args == null || param.args.length == 0 || !(param.args[0] instanceof Drawable)) return;
 

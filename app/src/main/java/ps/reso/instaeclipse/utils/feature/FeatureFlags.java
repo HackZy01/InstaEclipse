@@ -50,6 +50,7 @@ public class FeatureFlags {
     public static boolean isMiscEnabled = false;
     public static boolean disableStoryFlipping = false;
     public static boolean disableVideoAutoPlay = false;
+    public static boolean spoofLastSeen = false;
     public static boolean showFollowerToast = false;
     public static boolean showFeatureToasts = false;
     public static boolean disableRepost = false;
@@ -59,10 +60,26 @@ public class FeatureFlags {
     public static boolean disableDiscoverPeople = false;
     public static boolean removeBuildExpiredPopup = false;
     public static boolean enableCopyComment = false;
+    public static boolean enableCaptionCopy = false;
     public static boolean disableDoubleTapLike = false;
+    public static boolean enablePhotoZoom = false;
+
+    // Location Spoof
+    public static boolean spoofLocation = false;
+    public static double spoofLat = 0.0;
+    public static double spoofLng = 0.0;
+
+    // Video Quality (0 = auto/off, else desired height in px, or Integer.MAX_VALUE for max available)
+    public static int forceReelQuality = 0;
+
+    // Custom Theme (themePresetId: 0 = custom palette from themePaletteJson, else a built-in preset id)
+    public static boolean customThemeEnabled = false;
+    public static int themePresetId = 1;
+    public static String themePaletteJson = "";
 
     // Clean Feed
     public static boolean hideSuggestionsInFeed = false;
+    public static boolean hideThreadsSuggestions = false;
 
     // Downloader
     public static boolean enablePostDownload = false;

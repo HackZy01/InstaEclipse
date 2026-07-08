@@ -11,6 +11,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import ps.reso.instaeclipse.mods.misc.FollowStatusHook;
 import ps.reso.instaeclipse.utils.feature.FeatureFlags;
 import ps.reso.instaeclipse.utils.feature.FeatureStatusTracker;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 public class IGNetworkInterceptor {
 
@@ -137,6 +138,18 @@ public class IGNetworkInterceptor {
                                     }
 
                                     // Misc
+                                    if (FeatureFlags.spoofLastSeen) {
+                                        String p = uri.getPath();
+                                        shouldDrop |= p.contains("/push/setForegroundState/")
+                                                || p.contains("/accounts/update_active_status")
+                                                || p.contains("/notes/create_note")
+                                                || p.contains("/accounts/set_presence_disabled")
+                                                || p.contains("/update_active_status")
+                                                || p.contains("/banyan/banyan/")
+                                                || p.endsWith("/last_active/")
+                                                || p.contains("/presence/");
+                                        FeatureStatusTracker.setHooked("SpoofLastSeen");
+                                    }
                                     if (FeatureFlags.disableRepost) {
                                         shouldDrop |= uri.getPath().contains("/media/create_note/");
                                     }
@@ -163,11 +176,11 @@ public class IGNetworkInterceptor {
                         }
                 );
             } else {
-                XposedBridge.log("(InstaEclipse | Interceptor): Could not resolve required classes or fields.");
+                ModuleLog.line("(InstaEclipse | Interceptor): Could not resolve required classes or fields.");
             }
 
         } catch (Exception e) {
-            XposedBridge.log("(InstaEclipse | Interceptor): ❌ " + e.getMessage());
+            ModuleLog.line("(InstaEclipse | Interceptor): ❌ " + e.getMessage());
         }
     }
 }

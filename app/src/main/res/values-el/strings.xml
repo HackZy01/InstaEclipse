@@ -2,7 +2,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- app wide -->
     <string name="app_name">InstaEclipse</string>
-    <string name="version" translatable="false">v0.5.2 Beta</string>
+    <string name="version" translatable="false">v0.6.0</string>
     <string name="home">Αρχική</string>
     <string name="features">Λειτουργίες</string>
     <string name="help">Βοήθεια</string>
@@ -70,9 +70,9 @@
     <string name="feat_quick_toggle">Γρήγορη Εναλλαγή:</string>
     <string name="feat_danger_zone">Επικίνδυνη Ζώνη:</string>
     <string name="feat_download_folder">Φάκελος Λήψεων:</string>
-    <string name="feat_downloader_set_folder">📂 Ορισμός Θέσης Φακέλου Λήψεων</string>
-    <string name="feat_downloader_selected">📂 Επιλέχθηκε: %1$s</string>
-    <string name="feat_downloader_reset_folder">🗑 Επαναφορά Φακέλου Λήψεων</string>
+    <string name="feat_downloader_set_folder">Ορισμός Θέσης Φακέλου Λήψεων</string>
+    <string name="feat_downloader_selected">Επιλέχθηκε: %1$s</string>
+    <string name="feat_downloader_reset_folder">Επαναφορά Φακέλου Λήψεων</string>
 
     <!-- features -->
     <string name="developer_options">Επιλογές Προγραμματιστών</string>
@@ -142,30 +142,30 @@
     <string name="ig_dialog_cancel">Ακύρωση</string>
 
     <!-- Main menu items -->
-    <string name="ig_dialog_menu_dev_options">🎛 Επιλογές Προγραμματιστών</string>
-    <string name="ig_dialog_menu_ghost_settings">👻 Ρυθμίσεις Αόρατης Λειτουργίας</string>
-    <string name="ig_dialog_menu_ad_analytics">🛡 Αποκλεισμός Διαφημίσεων/Αναλυτικών</string>
-    <string name="ig_dialog_menu_clean_feed">✨ Καθαρό Feed</string>
-    <string name="ig_dialog_menu_distraction_free">🧘 Instagram Χωρίς Περισπασμούς</string>
-    <string name="ig_dialog_menu_misc">⚙ Διάφορες Λειτουργίες</string>
-    <string name="ig_dialog_menu_downloader">📥 Λήψη</string>
-    <string name="ig_dialog_menu_backup_restore">💾 Δημιουργία Αντιγράφου &amp; Επαναφορά</string>
-    <string name="ig_dialog_menu_about">ℹ️ Σχετικά</string>
-    <string name="ig_dialog_menu_restart">🔁 Επανεκκίνηση Εφαρμογής</string>
+    <string name="ig_dialog_menu_dev_options">Επιλογές Προγραμματιστών</string>
+    <string name="ig_dialog_menu_ghost_settings">Ρυθμίσεις Αόρατης Λειτουργίας</string>
+    <string name="ig_dialog_menu_ad_analytics">Αποκλεισμός Διαφημίσεων/Αναλυτικών</string>
+    <string name="ig_dialog_menu_clean_feed">Καθαρό Feed</string>
+    <string name="ig_dialog_menu_distraction_free">Instagram Χωρίς Περισπασμούς</string>
+    <string name="ig_dialog_menu_misc">Διάφορες Λειτουργίες</string>
+    <string name="ig_dialog_menu_downloader">Λήψη</string>
+    <string name="ig_dialog_menu_backup_restore">Δημιουργία Αντιγράφου &amp; Επαναφορά</string>
+    <string name="ig_dialog_menu_about">Σχετικά</string>
+    <string name="ig_dialog_menu_restart">Επανεκκίνηση Εφαρμογής</string>
 
     <!-- Section titles -->
-    <string name="ig_dialog_section_dev_options">Επιλογές Προγραμματιστών 🎛</string>
-    <string name="ig_dialog_section_ghost_mode">Αόρατη Λειτουργία 👻</string>
-    <string name="ig_dialog_section_ad_analytics">Αποκλεισμός Διαφημίσεων/Αναλυτικών 🛡️</string>
-    <string name="ig_dialog_section_clean_feed">Καθαρό Feed ✨</string>
-    <string name="ig_dialog_section_distraction_free">Instagram Χωρίς Περισπασμούς 🧘</string>
-    <string name="ig_dialog_section_misc">Διάφορα ⚙️</string>
-    <string name="ig_dialog_section_downloader">Λήψη 📥</string>
-    <string name="ig_dialog_section_downloader_settings">Ρυθμίσεις Λήψης ⚙️</string>
-    <string name="ig_dialog_section_backup_restore">Δημιουργία Αντιγράφου &amp; Επαναφορά 💾</string>
+    <string name="ig_dialog_section_dev_options">Επιλογές Προγραμματιστών</string>
+    <string name="ig_dialog_section_ghost_mode">Αόρατη Λειτουργία</string>
+    <string name="ig_dialog_section_ad_analytics">Αποκλεισμός Διαφημίσεων/Αναλυτικών</string>
+    <string name="ig_dialog_section_clean_feed">Καθαρό Feed</string>
+    <string name="ig_dialog_section_distraction_free">Instagram Χωρίς Περισπασμούς</string>
+    <string name="ig_dialog_section_misc">Διάφορα</string>
+    <string name="ig_dialog_section_downloader">Λήψη</string>
+    <string name="ig_dialog_section_downloader_settings">Ρυθμίσεις Λήψης</string>
+    <string name="ig_dialog_section_backup_restore">Δημιουργία Αντιγράφου &amp; Επαναφορά</string>
     <string name="ig_dialog_section_about">Σχετικά</string>
     <string name="ig_dialog_section_restart">Επανεκκίνηση Εφαρμογής</string>
-    <string name="ig_dialog_section_quick_toggle">Προσαρμογή Γρήγορης Εναλλαγής 🛠️</string>
+    <string name="ig_dialog_section_quick_toggle">Προσαρμογή Γρήγορης Εναλλαγής</string>
 
     <!-- Developer options -->
     <string name="ig_dialog_dev_enable">Ενεργοποίηση Λειτουργίας Προγραμματιστή</string>
@@ -203,9 +203,9 @@
     <string name="ig_dialog_ghost_bypass_screenshot">Παράκαμψη Εντοπισμού Στιγμιοτύπων</string>
     <string name="ig_dialog_ghost_hide_view_once">Απόκρυψη Ανοίγματος Μηνύματος μιας Χρήσης</string>
     <string name="ig_dialog_ghost_unlimited_replays">Απεριόριστες Επαναλήψεις μιας Χρήσης</string>
-    <string name="ig_dialog_ghost_permanent_view_once">⚠️ Μόνιμα Αρχεία μιας Χρήσης</string>
+    <string name="ig_dialog_ghost_permanent_view_once">Μόνιμα Αρχεία μιας Χρήσης (Ασταθές)</string>
     <string name="ig_dialog_ghost_keep_disappearing">Διατήρηση Εξαφανιζόμενων Μηνυμάτων</string>
-    <string name="ig_dialog_customize_quick_toggle">🛠 Προσαρμογή Γρήγορης Εναλλαγής</string>
+    <string name="ig_dialog_customize_quick_toggle">Προσαρμογή Γρήγορης Εναλλαγής</string>
 
     <!-- Quick Toggle options -->
     <string name="ig_dialog_quick_hide_seen">Συμπερίληψη Απόκρυψης Ανάγνωσης DM</string>
@@ -216,7 +216,7 @@
     <string name="ig_dialog_quick_hide_live_seen">Συμπερίληψη Απόκρυψης Παρουσίας σε Live</string>
     <string name="ig_dialog_quick_keep_ephemeral">Συμπερίληψη Διατήρησης Εξαφανιζόμενων Μηνυμάτων</string>
     <string name="ig_dialog_quick_unlimited_replays">Συμπερίληψη Απεριόριστων Επαναλήψεων μιας Χρήσης</string>
-    <string name="ig_dialog_quick_permanent_view">Συμπερίληψη Μόνιμων Αρχείων μιας Χρήσης</string>
+    <string name="ig_dialog_quick_permanent_view">Συμπερίληψη Μόνιμων Αρχείων μιας Χρήσης (Ασταθές)</string>
     <string name="ig_dialog_quick_allow_screenshots">Συμπερίληψη Επιτροπής Στιγμιοτύπων σε DM</string>
 
     <!-- Ad / Analytics options -->
@@ -226,7 +226,7 @@
     <string name="ig_dialog_ad_disable_tracking">Απενεργοποίηση Συνδέσμων Παρακολούθησης</string>
 
     <!-- Distraction-Free options -->
-    <string name="ig_dialog_distraction_extreme_mode">Ακραία Λειτουργία 🔒 (Μη αναστρέψιμο μέχρι επανεγκατάσταση)</string>
+    <string name="ig_dialog_distraction_extreme_mode">Ακραία Λειτουργία (Μη αναστρέψιμο μέχρι επανεγκατάσταση)</string>
     <string name="ig_dialog_distraction_disable_stories">Απενεργοποίηση Ιστοριών</string>
     <string name="ig_dialog_distraction_disable_feed">Απενεργοποίηση Ροής</string>
     <string name="ig_dialog_distraction_disable_reels">Απενεργοποίηση Reels</string>
@@ -256,12 +256,12 @@
     <string name="ig_toast_comment_copied">✅ Αντιγράφηκε στο πρόχειρο!</string>
 
     <!-- Downloader options -->
-    <string name="ig_dialog_downloader_settings">⚙ Ρυθμίσεις Λήψης</string>
+    <string name="ig_dialog_downloader_settings">Ρυθμίσεις Λήψης</string>
     <string name="ig_dialog_downloader_posts">Λήψη Δημοσιεύσεων</string>
     <string name="ig_dialog_downloader_stories">Λήψη Ιστοριών</string>
     <string name="ig_dialog_downloader_reels">Λήψη Reels</string>
     <string name="ig_dialog_downloader_profiles">Λήψη Φωτογραφιών Προφίλ</string>
-    <string name="ig_dialog_downloader_folder">📁 Φάκελος Λήψεων</string>
+    <string name="ig_dialog_downloader_folder">Φάκελος Λήψεων</string>
     <string name="ig_dialog_downloader_username_subfolder">Αποθήκευση σε Υποφάκελο Χρήστη</string>
     <string name="ig_dialog_downloader_add_timestamp">Προσθήκη Χρονοσφραγίδας στο Όνομα Αρχείου</string>
     <string name="ig_dialog_downloader_cannot_open_picker">Αδύνατο άνοιγμα επιλογέα φακέλου εδώ</string>
@@ -278,7 +278,7 @@
 
     <!-- Restart -->
     <string name="ig_dialog_restart_message">⚠️ Εκκαθάριση cache εφαρμογής και επανεκκίνηση;</string>
-    <string name="ig_dialog_clear_cache">🔄 Εκκαθάριση Cache Hooks</string>
+    <string name="ig_dialog_clear_cache">Εκκαθάριση Cache Hooks</string>
     <string name="ig_dialog_section_clear_cache">Εκκαθάριση Cache Hooks</string>
     <string name="ig_dialog_clear_cache_message">⚠️ Αυτό θα αναγκάσει το InstaEclipse να επανασαρώσει το Instagram κατά την επόμενη εκκίνηση. Η εφαρμογή θα επανεκκινηθεί.</string>
     <string name="ig_dialog_clear_cache_now">Εκκαθάριση Cache &amp; Επανεκκίνηση</string>
@@ -366,4 +366,34 @@
     <string name="ig_update_button">Ενημέρωση</string>
     <string name="ig_update_later">Αργότερα</string>
     <string name="ig_update_error_message">Αποτυχία ελέγχου ενημερώσεων. Δοκιμάστε ξανά αργότερα.</string>
+    <!-- Custom Theme -->
+    <string name="ig_dialog_menu_theme">Προσαρμοσμένο Θέμα</string>
+    <string name="theme_title">Προσαρμοσμένο Θέμα</string>
+    <string name="theme_enable">Ενεργοποίηση Προσαρμοσμένου Θέματος</string>
+    <string name="theme_customize">Προσαρμογή Θέματος…</string>
+    <string name="theme_section_presets">Προεπιλογές</string>
+    <string name="theme_section_custom">Προσαρμοσμένα Χρώματα</string>
+    <string name="theme_collapse_section">Σύμπτυξη ενότητας</string>
+    <string name="theme_expand_section">Ανάπτυξη ενότητας</string>
+    <string name="theme_reset_custom">Επαναφορά στα Προεπιλεγμένα</string>
+    <string name="theme_saved">Το θέμα αποθηκεύτηκε</string>
+    <string name="theme_pick_color">Επιλέξτε χρώμα</string>
+    <string name="theme_apply_color">Εφαρμογή</string>
+    <string name="theme_rgba_format">R %1$d  G %2$d  B %3$d  A %4$d</string>
+    <string name="theme_alpha_format">Αδιαφάνεια: %1$d%%</string>
+    <string name="theme_slot_background">Φόντο</string>
+    <string name="theme_slot_surface">Επιφάνεια</string>
+    <string name="theme_slot_primary_text">Κύριο Κείμενο</string>
+    <string name="theme_slot_secondary_text">Δευτερεύον Κείμενο</string>
+    <string name="theme_slot_accent">Τονισμός</string>
+    <string name="theme_slot_button">Κουμπί</string>
+    <string name="theme_slot_icon">Εικονίδιο</string>
+    <string name="theme_slot_glyph">Γλύφος</string>
+    <string name="theme_slot_divider">Διαχωριστικό</string>
+    <string name="theme_slot_border">Περίγραμμα</string>
+    <string name="theme_slot_status_bar">Γραμμή Κατάστασης</string>
+    <string name="theme_slot_navigation">Γραμμή Πλοήγησης</string>
+    <string name="theme_slot_link">Σύνδεσμος</string>
+    <string name="theme_slot_error">Σφάλμα</string>
+    <string name="theme_slot_destructive">Καταστροφική Ενέργεια</string>
 </resources>

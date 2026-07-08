@@ -15,6 +15,7 @@ import ps.reso.instaeclipse.Xposed.Module;
 import ps.reso.instaeclipse.utils.core.DexKitCache;
 import ps.reso.instaeclipse.utils.feature.FeatureFlags;
 import ps.reso.instaeclipse.utils.feature.FeatureStatusTracker;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 /**
  * Prevents disappearing/vanish-mode messages from being deleted locally.
@@ -69,15 +70,15 @@ public class GhostEphemeralKeepHook {
                     Method m = md.getMethodInstance(classLoader);
                     DexKitCache.saveMethod("Ephemeral_vanish", m);
                     XposedBridge.hookMethod(m, hook);
-                    XposedBridge.log("(IE|Ephemeral) ✅ vanish-local-delete hook → "
+                    ModuleLog.line("(IE|Ephemeral) ✅ vanish-local-delete hook → "
                             + md.getClassName() + "." + md.getName());
                     FeatureStatusTracker.setHooked("KeepEphemeralMessages");
                     return;
                 } catch (Throwable ignored) {}
             }
-            XposedBridge.log("(IE|Ephemeral) ❌ vanish-local-delete method not found");
+            ModuleLog.line("(IE|Ephemeral) ❌ vanish-local-delete method not found");
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Ephemeral) ❌ hookVanishLocalDelete: " + t.getMessage());
+            ModuleLog.line("(IE|Ephemeral) ❌ hookVanishLocalDelete: " + t.getMessage());
         }
     }
 
@@ -111,13 +112,13 @@ public class GhostEphemeralKeepHook {
 
                 DexKitCache.saveMethod("Ephemeral_ping", method);
                 XposedBridge.hookMethod(method, hook);
-                XposedBridge.log("(IE|Ephemeral) ✅ server-ping hook → "
+                ModuleLog.line("(IE|Ephemeral) ✅ server-ping hook → "
                         + md.getClassName() + "." + md.getName());
                 return;
             }
-            XposedBridge.log("(IE|Ephemeral) ❌ server-ping method not found");
+            ModuleLog.line("(IE|Ephemeral) ❌ server-ping method not found");
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Ephemeral) ❌ hookServerPing: " + t.getMessage());
+            ModuleLog.line("(IE|Ephemeral) ❌ hookServerPing: " + t.getMessage());
         }
     }
 
@@ -155,17 +156,17 @@ public class GhostEphemeralKeepHook {
                     Method m = md.getMethodInstance(classLoader);
                     XposedBridge.hookMethod(m, hook);
                     hooked.add(m);
-                    XposedBridge.log("(IE|Ephemeral) ✅ expiry-parser hook → "
+                    ModuleLog.line("(IE|Ephemeral) ✅ expiry-parser hook → "
                             + md.getClassName() + "." + md.getName());
                 } catch (Throwable ignored) {}
             }
             if (hooked.isEmpty()) {
-                XposedBridge.log("(IE|Ephemeral) ❌ no expiry-parser methods hooked");
+                ModuleLog.line("(IE|Ephemeral) ❌ no expiry-parser methods hooked");
             } else {
                 DexKitCache.saveMethods("Ephemeral_expiry", hooked);
             }
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Ephemeral) ❌ hookExpiryParser: " + t.getMessage());
+            ModuleLog.line("(IE|Ephemeral) ❌ hookExpiryParser: " + t.getMessage());
         }
     }
 

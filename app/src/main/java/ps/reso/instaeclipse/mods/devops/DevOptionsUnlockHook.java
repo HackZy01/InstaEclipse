@@ -19,10 +19,19 @@ import ps.reso.instaeclipse.Xposed.Module;
 import ps.reso.instaeclipse.utils.core.DexKitCache;
 import ps.reso.instaeclipse.utils.feature.FeatureFlags;
 import ps.reso.instaeclipse.utils.feature.FeatureStatusTracker;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 public class DevOptionsUnlockHook {
 
-    private static final long IS_EMPLOYEE_CONFIG_ID = 36310864701161762L;
+    // MobileConfig param ID backing the "is employee" gate (LX/02il;->A00 in IG 429,
+    // renamed to LX/5sG;->A00 in IG 437+ after Meta re-generated the config schema).
+    // Both static (UserSession)Z accessors share this exact shape: null-check ->
+    // resolve UserSession to a MobileConfigUnsafeContext -> boolean getter with a
+    // hardcoded param ID. Try known IDs newest-first so current versions resolve fast.
+    private static final long[] IS_EMPLOYEE_CONFIG_IDS = {
+            36310830341423371L, // IG 437+ (LX/5sG;->A00, 0x8100820000010b)
+            36310856111227168L, // IG <= 429 (LX/02il;->A00, 0x81008800000120)
+    };
 
     public void handleDevOptions(DexKitBridge bridge) {
         if (DexKitCache.isCacheValid()) {
@@ -35,14 +44,14 @@ public class DevOptionsUnlockHook {
         try {
             findAndHookDynamicMethod(bridge);
         } catch (Exception e) {
-            XposedBridge.log("(InstaEclipse | DevOptionsEnable): ❌ Error handling Dev Options: " + e.getMessage());
+            ModuleLog.line("(InstaEclipse | DevOptionsEnable): ❌ Error handling Dev Options: " + e.getMessage());
         }
     }
 
     private void findAndHookDynamicMethod(DexKitBridge bridge) {
         try {
             // Tier 1: Existing String-based search
-            XposedBridge.log("(InstaEclipse | DevOptionsEnable): 🔍 Discovery Tier 1 (String)...");
+            ModuleLog.line("(InstaEclipse | DevOptionsEnable): 🔍 Discovery Tier 1 (String)...");
             List<ClassData> classes = bridge.findClass(FindClass.create()
                     .matcher(ClassMatcher.create().usingStrings("is_employee"))
             );
@@ -71,35 +80,38 @@ public class DevOptionsUnlockHook {
 
             // Tier 2: Failover to MobileConfig ID (The "Golden Anchor")
             if (!found) {
-                XposedBridge.log("(InstaEclipse | DevOptionsEnable): ⚠️ Tier 1 failed. Discovery Tier 2 (Config ID)...");
-                List<MethodData> idMethods = bridge.findMethod(FindMethod.create()
-                        .matcher(MethodMatcher.create()
-                                .usingNumbers(IS_EMPLOYEE_CONFIG_ID)
-                                .returnType("boolean")
-                                .paramCount(1))
-                );
+                ModuleLog.line("(InstaEclipse | DevOptionsEnable): ⚠️ Tier 1 failed. Discovery Tier 2 (Config ID)...");
+                for (long configId : IS_EMPLOYEE_CONFIG_IDS) {
+                    List<MethodData> idMethods = bridge.findMethod(FindMethod.create()
+                            .matcher(MethodMatcher.create()
+                                    .usingNumbers(configId)
+                                    .returnType("boolean")
+                                    .paramCount(1))
+                    );
 
-                if (!idMethods.isEmpty()) {
-                    String targetClass = idMethods.get(0).getClassName();
-                    XposedBridge.log("(InstaEclipse | DevOptionsEnable): 🎯 Found via Config ID in: " + targetClass);
-                    DexKitCache.saveString("DevOptionsClass", targetClass);
-                    hookAllBooleanMethodsInClass(bridge, targetClass);
-                    found = true;
+                    if (!idMethods.isEmpty()) {
+                        String targetClass = idMethods.get(0).getClassName();
+                        ModuleLog.line("(InstaEclipse | DevOptionsEnable): 🎯 Found via Config ID " + configId + " in: " + targetClass);
+                        DexKitCache.saveString("DevOptionsClass", targetClass);
+                        hookAllBooleanMethodsInClass(bridge, targetClass);
+                        found = true;
+                        break;
+                    }
                 }
             }
 
             // Final Debug Trace: If both fail, log where the string is used ANYWHERE
             if (!found) {
-                XposedBridge.log("(InstaEclipse | DevOptionsEnable): ❌ Tier 2 failed. Debugging global references...");
+                ModuleLog.line("(InstaEclipse | DevOptionsEnable): ❌ Tier 2 failed. Debugging global references...");
                 List<MethodData> debugMethods = bridge.findMethod(FindMethod.create()
                         .matcher(MethodMatcher.create().usingStrings("is_employee")));
                 for (MethodData m : debugMethods) {
-                    XposedBridge.log("(InstaEclipse | DevOptionsDebug): String 'is_employee' found in: " + m.getClassName() + "." + m.getName());
+                    ModuleLog.line("(InstaEclipse | DevOptionsDebug): String 'is_employee' found in: " + m.getClassName() + "." + m.getName());
                 }
             }
 
         } catch (Exception e) {
-            XposedBridge.log("(InstaEclipse | DevOptionsEnable): ❌ Error during discovery: " + e.getMessage());
+            ModuleLog.line("(InstaEclipse | DevOptionsEnable): ❌ Error during discovery: " + e.getMessage());
         }
     }
 
@@ -119,14 +131,14 @@ public class DevOptionsUnlockHook {
 
                 if (paramTypes.size() == 1 && paramTypes.get(0).contains("com.instagram.common.session.UserSession")) {
                     String targetClass = invokedMethod.getClassName();
-                    XposedBridge.log("(InstaEclipse | DevOptionsEnable): 📦 Hooking via String detection: " + targetClass);
+                    ModuleLog.line("(InstaEclipse | DevOptionsEnable): 📦 Hooking via String detection: " + targetClass);
                     DexKitCache.saveString("DevOptionsClass", targetClass);
                     hookAllBooleanMethodsInClass(bridge, targetClass);
                     return true;
                 }
             }
         } catch (Exception e) {
-            XposedBridge.log("(InstaEclipse | DevOptionsEnable): ❌ Error inspecting invoked methods: " + e.getMessage());
+            ModuleLog.line("(InstaEclipse | DevOptionsEnable): ❌ Error inspecting invoked methods: " + e.getMessage());
         }
         return false;
     }
@@ -150,10 +162,10 @@ public class DevOptionsUnlockHook {
                 if (!params[0].getName().equals("com.instagram.common.session.UserSession")) continue;
                 m.setAccessible(true);
                 XposedBridge.hookMethod(m, hook);
-                XposedBridge.log("(InstaEclipse | DevOptionsEnable): ✅ Hooked (cache): " + className + "." + m.getName());
+                ModuleLog.line("(InstaEclipse | DevOptionsEnable): ✅ Hooked (cache): " + className + "." + m.getName());
             }
         } catch (Throwable e) {
-            XposedBridge.log("(InstaEclipse | DevOptionsEnable): ❌ Reflection fallback failed: " + e.getMessage());
+            ModuleLog.line("(InstaEclipse | DevOptionsEnable): ❌ Reflection fallback failed: " + e.getMessage());
         }
     }
 
@@ -182,14 +194,14 @@ public class DevOptionsUnlockHook {
                                 }
                             }
                         });
-                        XposedBridge.log("(InstaEclipse | DevOptionsEnable): ✅ Hooked: " + method.getClassName() + "." + method.getName());
+                        ModuleLog.line("(InstaEclipse | DevOptionsEnable): ✅ Hooked: " + method.getClassName() + "." + method.getName());
                     } catch (Throwable e) {
-                        XposedBridge.log("(InstaEclipse | DevOptionsEnable): ❌ Failed to hook " + method.getName() + ": " + e.getMessage());
+                        ModuleLog.line("(InstaEclipse | DevOptionsEnable): ❌ Failed to hook " + method.getName() + ": " + e.getMessage());
                     }
                 }
             }
         } catch (Exception e) {
-            XposedBridge.log("(InstaEclipse | DevOptionsEnable): ❌ Error while hooking class: " + className + " → " + e.getMessage());
+            ModuleLog.line("(InstaEclipse | DevOptionsEnable): ❌ Error while hooking class: " + className + " → " + e.getMessage());
         }
     }
 }

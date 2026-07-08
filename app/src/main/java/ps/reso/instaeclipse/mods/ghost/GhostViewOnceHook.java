@@ -15,6 +15,7 @@ import ps.reso.instaeclipse.Xposed.Module;
 import ps.reso.instaeclipse.utils.core.DexKitCache;
 import ps.reso.instaeclipse.utils.feature.FeatureFlags;
 import ps.reso.instaeclipse.utils.feature.FeatureStatusTracker;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 public class GhostViewOnceHook {
 
@@ -23,7 +24,7 @@ public class GhostViewOnceHook {
             Method cached = DexKitCache.loadMethod("GhostViewOnce", Module.hostClassLoader);
             if (cached != null) {
                 XposedBridge.hookMethod(cached, buildViewOnceHook());
-                XposedBridge.log("(InstaEclipse | ViewOnce): ✅ Hooked (dynamic check): " + cached.getDeclaringClass().getName() + "." + cached.getName());
+                ModuleLog.line("(InstaEclipse | ViewOnce): ✅ Hooked (dynamic check): " + cached.getDeclaringClass().getName() + "." + cached.getName());
                 FeatureStatusTracker.setHooked("GhostViewOnce");
                 return;
             }
@@ -38,7 +39,7 @@ public class GhostViewOnceHook {
             );
 
             if (methods.isEmpty()) {
-                XposedBridge.log("(InstaEclipse | ViewOnce): ❌ No methods found containing 'visual_item_seen'");
+                ModuleLog.line("(InstaEclipse | ViewOnce): ❌ No methods found containing 'visual_item_seen'");
                 return;
             }
 
@@ -61,7 +62,7 @@ public class GhostViewOnceHook {
                     DexKitCache.saveMethod("GhostViewOnce", reflectMethod);
                     XposedBridge.hookMethod(reflectMethod, buildViewOnceHook());
 
-                    XposedBridge.log("(InstaEclipse | ViewOnce): ✅ Hooked (dynamic check): " +
+                    ModuleLog.line("(InstaEclipse | ViewOnce): ✅ Hooked (dynamic check): " +
                             method.getClassName() + "." + method.getName());
                     FeatureStatusTracker.setHooked("GhostViewOnce");
                     return;
@@ -69,7 +70,7 @@ public class GhostViewOnceHook {
             }
 
         } catch (Throwable e) {
-            XposedBridge.log("(InstaEclipse | ViewOnce): ❌ Exception: " + e.getMessage());
+            ModuleLog.line("(InstaEclipse | ViewOnce): ❌ Exception: " + e.getMessage());
         }
     }
 

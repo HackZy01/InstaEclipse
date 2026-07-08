@@ -44,73 +44,114 @@ import ps.reso.instaeclipse.utils.feature.FeatureFlags;
 import ps.reso.instaeclipse.utils.feature.FeatureStatusTracker;
 import ps.reso.instaeclipse.utils.i18n.I18n;
 import ps.reso.instaeclipse.utils.users.UserUtils;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 public class StoryMentionHook {
 
 
 
-    // Resolved once: MediaExtKt.A1s(Media) → List<User>
-    // DexKit anchor: only static (Media)→List method on MediaExtKt that accesses a field
-    // declared on com.instagram.reels.interactive.Interactive (field A1I of type User).
-    private static volatile Method mentionGetterMethod = null;
-    private static final List<Method> mentionGetterCandidates = new ArrayList<>();
+    // Story @mentions live behind a two-step pipeline, not a single Media-level getter:
+    //   Media -> LiveTreeMediaDict (found by type) -> "reel_mentions" field (raw tree entries)
+    //   -> a converter method that turns each raw entry into an Interactive sticker object,
+    //      with the actual mentioned User stored in one of Interactive's own fields.
+    // Anchoring on the "reel_mentions" JSON key and the converter's own debug string is far
+    // more stable across IG versions than matching a Media-level method's signature — those
+    // getters get refactored/renamed/re-typed constantly (see git history of this file), but
+    // literal JSON field names and hardcoded log/QPL strings don't change on a version bump.
+    private static volatile Method rawMentionsGetter;   // LiveTreeMediaDict -> List (raw entries)
+    private static volatile Method mentionsConverter;   // List(raw) -> List<Interactive w/ User field>
 
     private static final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     // ── Entry point ──────────────────────────────────────────────────────────
 
     public void install(DexKitBridge bridge, ClassLoader classLoader) {
-        resolveMentionGetter(bridge, classLoader);
+        resolveMentionPipeline(bridge, classLoader);
         installButtonHook(bridge, classLoader);
         installClickHook(bridge, classLoader);
         FeatureStatusTracker.setHooked("StoryMentions");
     }
 
-    // ── DexKit: resolve the mention getter ───────────────────────────────────
-    //
-    // Targets the only static (Media)→List method on MediaExtKt that reads a field
-    // declared on com.instagram.reels.interactive.Interactive. Found via usingFields
-    // on Interactive — cleaner than depending on a specific call-site string.
+    // ── DexKit: resolve the two-step mention pipeline ────────────────────────
 
-    private static void resolveMentionGetter(DexKitBridge bridge, ClassLoader classLoader) {
-        // Cache hit
+    private static void resolveMentionPipeline(DexKitBridge bridge, ClassLoader classLoader) {
         if (DexKitCache.isCacheValid()) {
-            List<Method> cached = DexKitCache.loadMethods("MentionGetter", classLoader);
-            if (cached != null && !cached.isEmpty()) {
-                mentionGetterCandidates.addAll(cached);
-                mentionGetterMethod = mentionGetterCandidates.get(0);
-                XposedBridge.log("(IE|Mention) ✅ " + cached.size() + " candidate(s) from cache");
+            Method g = DexKitCache.loadMethod("MentionsRawGetter", classLoader);
+            Method c = DexKitCache.loadMethod("MentionsConverter", classLoader);
+            if (g != null && c != null) {
+                rawMentionsGetter = g;
+                mentionsConverter = c;
+                ModuleLog.line("(IE|Mention) ✅ pipeline resolved from cache");
                 return;
             }
         }
 
         try {
-            List<MethodData> results = bridge.findMethod(FindMethod.create()
+            List<MethodData> getters = bridge.findMethod(FindMethod.create()
                     .matcher(MethodMatcher.create()
-                            .declaredClass("com.instagram.feed.media.MediaExtKt")
-                            .returnType("java.util.List")
-                            .paramCount(1)
-                            .usingStrings("Required value was null.")
-                    ));
-
-            for (MethodData md : results) {
+                            .declaredClass("com.instagram.feed.media.LiveTreeMediaDict")
+                            .paramCount(0)
+                            .usingEqStrings(List.of("reel_mentions"))));
+            for (MethodData md : getters) {
+                if (md.getName().equals("<clinit>")) continue;
                 try {
                     Method m = md.getMethodInstance(classLoader);
+                    if (!List.class.isAssignableFrom(m.getReturnType())) continue;
                     m.setAccessible(true);
-                    mentionGetterCandidates.add(m);
+                    rawMentionsGetter = m;
+                    DexKitCache.saveMethod("MentionsRawGetter", m);
+                    break;
                 } catch (Throwable ignored) {}
             }
-
-            if (!mentionGetterCandidates.isEmpty()) {
-                mentionGetterMethod = mentionGetterCandidates.get(0);
-                DexKitCache.saveMethods("MentionGetter", mentionGetterCandidates);
-                XposedBridge.log("(IE|Mention) ✅ " + mentionGetterCandidates.size() + " candidate(s) loaded");
-            } else {
-                XposedBridge.log("(IE|Mention) ❌ mentionGetter not found");
-            }
+            if (rawMentionsGetter == null) ModuleLog.line("(IE|Mention) ❌ rawMentionsGetter not found");
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Mention) ❌ resolveMentionGetter: " + t);
+            ModuleLog.line("(IE|Mention) ❌ rawMentionsGetter query failed: " + t);
         }
+
+        try {
+            List<MethodData> converters = bridge.findMethod(FindMethod.create()
+                    .matcher(MethodMatcher.create()
+                            .paramCount(1)
+                            .usingEqStrings(List.of("MentionTappableObject.user is null; dropping mention sticker"))));
+            for (MethodData md : converters) {
+                try {
+                    Method m = md.getMethodInstance(classLoader);
+                    if (!List.class.isAssignableFrom(m.getReturnType())) continue;
+                    m.setAccessible(true);
+                    mentionsConverter = m;
+                    DexKitCache.saveMethod("MentionsConverter", m);
+                    break;
+                } catch (Throwable ignored) {}
+            }
+            if (mentionsConverter == null) ModuleLog.line("(IE|Mention) ❌ mentionsConverter not found");
+        } catch (Throwable t) {
+            ModuleLog.line("(IE|Mention) ❌ mentionsConverter query failed: " + t);
+        }
+
+        if (rawMentionsGetter != null && mentionsConverter != null) {
+            ModuleLog.line("(IE|Mention) ✅ pipeline resolved: " + rawMentionsGetter.getName() + " -> " + mentionsConverter.getName());
+        }
+    }
+
+    // Walks an object's declared fields (and superclasses) for the first one whose exact
+    // declared type matches typeName. Used to find LiveTreeMediaDict on Media, and the
+    // mentioned User inside an Interactive sticker, without depending on obfuscated field names.
+    private static Object findFieldByType(Object obj, String typeName) {
+        if (obj == null) return null;
+        Class<?> cls = obj.getClass();
+        while (cls != null && cls != Object.class) {
+            for (Field f : cls.getDeclaredFields()) {
+                if (f.getType().getName().equals(typeName)) {
+                    try {
+                        f.setAccessible(true);
+                        Object v = f.get(obj);
+                        if (v != null) return v;
+                    } catch (Throwable ignored) {}
+                }
+            }
+            cls = cls.getSuperclass();
+        }
+        return null;
     }
 
     // ── Hook 1: append "View Mentions" to the story options list ─────────────
@@ -143,12 +184,12 @@ public class StoryMentionHook {
                     } catch (Throwable ignored) {}
                 }
             } catch (Throwable t) {
-                XposedBridge.log("(IE|Mention) ❌ button hook DexKit: " + t);
+                ModuleLog.line("(IE|Mention) ❌ button hook DexKit: " + t);
             }
         }
 
         if (method == null) {
-            XposedBridge.log("(IE|Mention) ❌ button builder not found");
+            ModuleLog.line("(IE|Mention) ❌ button builder not found");
             return;
         }
         DexKitCache.saveMethod("MentionButton", method);
@@ -170,9 +211,9 @@ public class StoryMentionHook {
                     param.setResult(extended);
                 }
             });
-            XposedBridge.log("(IE|Mention) ✅ button hook installed");
+            ModuleLog.line("(IE|Mention) ✅ button hook installed");
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Mention) ❌ button hook: " + t);
+            ModuleLog.line("(IE|Mention) ❌ button hook: " + t);
         }
     }
 
@@ -197,13 +238,13 @@ public class StoryMentionHook {
                                         "friendships/mute_friend_reel/%s/",
                                         "[INTERNAL] Pause Playback")));
                 if (methods.isEmpty()) {
-                    XposedBridge.log("(IE|Mention) ❌ click handler not found");
+                    ModuleLog.line("(IE|Mention) ❌ click handler not found");
                     return;
                 }
                 method = methods.get(0).getMethodInstance(classLoader);
                 DexKitCache.saveMethod("MentionClick", method);
             } catch (Throwable t) {
-                XposedBridge.log("(IE|Mention) ❌ click hook DexKit: " + t);
+                ModuleLog.line("(IE|Mention) ❌ click hook DexKit: " + t);
                 return;
             }
         }
@@ -238,18 +279,18 @@ public class StoryMentionHook {
                             if (ctx == null) ctx = findContext(a);
                         }
 
-                        if (ctx == null) { XposedBridge.log("(IE|Mention) ❌ context not found"); return; }
-                        if (media == null) { XposedBridge.log("(IE|Mention) ❌ Media not found"); return; }
+                        if (ctx == null) { ModuleLog.line("(IE|Mention) ❌ context not found"); return; }
+                        if (media == null) { ModuleLog.line("(IE|Mention) ❌ Media not found"); return; }
 
                         showMentionsDialog(ctx, resolveMentions(media));
                     } catch (Throwable t) {
-                        XposedBridge.log("(IE|Mention) ❌ click handler: " + t);
+                        ModuleLog.line("(IE|Mention) ❌ click handler: " + t);
                     }
                 }
             });
-            XposedBridge.log("(IE|Mention) ✅ click hook installed");
+            ModuleLog.line("(IE|Mention) ✅ click hook installed");
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Mention) ❌ click hook: " + t);
+            ModuleLog.line("(IE|Mention) ❌ click hook: " + t);
         }
     }
 
@@ -259,39 +300,36 @@ public class StoryMentionHook {
     private static List<String> resolveMentions(Object media) {
         List<String> usernames = new ArrayList<>();
         try {
-            if (mentionGetterCandidates.isEmpty()) {
-                XposedBridge.log("(IE|Mention) ❌ no mentionGetter candidates");
+            if (rawMentionsGetter == null || mentionsConverter == null) {
+                ModuleLog.line("(IE|Mention) ❌ mention pipeline not resolved");
                 return usernames;
             }
 
-            // On first real call, probe all candidates and pin the one returning User objects.
-            // A1n returns List<String> user IDs; A1o returns List<User> with usernames.
-            if (mentionGetterMethod == null || mentionGetterMethod == mentionGetterCandidates.get(0)) {
-                for (Method candidate : mentionGetterCandidates) {
-                    try {
-                        Object probe = candidate.invoke(null, media);
-                        if (!(probe instanceof List<?> list) || list.isEmpty()) continue;
-                        Object first = list.get(0);
-                        if (first != null && !(first instanceof String)) {
-                            // Found the User-returning method — pin it
-                            mentionGetterMethod = candidate;
-                            XposedBridge.log("(IE|Mention) ✅ pinned to " + candidate.getName() + " (returns User objects)");
-                            break;
-                        }
-                    } catch (Throwable ignored) {}
-                }
+            Object dict = findFieldByType(media, "com.instagram.feed.media.LiveTreeMediaDict");
+            if (dict == null) {
+                ModuleLog.line("(IE|Mention) ❌ LiveTreeMediaDict not found on media");
+                return usernames;
             }
 
-            Object result = mentionGetterMethod.invoke(null, media);
-            if (!(result instanceof List<?> list)) return usernames;
+            Object rawResult = rawMentionsGetter.invoke(dict);
+            if (!(rawResult instanceof List<?> raw) || raw.isEmpty()) return usernames;
+
+            Object convertedResult = mentionsConverter.invoke(null, raw);
+            if (!(convertedResult instanceof List<?> list)) return usernames;
 
             for (Object item : list) {
                 if (item == null) continue;
-                String username = (item instanceof String s) ? null : UserUtils.callUsernameGetter(item);
+                // The converter returns Interactive stickers, not raw Users — the mentioned
+                // User lives in one of Interactive's own fields (unless a future version
+                // returns Users directly, which this also handles).
+                Object user = item.getClass().getName().equals("com.instagram.user.model.User")
+                        ? item : findFieldByType(item, "com.instagram.user.model.User");
+                if (user == null) continue;
+                String username = UserUtils.callUsernameGetter(user);
                 if (username != null && !username.isEmpty()) usernames.add(username);
             }
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Mention) resolveMentions exception: " + t);
+            ModuleLog.line("(IE|Mention) resolveMentions exception: " + t);
         }
         return usernames;
     }
@@ -466,7 +504,7 @@ public class StoryMentionHook {
                 dialog.show();
 
             } catch (Throwable t) {
-                XposedBridge.log("(IE|Mention) ❌ showMentionsDialog: " + t);
+                ModuleLog.line("(IE|Mention) ❌ showMentionsDialog: " + t);
             }
         });
     }

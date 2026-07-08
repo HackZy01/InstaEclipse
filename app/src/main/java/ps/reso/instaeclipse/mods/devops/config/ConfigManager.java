@@ -16,6 +16,7 @@ import java.util.zip.ZipFile;
 import de.robv.android.xposed.XposedBridge;
 import ps.reso.instaeclipse.R;
 import ps.reso.instaeclipse.utils.i18n.I18n;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 public class ConfigManager {
 
@@ -30,9 +31,9 @@ public class ConfigManager {
                         Toast.makeText(context.getApplicationContext(),
                                 I18n.t(context, R.string.ig_toast_default_config_restored), Toast.LENGTH_SHORT).show()
                 );
-                XposedBridge.log("InstaEclipse | ✅ Default config restored.");
+                ModuleLog.line("InstaEclipse | ✅ Default config restored.");
             } catch (Exception e) {
-                XposedBridge.log("InstaEclipse | ❌ Default config restore failed: " + e.getMessage());
+                ModuleLog.line("InstaEclipse | ❌ Default config restore failed: " + e.getMessage());
                 new Handler(Looper.getMainLooper()).post(() ->
                         Toast.makeText(context.getApplicationContext(),
                                 I18n.t(context, R.string.ig_toast_config_import_failed), Toast.LENGTH_LONG).show()
@@ -47,10 +48,10 @@ public class ConfigManager {
                 writeConfigJson(context, json);
                 new Handler(Looper.getMainLooper()).post(() -> {
                     Toast.makeText(context.getApplicationContext(), I18n.t(context, R.string.ig_toast_config_imported), Toast.LENGTH_LONG).show();
-                    XposedBridge.log("InstaEclipse | ✅ JSON imported into mc_overrides.json");
+                    ModuleLog.line("InstaEclipse | ✅ JSON imported into mc_overrides.json");
                 });
             } catch (Exception e) {
-                XposedBridge.log("InstaEclipse | ❌ Import failed: " + e.getMessage());
+                ModuleLog.line("InstaEclipse | ❌ Import failed: " + e.getMessage());
                 new Handler(Looper.getMainLooper()).post(() ->
                         Toast.makeText(context.getApplicationContext(), I18n.t(context, R.string.ig_toast_config_import_failed), Toast.LENGTH_LONG).show()
                 );

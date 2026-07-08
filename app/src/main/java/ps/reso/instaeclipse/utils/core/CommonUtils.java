@@ -1,11 +1,23 @@
 package ps.reso.instaeclipse.utils.core;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+
 import java.util.Arrays;
 import java.util.List;
 
 public class CommonUtils {
     public static final String IG_PACKAGE_NAME = "com.instagram.android";
     public static final String MY_PACKAGE_NAME = "ps.reso.instaeclipse";
+
+    // In-app log viewer IPC
+    public static final String ACTION_REQUEST_LOGS = "ps.reso.instaeclipse.ACTION_REQUEST_LOGS";
+    public static final String ACTION_LOGS_REPLY = "ps.reso.instaeclipse.ACTION_LOGS_REPLY";
+    public static final String ACTION_CLEAR_LOGS = "ps.reso.instaeclipse.ACTION_CLEAR_LOGS";
+    public static final String EXTRA_LOG_TEXT = "log_text";
+    public static final String EXTRA_LOG_SOURCE = "source_package";
+    public static final String EXTRA_LOG_ERROR = "error";
 
     /** All Instagram packages this module hooks into. */
     public static final List<String> SUPPORTED_PACKAGES = Arrays.asList(
@@ -42,6 +54,19 @@ public class CommonUtils {
         // If second segment is very short or generic, try third
         if (best.length() <= 2 && parts.length >= 3) best = parts[2];
         return Character.toUpperCase(best.charAt(0)) + best.substring(1).toLowerCase();
+    }
+
+    /** Sends a broadcast to every supported Instagram variant currently installed. */
+    public static void broadcastToInstagram(Context context, Intent intent) {
+        PackageManager pm = context.getPackageManager();
+        for (String pkg : SUPPORTED_PACKAGES) {
+            try {
+                pm.getPackageInfo(pkg, 0);
+                Intent targeted = new Intent(intent);
+                targeted.setPackage(pkg);
+                context.sendBroadcast(targeted);
+            } catch (Throwable ignored) {}
+        }
     }
 
     /*

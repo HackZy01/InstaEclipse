@@ -15,6 +15,7 @@ import de.robv.android.xposed.XposedBridge;
 import ps.reso.instaeclipse.utils.core.DexKitCache;
 import ps.reso.instaeclipse.utils.feature.FeatureFlags;
 import ps.reso.instaeclipse.utils.feature.FeatureStatusTracker;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 public class GhostReplayLimitHook {
 
@@ -53,13 +54,13 @@ public class GhostReplayLimitHook {
                     if (m.getReturnType() != void.class) continue;
                     DexKitCache.saveMethod("Replays_update", m);
                     XposedBridge.hookMethod(m, hook);
-                    XposedBridge.log("(IE|Replays) ✅ update hook → " + md.getClassName() + "." + md.getName());
+                    ModuleLog.line("(IE|Replays) ✅ update hook → " + md.getClassName() + "." + md.getName());
                     return;
                 } catch (Throwable ignored) {}
             }
-            XposedBridge.log("(IE|Replays) ❌ update method not found");
+            ModuleLog.line("(IE|Replays) ❌ update method not found");
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Replays) ❌ hookUpdateMethod: " + t);
+            ModuleLog.line("(IE|Replays) ❌ hookUpdateMethod: " + t);
         }
     }
 
@@ -83,7 +84,7 @@ public class GhostReplayLimitHook {
             List<Method> cached = DexKitCache.loadMethods("Replays_parse", classLoader);
             if (cached != null && !cached.isEmpty()) {
                 for (Method m : cached) XposedBridge.hookMethod(m, hook);
-                XposedBridge.log("[IE] ✅ Ghost Replay – parseFromJson");
+                ModuleLog.line("[IE] ✅ Ghost Replay – parseFromJson");
                 return;
             }
         }
@@ -99,17 +100,17 @@ public class GhostReplayLimitHook {
                     Method m = md.getMethodInstance(classLoader);
                     XposedBridge.hookMethod(m, hook);
                     hooked.add(m);
-                    XposedBridge.log("(IE|Replays) ✅ parseFromJson hook → " + md.getClassName() + "." + md.getName());
+                    ModuleLog.line("(IE|Replays) ✅ parseFromJson hook → " + md.getClassName() + "." + md.getName());
                 } catch (Throwable ignored) {}
             }
             if (hooked.isEmpty()) {
-                XposedBridge.log("(IE|Replays) ❌ parseFromJson method not found");
+                ModuleLog.line("(IE|Replays) ❌ parseFromJson method not found");
             } else {
                 DexKitCache.saveMethods("Replays_parse", hooked);
-                XposedBridge.log("[IE] ✅ Ghost Replay – parseFromJson");
+                ModuleLog.line("[IE] ✅ Ghost Replay – parseFromJson");
             }
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Replays) ❌ hookParseFromJsonMethod: " + t);
+            ModuleLog.line("(IE|Replays) ❌ hookParseFromJsonMethod: " + t);
         }
     }
 
@@ -130,7 +131,7 @@ public class GhostReplayLimitHook {
             Method cached = DexKitCache.loadMethod("Replays_sync", classLoader);
             if (cached != null) {
                 XposedBridge.hookMethod(cached, hook);
-                XposedBridge.log("[IE] ✅ Ghost Replay – sync");
+                ModuleLog.line("[IE] ✅ Ghost Replay – sync");
                 FeatureStatusTracker.setHooked("UnlimitedReplays");
                 return;
             }
@@ -148,15 +149,15 @@ public class GhostReplayLimitHook {
                     if (!java.lang.reflect.Modifier.isSynchronized(m.getModifiers())) continue;
                     DexKitCache.saveMethod("Replays_sync", m);
                     XposedBridge.hookMethod(m, hook);
-                    XposedBridge.log("[IE] ✅ Ghost Replay – sync");
-                    XposedBridge.log("(IE|Replays) ✅ sync hook → " + md.getClassName() + "." + md.getName());
+                    ModuleLog.line("[IE] ✅ Ghost Replay – sync");
+                    ModuleLog.line("(IE|Replays) ✅ sync hook → " + md.getClassName() + "." + md.getName());
                     FeatureStatusTracker.setHooked("UnlimitedReplays");
                     return;
                 } catch (Throwable ignored) {}
             }
-            XposedBridge.log("(IE|Replays) ❌ sync method not found");
+            ModuleLog.line("(IE|Replays) ❌ sync method not found");
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Replays) ❌ hookSyncMethod: " + t);
+            ModuleLog.line("(IE|Replays) ❌ hookSyncMethod: " + t);
         }
     }
 

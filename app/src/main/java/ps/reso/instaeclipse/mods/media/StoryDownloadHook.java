@@ -27,6 +27,7 @@ import ps.reso.instaeclipse.utils.feature.FeatureFlags;
 import ps.reso.instaeclipse.utils.feature.FeatureStatusTracker;
 import ps.reso.instaeclipse.utils.i18n.I18n;
 import ps.reso.instaeclipse.utils.users.UserUtils;
+import ps.reso.instaeclipse.utils.log.ModuleLog;
 
 public class StoryDownloadHook {
 
@@ -71,7 +72,7 @@ public class StoryDownloadHook {
                                 .paramCount(1)));
 
                 if (methods.isEmpty()) {
-                    XposedBridge.log("(IE|Story) ❌ Button builder method not found");
+                    ModuleLog.line("(IE|Story) ❌ Button builder method not found");
                     return;
                 }
 
@@ -86,13 +87,13 @@ public class StoryDownloadHook {
                     } catch (Throwable ignored) {}
                 }
             } catch (Throwable t) {
-                XposedBridge.log("(IE|Story) ❌ Button builder DexKit: " + t);
+                ModuleLog.line("(IE|Story) ❌ Button builder DexKit: " + t);
                 return;
             }
         }
 
         if (method == null) {
-            XposedBridge.log("(IE|Story) ❌ No CharSequence[] return type candidate found");
+            ModuleLog.line("(IE|Story) ❌ No CharSequence[] return type candidate found");
             return;
         }
         DexKitCache.saveMethod("StoryDownload_button", method);
@@ -119,7 +120,7 @@ public class StoryDownloadHook {
             });
 
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Story) ❌ Button builder hook: " + t);
+            ModuleLog.line("(IE|Story) ❌ Button builder hook: " + t);
         }
     }
 
@@ -144,13 +145,13 @@ public class StoryDownloadHook {
                                         "[INTERNAL] Pause Playback")));
 
                 if (methods.isEmpty()) {
-                    XposedBridge.log("(IE|Story) ❌ Click handler not found");
+                    ModuleLog.line("(IE|Story) ❌ Click handler not found");
                     return;
                 }
                 method = methods.get(0).getMethodInstance(classLoader);
                 DexKitCache.saveMethod("StoryDownload_click", method);
             } catch (Throwable t) {
-                XposedBridge.log("(IE|Story) ❌ Click handler DexKit: " + t);
+                ModuleLog.line("(IE|Story) ❌ Click handler DexKit: " + t);
                 return;
             }
         }
@@ -176,18 +177,18 @@ public class StoryDownloadHook {
                     // 3. Locate the object that holds ReelItem — it is either 'this' or a
                     //    parameter of the same declaring class (piko's smali shows the latter).
                     Object holder = findReelItemHolder(param);
-                    XposedBridge.log("(IE|Story) holder=" + (holder != null ? holder.getClass().getName() : "null"));
+                    ModuleLog.line("(IE|Story) holder=" + (holder != null ? holder.getClass().getName() : "null"));
 
                     // 4. Extract the Context
                     Context ctx = findContext(holder != null ? holder : param.thisObject);
                     if (ctx == null) {
-                        XposedBridge.log("(IE|Story) ❌ Context not found");
+                        ModuleLog.line("(IE|Story) ❌ Context not found");
                         return;
                     }
 
                     // 5. Extract story URL via ReelItem → media object field graph
                     String url = extractStoryUrl(holder != null ? holder : param.thisObject);
-                    XposedBridge.log("(IE|Story) url=" + url);
+                    ModuleLog.line("(IE|Story) url=" + url);
 
                     if (url == null || url.isEmpty()) {
                         Toast.makeText(ctx, I18n.t(ctx, R.string.ig_toast_story_url_not_found), Toast.LENGTH_SHORT).show();
@@ -204,7 +205,7 @@ public class StoryDownloadHook {
             FeatureStatusTracker.setHooked("StoryDownload");
 
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Story) ❌ Click handler hook: " + t);
+            ModuleLog.line("(IE|Story) ❌ Click handler hook: " + t);
         }
     }
 
@@ -248,7 +249,7 @@ public class StoryDownloadHook {
         if (holder == null) return null;
         try {
             Object reelItem = readFieldByTypeName(holder, "com.instagram.model.reels.ReelItem");
-            XposedBridge.log("(IE|Story) reelItem=" +
+            ModuleLog.line("(IE|Story) reelItem=" +
                     (reelItem != null ? reelItem.getClass().getName() : "null"));
 
             Object target = reelItem != null ? reelItem : holder;
@@ -267,10 +268,10 @@ public class StoryDownloadHook {
             List<CandidateInfo> candidates = new ArrayList<>();
             collectImageCandidates(target, candidates,
                     Collections.newSetFromMap(new IdentityHashMap<>()), 0);
-            XposedBridge.log("(IE|Story) imageCandidates=" + candidates.size());
+            ModuleLog.line("(IE|Story) imageCandidates=" + candidates.size());
             if (!candidates.isEmpty()) {
                 candidates.sort((a, b) -> Integer.compare(b.area, a.area));
-                XposedBridge.log("(IE|Story) bestCandidate area=" + candidates.get(0).area
+                ModuleLog.line("(IE|Story) bestCandidate area=" + candidates.get(0).area
                         + " url=" + candidates.get(0).url.substring(0, Math.min(80, candidates.get(0).url.length())));
                 return candidates.get(0).url;
             }
@@ -281,7 +282,7 @@ public class StoryDownloadHook {
             if (!cdnUrls.isEmpty()) return pickBestUrl(cdnUrls);
 
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Story) extractStoryUrl error: " + t);
+            ModuleLog.line("(IE|Story) extractStoryUrl error: " + t);
         }
         return null;
     }
@@ -567,10 +568,10 @@ public class StoryDownloadHook {
      */
     private static String extractUsernameFromReelItemHolder(Object holder) {
         if (holder == null) {
-            XposedBridge.log("(IE|Story|Username) holder is null");
+            ModuleLog.line("(IE|Story|Username) holder is null");
             return null;
         }
-        XposedBridge.log("(IE|Story|Username) searching in holder=" + holder.getClass().getName());
+        ModuleLog.line("(IE|Story|Username) searching in holder=" + holder.getClass().getName());
         try {
             // Step 1: find the ReelItem field on the holder
             Object reelItem = null;
@@ -583,7 +584,7 @@ public class StoryDownloadHook {
                         if (val != null && val.getClass().getName()
                                 .equals("com.instagram.model.reels.ReelItem")) {
                             reelItem = val;
-                            XposedBridge.log("(IE|Story|Username) found ReelItem in field="
+                            ModuleLog.line("(IE|Story|Username) found ReelItem in field="
                                     + f.getName() + " on " + cls.getName());
                             break;
                         }
@@ -595,10 +596,10 @@ public class StoryDownloadHook {
             if (reelItem == null && holder.getClass().getName()
                     .equals("com.instagram.model.reels.ReelItem")) {
                 reelItem = holder;
-                XposedBridge.log("(IE|Story|Username) holder is itself a ReelItem");
+                ModuleLog.line("(IE|Story|Username) holder is itself a ReelItem");
             }
             if (reelItem == null) {
-                XposedBridge.log("(IE|Story|Username) ❌ ReelItem not found in holder");
+                ModuleLog.line("(IE|Story|Username) ❌ ReelItem not found in holder");
                 return null;
             }
 
@@ -620,7 +621,7 @@ public class StoryDownloadHook {
                     if (candidateClass.equals("com.instagram.user.model.User")) {
                         String username = UserUtils.callUsernameGetter(candidate);
                         if (username != null) {
-                            XposedBridge.log("(IE|Story|Username) reelItem." + m.getName() + "() [User] → " + username);
+                            ModuleLog.line("(IE|Story|Username) reelItem." + m.getName() + "() [User] → " + username);
                             return username;
                         }
                         continue;
@@ -630,7 +631,7 @@ public class StoryDownloadHook {
                     if (candidateClass.equals("com.instagram.feed.media.Media")) {
                         String username = FeedVideoDownloadHook.extractUsernameFromMediaObject(candidate);
                         if (username != null) {
-                            XposedBridge.log("(IE|Story|Username) reelItem." + m.getName()
+                            ModuleLog.line("(IE|Story|Username) reelItem." + m.getName()
                                     + "() [Media] → " + username);
                             return username;
                         }
@@ -639,9 +640,9 @@ public class StoryDownloadHook {
                 } catch (Throwable ignored) {}
             }
 
-            XposedBridge.log("(IE|Story|Username) ❌ username not found on ReelItem methods");
+            ModuleLog.line("(IE|Story|Username) ❌ username not found on ReelItem methods");
         } catch (Throwable t) {
-            XposedBridge.log("(IE|Story|Username) ❌ Exception: " + t);
+            ModuleLog.line("(IE|Story|Username) ❌ Exception: " + t);
         }
         return null;
     }
@@ -671,7 +672,7 @@ public class StoryDownloadHook {
 
     private void startDownload(Context ctx, String url, boolean isVideo) {
         String fn = FeedVideoDownloadHook.buildFilename(currentStoryUsername, "story", currentStoryMediaId, isVideo);
-        XposedBridge.log("(IE|Story|DL) username=" + currentStoryUsername + " mediaId=" + currentStoryMediaId
+        ModuleLog.line("(IE|Story|DL) username=" + currentStoryUsername + " mediaId=" + currentStoryMediaId
                 + " file=" + fn);
         Toast.makeText(ctx, isVideo ? I18n.t(ctx, R.string.ig_toast_downloading_story_video) : I18n.t(ctx, R.string.ig_toast_downloading_story_photo), Toast.LENGTH_SHORT).show();
         mainHandler.post(() -> new Thread(() -> {

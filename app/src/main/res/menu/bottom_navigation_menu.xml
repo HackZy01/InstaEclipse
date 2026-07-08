@@ -10,6 +10,11 @@
         android:title="@string/features" />
 
     <item
+        android:id="@+id/nav_logs"
+        android:icon="@drawable/ic_terminal"
+        android:title="@string/logging" />
+
+    <item
         android:id="@+id/nav_help"
         android:icon="@drawable/nav_selector_help"
         android:title="@string/help" />
