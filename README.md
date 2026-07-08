@@ -158,7 +158,7 @@ While InstaEclipse is built to stay compatible with new Instagram releases autom
 
 | |                                                                                                                 |
 |---|-----------------------------------------------------------------------------------------------------------------|
-| **Latest tested version** | [`429.0.0.19.70`](https://www.apkmirror.com/apk/instagram/instagram-instagram/instagram-429-0-0-19-70-release/) |
+| **Latest tested version** | [`438.0.0.0.64`](https://www.apkmirror.com/apk/instagram/instagram-instagram/instagram-438-0-0-0-64-release/) |
 | **Recommended build type** | Beta or Alpha (from APKMirror)                                                                                  |
 
 ---
