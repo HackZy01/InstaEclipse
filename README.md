@@ -27,9 +27,6 @@
 
 It uses [DexKit](https://github.com/LuckyPray/DexKit) for dynamic class/method detection, keeping it compatible with new Instagram releases automatically.
 
-> [!IMPORTANT]
-> **Version 0.5.2 is the final release of InstaEclipse.** This project is being merged into the [Purrfect](https://t.me/purrfect_tg) project — follow the Telegram channel for future updates.
-
 ---
 
 ## ✨ Features
