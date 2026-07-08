@@ -15,33 +15,29 @@ public class TrackingLinkDisable {
                 Class.forName("android.content.ClipData"), new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        if (!FeatureFlags.disableTrackingLinks) return;
 
-                        if (FeatureFlags.disableTrackingLinks) {
-                            ClipData clipData = (ClipData) param.args[0];
-                            if (clipData == null || clipData.getItemCount() == 0) return;
-                            
-                            Item item = clipData.getItemAt(0);
-                            if (item == null || item.getText() == null) return;
-                            
-                            String url = item.getText().toString();
-                            
-                            // Only process Instagram links
-                            if (url.contains("https://www.instagram.com/")) {
-                                // Combined regex for: igsh, ig_rid, utm_source, story_media_id, or saved[-_]by
-                                boolean hasTracking = url.contains("igsh=") || 
-                                                      url.contains("ig_rid=") || 
-                                                      url.contains("utm_source=") || 
-                                                      url.contains("story_media_id=") || 
-                                                      url.matches("(?i).*saved[-_]by.*");
-                                
-                                if (hasTracking) {
-                                    // Strip everything from the first '?' onwards
-                                    String cleanUrl = url.replaceAll("\\?.*", "");
-                                    param.args[0] = ClipData.newPlainText("URL", cleanUrl);
-                                }
-                            }
+                        ClipData clipData = (ClipData) param.args[0];
+                        if (clipData == null || clipData.getItemCount() == 0) return;
+
+                        ClipData.Item item = clipData.getItemAt(0);
+                        if (item == null || item.getText() == null) return;
+
+                        String url = item.getText().toString();
+                        if (!url.contains("https://www.instagram.com/")) return;
+
+                        // Tracking params can appear anywhere in the query string, not just
+                        // as the first one — matching only "?param=" (old behavior) missed
+                        // links where another param came first, e.g. "?igshid=X&utm_source=...".
+                        boolean hasTracking = url.contains("igsh=")
+                                || url.contains("ig_rid=")
+                                || url.contains("utm_source=")
+                                || url.contains("story_media_id=")
+                                || url.matches("(?i).*saved[-_]by.*");
+
+                        if (hasTracking) {
+                            param.args[0] = ClipData.newPlainText("URL", url.replaceAll("\\?.*", ""));
                         }
-
                     }
                 });
     }
