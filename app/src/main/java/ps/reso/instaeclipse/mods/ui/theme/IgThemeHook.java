@@ -280,6 +280,10 @@ public class IgThemeHook {
                 window.setStatusBarContrastEnforced(false);
                 window.setNavigationBarContrastEnforced(false);
             }
+            if (Build.VERSION.SDK_INT >= 35) {
+                // Let the system decide by itself on Android 15+ 
+                return;
+            }
             if (Build.VERSION.SDK_INT >= 30) {
                 WindowInsetsController controller = window.getInsetsController();
                 if (controller != null) {
